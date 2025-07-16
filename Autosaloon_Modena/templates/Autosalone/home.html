@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concessionaria - Home</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        header, footer {
+            background-color: darkblue;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .filter-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .car-list {
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Concessionaria Autoscout</h1>
+    </header>
+
+    <article class="container-fluid mt-4 d-flex">
+        <!-- Sistema di filtraggio -->
+        <aside class="col-md-3">
+            <div class="filter-section">
+                <h4>Filtra le auto</h4>
+                <form>
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <select id="marca" class="form-select">
+                            <option value="">Tutte</option>
+                            <option value="BMW">BMW</option>
+                            <option value="Audi">Audi</option>
+                            <option value="Mercedes">Mercedes</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="prezzo" class="form-label">Prezzo massimo</label>
+                        <input type="number" id="prezzo" class="form-control" placeholder="Inserisci prezzo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="anno" class="form-label">Anno</label>
+                        <input type="number" id="anno" class="form-control" placeholder="Inserisci anno">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Applica filtri</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Lista delle auto -->
+        <section class="col-md-9">
+            <div class="car-list">
+                <h4>Lista delle auto</h4>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="{% static 'images/car1.jpg' %}" class="card-img-top" alt="Auto 1">
+                            <div class="card-body">
+                                <h5 class="card-title">BMW Serie 3</h5>
+                                <p class="card-text">Anno: 2020<br>Prezzo: €25,000</p>
+                                <a href="#" class="btn btn-primary">Dettagli</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="{% static 'images/car2.jpg' %}" class="card-img-top" alt="Auto 2">
+                            <div class="card-body">
+                                <h5 class="card-title">Audi A4</h5>
+                                <p class="card-text">Anno: 2019<br>Prezzo: €22,000</p>
+                                <a href="#" class="btn btn-primary">Dettagli</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="{% static 'images/car3.jpg' %}" class="card-img-top" alt="Auto 3">
+                            <div class="card-body">
+                                <h5 class="card-title">Mercedes Classe C</h5>
+                                <p class="card-text">Anno: 2021<br>Prezzo: €30,000</p>
+                                <a href="#" class="btn btn-primary">Dettagli</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </article>
+
+    <footer>
+        <p>&copy; 2023 Concessionaria Autoscout</p>
+    </footer>
+</body>
+</html>

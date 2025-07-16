@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'apps.Autosalone.apps.AutosaloneConfig',
+    'apps.Utente.apps.UtenteConfig',
+    'apps.Concessionaria.apps.ConcessionariaConfig',
+    'apps.Auto.apps.AutoConfig',
 ]
 
 MIDDLEWARE = [
@@ -80,6 +84,11 @@ DATABASES = {
     }
 }
 
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Per il modello User
+    'apps.Concessioanria.backends.ConcessionariaBackend',    # Per il modello Concessionaria
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
