@@ -13,7 +13,7 @@ class UserExtendModel(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.immagine_profilo:
-            self.immagine_profilo = PillowImage(self.immagine_profilo, 300, 300)
+            self.immagine_profilo = pillowImage(self.immagine_profilo, 300, 300)
 
 class UserModelBan(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_ban_profile')
