@@ -1,6 +1,8 @@
+from typing import Any
+
 from django.db import models
 
-from ..utils import PillowImage
+from ..utils import pillowImage
 
 TIPOLOGIE_CARBURANTE = [
     (0, "Benzina"),
@@ -54,25 +56,46 @@ class Auto(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.immagine:
-            self.immagine = PillowImage(self.immagine, 300, 300)
+            self.immagine = pillowImage(self.immagine, 300, 300)
 
 
-class AutoVenditaAffitto(models.Model):
-    auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='VenditaAffitto')
+class AutoVendita(models.Model):
+    auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='vendita')
     prezzo_vendita = models.DecimalField(max_digits=10, decimal_places=2)
-    prezzo_affitto = models.DecimalField(max_digits=10, decimal_places=2)
-    venduta = models.BooleanField(default=False)
-    affittata = models.BooleanField(default=False)
     data_pubblicazione = models.DateTimeField(auto_now_add=True)
     venditore = models.PositiveIntegerField()
-    acquirente = models.PositiveIntegerField(blank=True, null=True)
+
+class AutoAffitto(models.Model):
+    auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='affitto')
+    prezzo_affitto = models.DecimalField(max_digits=10, decimal_places=2)
+    data_inizio = models.DateTimeField()
+    data_fine = models.DateTimeField()
+    affittata = models.BooleanField(default=False)
+    data_pubblicazione = models.DateTimeField(auto_now_add=True)
+    affittante_id = models.PositiveIntegerField()
+    affittante_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')])
+    affittuario = models.PositiveIntegerField(blank=True, null=True)
+    affittuario_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')], blank=True, null=True)
 
 class AutoContrattazione(models.Model):
-    auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='Contrattazione')
+    auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='contrattazione')
     prezzo_iniziale = models.DecimalField(max_digits=10, decimal_places=2)
     prezzo_attuale = models.DecimalField(max_digits=10, decimal_places=2)
     prezzo_finale = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     data_inizio = models.DateTimeField(auto_now_add=True)
     data_fine = models.DateTimeField(blank=True, null=True)
-    venditore = models.PositiveIntegerField()
-    acquirente = models.PositiveIntegerField(blank=True, null=True)
+    venditore_id = models.PositiveIntegerField()
+    venditore_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')])
+    acquirente_id = models.PositiveIntegerField(blank=True, null=True)
+    acquirente_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')], blank=True, null=True)
+
+class AutoPrenotazione(models.Model):
+    auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='prenotazione')
+    data_inizio = models.DateTimeField()
+    data_fine = models.DateTimeField()
+    prenotata = models.BooleanField(default=False)
+    data_pubblicazione = models.DateTimeField(auto_now_add=True)
+    proprietario_id = models.PositiveIntegerField()
+    proprietario_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')])
+    prenotante_id = models.PositiveIntegerField(blank=True, null=True)
+    prenotante_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')], blank=True, null=True)
