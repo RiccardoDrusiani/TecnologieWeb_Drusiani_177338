@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Autosalone Modena{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home_custom.css' %}">
+</head>
+<body>
+    <header class="mb-4">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary position-relative">
+            <div class="container-fluid">
+                <a class="navbar-brand d-flex align-items-center" href="/" style="gap: 10px;">
+                    <span class="header-title text-end" style="font-family: 'Pacifico', cursive; font-size:2.7rem; font-weight:900; letter-spacing:2px; color:#fff; text-shadow:2px 2px 8px #1e3a8a, 0 0 12px #2563eb; margin:0 18px 0 0; flex:1;">Autosaloon<span style="color:#2563eb;">Modena</span></span>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="mt-5 text-center text-muted py-3">
+       <div style="text-align:center;">
+            <div style="margin-bottom: 10px;">
+                <a href="https://facebook.com" target="_blank" style="margin:0 8px;display:inline-block;">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" style="width:32px;height:32px;filter:grayscale(1);">
+                </a>
+                <a href="https://wa.me/" target="_blank" style="margin:0 8px;display:inline-block;">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp" style="width:32px;height:32px;filter:grayscale(1);">
+                </a>
+                <a href="https://instagram.com" target="_blank" style="margin:0 8px;display:inline-block;">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" style="width:32px;height:32px;filter:grayscale(1);">
+                </a>
+                <a href="mailto:info@autosaloonmodena.it" target="_blank" style="margin:0 8px;display:inline-block;">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gmail.svg" alt="Gmail" style="width:32px;height:32px;filter:grayscale(1);">
+                </a>
+                <a href="https://linkedin.com" target="_blank" style="margin:0 8px;display:inline-block;">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" alt="LinkedIn" style="width:32px;height:32px;filter:grayscale(1);">
+                </a>
+            </div>
+            <p>
+                Copyright © 2025 AutoSalonModena S.p.A., società ad azionista unico sottoposta a direzione e coordinamento da parte della MutinaAutoSalon.<br>
+                Tutti i diritti riservati. P.IVA n. ???????????
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     AutoAddView, AutoDeleteView, AutoModifyView, AutoAffittoView,
-    AutoAcquistoView, AutoPrenotaView, AutoInContrattazioneView, AutoFineContrattazioneView
+    AutoAcquistoView, AutoPrenotaView, AutoInContrattazioneView, AutoFineContrattazioneView,
+    AutoDetailView
 )
 
 app_name = "Auto"
@@ -15,4 +16,5 @@ urlpatterns = [
     path('<int:pk>/prenota/', AutoPrenotaView.as_view(), name='prenota_auto'),
     path('<int:pk>/contrattazione/', AutoInContrattazioneView.as_view(), name='contrattazione_auto'),
     path('<int:pk>/fine-contrattazione/', AutoFineContrattazioneView.as_view(), name='fine_contrattazione_auto'),
+    path('<int:pk>/', AutoDetailView.as_view(), name='auto-detail'),
 ]

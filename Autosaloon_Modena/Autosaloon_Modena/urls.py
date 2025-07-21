@@ -23,4 +23,6 @@ urlpatterns = [
     path('Utente/', include('apps.Utente.urls')),
     path('Concessionaria/', include('apps.Concessionaria.urls')),
     path('Auto/', include('apps.Auto.urls')),
+    path("accounts/", include("django_registration.backends.activation.urls")),
+    path("accounts/", include("django.contrib.auth.urls")),
 ]

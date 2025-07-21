@@ -3,7 +3,7 @@ from datetime import timezone, datetime, timedelta
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
 
 from .auto_utils import gestione_vendita_affitto
 from .form import AddAutoForm, ModifyAutoForm, AffittoAutoForm, PrenotazioneAutoForm, VenditaAutoForm, ContrattoAutoForm
@@ -227,6 +227,11 @@ class AutoFineContrattazioneView(UpdateView):
 
     def get_success_url(self):
         return get_success_url_by_possessore(self.request)
+
+class AutoDetailView(DetailView):
+    model = Auto
+    template_name = 'Auto/auto_detail.html'
+    context_object_name = 'auto'
 
 
 

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-12">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="row g-0">
+                    {% if auto.immagine %}
+                    <div class="col-md-5 d-flex align-items-center justify-content-center p-3">
+                        <img src="{{ auto.immagine.url }}" class="img-fluid rounded-4 w-100" alt="{{ auto.marca }} {{ auto.modello }}">
+                    </div>
+                    {% endif %}
+                    <div class="col-md-7 p-4">
+                        <h2 class="fw-bold mb-3">{{ auto.marca }} {{ auto.modello }}</h2>
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item"><strong>Anno:</strong> {{ auto.anno }}</li>
+                            <li class="list-group-item"><strong>Cilindrata:</strong> {{ auto.cilindrata }} cc</li>
+                            <li class="list-group-item"><strong>Carburante:</strong> {{ auto.get_carburante_display }}</li>
+                            <li class="list-group-item"><strong>Cambio:</strong> {{ auto.get_cambio_display }}</li>
+                            <li class="list-group-item"><strong>Trazione:</strong> {{ auto.get_trazione_display }}</li>
+                            <li class="list-group-item"><strong>Chilometraggio:</strong> {{ auto.chilometraggio|default:'N/A' }} km</li>
+                            <li class="list-group-item"><strong>Disponibilità:</strong> {{ auto.get_disponibilita_display }}</li>
+                        </ul>
+                        {% if auto.descrizione %}
+                        <div class="mb-3">
+                            <strong>Descrizione:</strong>
+                            <p>{{ auto.descrizione }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="/auto/" class="btn btn-secondary">Torna all'elenco auto</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

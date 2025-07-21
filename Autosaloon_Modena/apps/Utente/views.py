@@ -26,16 +26,20 @@ class UserCreateView(CreateView):
 
 # Modifica utente base
 class UserUpdateView(UpdateView):
-    model = User
+    model = UserExtendModel
     form_class = UserUpdateForm
     template_name = 'Utente/update_user.html'
     success_url = reverse_lazy('home')
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
 # Eliminazione utente
 class UserDeleteView(DeleteView):
-    model = User
+    model = UserExtendModel
     template_name = 'Utente/delete_user.html'
     success_url = reverse_lazy('home')
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
 # Creazione commento
 class CommentoCreateView(CreateView):

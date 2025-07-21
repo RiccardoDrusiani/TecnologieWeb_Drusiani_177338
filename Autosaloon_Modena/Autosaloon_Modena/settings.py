@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'apps.Utente.apps.UtenteConfig',
     'apps.Concessionaria.apps.ConcessionariaConfig',
     'apps.Auto.apps.AutoConfig',
+    'django_registration',
 ]
 
 MIDDLEWARE = [
@@ -125,7 +126,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -135,3 +136,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# django-registration settings
+ACCOUNT_ACTIVATION_DAYS = 7  # giorni per attivare l'account via email
+REGISTRATION_AUTO_LOGIN = True  # login automatico dopo la registrazione
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

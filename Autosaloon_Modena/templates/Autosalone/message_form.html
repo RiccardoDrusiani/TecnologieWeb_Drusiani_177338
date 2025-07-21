@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4" style="max-width: 600px;">
+    <h2>Invia un messaggio</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Invia</button>
+    </form>
+</div>
+{% endblock %}
+
