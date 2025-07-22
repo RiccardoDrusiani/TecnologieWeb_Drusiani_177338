@@ -88,7 +88,7 @@ DATABASES = {
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Per il modello User
-    'apps.Concessioanria.backends.ConcessionariaBackend',    # Per il modello Concessionaria
+    'apps.Concessionaria.backends.ConcessionariaBackend',    # Per il modello Concessionaria
 ]
 
 # Password validation
@@ -138,7 +138,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # django-registration settings
-ACCOUNT_ACTIVATION_DAYS = 7  # giorni per attivare l'account via email
+# ACCOUNT_ACTIVATION_DAYS = 7  # giorni per attivare l'account via email
 REGISTRATION_AUTO_LOGIN = True  # login automatico dopo la registrazione
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'

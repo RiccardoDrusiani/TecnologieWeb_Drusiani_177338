@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django_registration.backends.one_step import urls as registration_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,6 +24,6 @@ urlpatterns = [
     path('Utente/', include('apps.Utente.urls')),
     path('Concessionaria/', include('apps.Concessionaria.urls')),
     path('Auto/', include('apps.Auto.urls')),
-    path("accounts/", include("django_registration.backends.activation.urls")),
+    path("accounts/", include(registration_urls)),
     path("accounts/", include("django.contrib.auth.urls")),
 ]

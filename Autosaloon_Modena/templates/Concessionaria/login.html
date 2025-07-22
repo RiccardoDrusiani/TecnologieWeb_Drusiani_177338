@@ -6,7 +6,7 @@
         <div class="text-center mb-4">
             <img src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" alt="Login" style="width:54px;filter:drop-shadow(0 2px 8px #2563eb33);">
         </div>
-        <h2 class="mb-4 text-center fw-bold" style="font-family: 'Verdana', serif; color:#2563eb; font-size:2.1rem; letter-spacing:1px;">Accedi</h2>
+        <h2 class="mb-4 text-center fw-bold" style="font-family: 'Verdana', serif; color:#2563eb; font-size:2.1rem; letter-spacing:1px;">Login Concessionaria</h2>
         <form method="post" autocomplete="off">
             {% csrf_token %}
             <div class="row g-2">
@@ -35,13 +35,13 @@
             <button type="submit" class="btn btn-primary w-100 mt-3 py-2 fs-5 shadow-sm" style="background:#2563eb;border:none;">Accedi</button>
         </form>
         <div class="mt-4 text-center">
-            <a href="{% url 'django_registration_register' %}" class="link-primary fw-semibold">Non hai un account? Registrati</a>
+            <a href="/Concessionaria/registrazione/" class="link-primary fw-semibold">Non hai un account? Registrati</a>
         </div>
         <div class="mt-2 text-center">
-            <a href="/Concessionaria/login/" class="link-secondary fw-semibold">Sei una concessionaria? Accedi qui</a>
+            <a href="{% url 'django_registration_register' %}" class="link-secondary fw-semibold">Sei un utente? Registrati qui</a>
         </div>
         <div class="mt-1 text-center">
-            <a href="/Concessionaria/registrazione/" class="link-secondary fw-semibold">Registrati come concessionaria</a>
+            <a href="{% url 'login' %}" class="link-secondary fw-semibold">Accedi come utente</a>
         </div>
     </div>
 </div>

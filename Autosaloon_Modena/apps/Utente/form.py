@@ -7,29 +7,43 @@ class UserCreateForm(forms.ModelForm):
         model = User
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
         widgets = {
-            'password': forms.PasswordInput(),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
         }
 
 class UserExtendForm(forms.ModelForm):
     class Meta:
         model = UserExtendModel
         fields = ['data_nascita', 'indirizzo', 'telefono', 'immagine_profilo']
+        widgets = {
+            'data_nascita': forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'placeholder': ''}),
+            'indirizzo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'immagine_profilo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name']
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+        }
 
 class UserDeleteForm(forms.Form):
-    confirm = forms.BooleanField(label='Conferma eliminazione utente')
+    confirm = forms.BooleanField(label='Conferma eliminazione utente', widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
 
 # Placeholder per Commento, Risposta, Segnalazione
 class CommentoForm(forms.Form):
-    testo = forms.CharField(widget=forms.Textarea)
+    testo = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': ''}))
 
 class RispostaForm(forms.Form):
-    testo = forms.CharField(widget=forms.Textarea)
+    testo = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': ''}))
 
 class SegnalazioneForm(forms.Form):
-    motivo = forms.CharField(widget=forms.Textarea)
-
+    motivo = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': ''}))
