@@ -3,6 +3,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.views import LogoutView
 from .models import UserExtendModel
 from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm
 
@@ -58,3 +59,7 @@ class SegnalazioneCreateView(CreateView):
     form_class = SegnalazioneForm
     template_name = 'Utente/create_segnalazione.html'
     success_url = reverse_lazy('home')
+
+# View per il logout utente
+class UserLogoutView(LogoutView):
+    next_page = 'home'
