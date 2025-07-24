@@ -7,6 +7,13 @@
             <img src="https://cdn-icons-png.flaticon.com/512/743/743007.png" alt="Registrazione" style="width:54px;filter:drop-shadow(0 2px 8px #2563eb33);">
         </div>
         <h2 class="mb-4 text-center fw-bold" style="font-family: 'Verdana', serif; color:#2563eb; font-size:2.1rem; letter-spacing:1px;">Registrazione Utente</h2>
+        {% if messages %}
+        <div class="alert alert-danger">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
         <form method="post" autocomplete="off">
             {% csrf_token %}
             <div class="row g-2">

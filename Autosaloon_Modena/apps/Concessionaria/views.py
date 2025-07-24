@@ -6,6 +6,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import login, authenticate
+from django.shortcuts import redirect
 
 class ConcessionariaCreateView(CreateView):
     model = User
@@ -20,14 +21,20 @@ class ConcessionariaCreateView(CreateView):
         user = form.save()
         group, created = Group.objects.get_or_create(name='concessionaria')
         user.groups.add(group)
-        Concessionaria.objects.create(user=user)
-        Concessionaria.partita_iva = form.cleaned_data['partita_iva']
-        Concessionaria.codice_fiscale = form.cleaned_data['codice_fiscale']
+        Concessionaria.objects.create(
+            user=user,
+            partita_iva = form.cleaned_data['partita_iva'],
+            codice_fiscale = form.cleaned_data['codice_fiscale']
+        )
         # Autenticazione e login automatico dopo la registrazione
         user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'], email=form.cleaned_data['email'])
         if user is not None:
             login(self.request, user)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Errore durante la registrazione. Controlla i dati inseriti.")
+        return super().form_invalid(form)
 
 class ConcessionariaUpdateView(UpdateView):
     model = Concessionaria
@@ -43,3 +50,9 @@ class ConcessionariaDeleteView(DeleteView):
     success_url = reverse_lazy('concessionaria-list')
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+class ConcessionariaLoginView(LoginView):
+    # ...existing code...
+    def form_invalid(self, form):
+        messages.error(self.request, "Email o password non validi.")
+        return redirect('concessionaria-login')

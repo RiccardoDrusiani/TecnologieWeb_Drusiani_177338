@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import User, Group
 from django.urls import reverse_lazy
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.views import LogoutView
+from django.contrib.auth.views import LogoutView, LoginView
+from django.contrib import messages
 from .models import UserExtendModel
 from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm
 
@@ -29,6 +30,10 @@ class UserCreateView(CreateView):
         if user is not None:
             login(self.request, user)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Errore durante la registrazione. Controlla i dati inseriti.")
+        return super().form_invalid(form)
 
 # Modifica utente base
 class UserUpdateView(UpdateView):
@@ -69,3 +74,12 @@ class SegnalazioneCreateView(CreateView):
 class UserLogoutView(LogoutView):
     next_page = 'home'
 
+# Login utente
+class UserLoginView(LoginView):
+    template_name = 'Utente/login.html'
+    success_url = reverse_lazy('home')
+    error_url = reverse_lazy('login')
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Email o password non validi.")
+        return redirect('login')
