@@ -9,6 +9,7 @@ from .forms import MessageForm
 from apps.Auto.models import Auto
 from django.db.models import Q
 import django_filters
+from django.contrib.auth.models import Group
 
 # Create your views here.
 def home(request):
@@ -20,9 +21,16 @@ def home(request):
     paginator = Paginator(filterset.qs, 10)
     page_number = request.GET.get('page')
     cars_page = paginator.get_page(page_number)
+
+    # Determina se l'utente appartiene a un gruppo specifico
+    is_concessionaria = request.user.groups.filter(name='concessionaria').exists() if request.user.is_authenticated else False
+    is_user = request.user.groups.filter(name='user').exists() if request.user.is_authenticated else False
+
     return render(request, 'Autosalone/home.html', {
         'cars_page': cars_page,
-        'filter': filterset
+        'filter': filterset,
+        'is_concessionaria': is_concessionaria,
+        'is_user': is_user
     })
 
 class MessageCreateView(LoginRequiredMixin, CreateView):

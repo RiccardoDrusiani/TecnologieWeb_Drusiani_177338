@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import CreateView, UpdateView, DeleteView
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.urls import reverse_lazy
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LogoutView
@@ -11,13 +11,18 @@ from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm
 class UserCreateView(CreateView):
     model = User
     form_class = UserCreateForm
-    template_name = 'Utente/create_user.html'
+    template_name = 'Utente/registration_form.html'
     success_url = reverse_lazy('home')
 
     def form_valid(self, form):
         user = form.save(commit=False)
         user.set_password(form.cleaned_data['password'])
         user.save()
+
+        # Assegna l'utente al gruppo "Utente"
+        group, created = Group.objects.get_or_create(name='utente')
+        user.groups.add(group)
+
         UserExtendModel.objects.create(user=user)
         # Autenticazione e login automatico dopo la registrazione
         user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
@@ -63,3 +68,4 @@ class SegnalazioneCreateView(CreateView):
 # View per il logout utente
 class UserLogoutView(LogoutView):
     next_page = 'home'
+

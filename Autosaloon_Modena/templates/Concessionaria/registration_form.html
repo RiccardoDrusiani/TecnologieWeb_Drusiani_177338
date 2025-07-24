@@ -12,7 +12,6 @@
             <div class="row g-2">
                 {% for field in form %}
                 <div class="col-12 mb-2">
-                    {% if field.widget.input_type == 'text' or field.widget.input_type == 'email' or field.widget.input_type == 'password' or field.widget.input_type == 'date' %}
                     <div class="form-floating">
                         {{ field }}
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -20,25 +19,16 @@
                         <div class="text-danger small">{{ field.errors|striptags }}</div>
                         {% endif %}
                     </div>
-                    {% else %}
-                    <div>
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
             <button type="submit" class="btn btn-primary w-100 mt-3 py-2 fs-5 shadow-sm" style="background:#2563eb;border:none;">Registrati</button>
         </form>
         <div class="mt-4 text-center">
-            <a href="/Concessionaria/login/" class="link-primary fw-semibold">Hai già un account? Accedi</a>
+            <a href="{% url 'concessionaria-login' %}" class="link-primary fw-semibold">Hai già un account? Accedi</a>
         </div>
         <div class="mt-2 text-center">
-            <a href="{% url 'django_registration_register' %}" class="link-secondary fw-semibold">Sei un utente? Registrati qui</a>
+            <a href="{% url 'register' %}" class="link-secondary fw-semibold">Sei un utente? Registrati qui</a>
         </div>
         <div class="mt-1 text-center">
             <a href="{% url 'login' %}" class="link-secondary fw-semibold">Accedi come utente</a>
