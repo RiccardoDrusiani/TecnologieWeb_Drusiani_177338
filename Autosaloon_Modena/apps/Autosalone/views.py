@@ -10,6 +10,7 @@ from apps.Auto.models import Auto
 from django.db.models import Q
 import django_filters
 from django.contrib.auth.models import Group
+from apps.utils import DISPONIBILITA_CHOICES
 
 # Create your views here.
 def home(request):
@@ -30,7 +31,8 @@ def home(request):
         'cars_page': cars_page,
         'filter': filterset,
         'is_concessionaria': is_concessionaria,
-        'is_user': is_user
+        'is_user': is_user,
+        'disponibilita_choices': DISPONIBILITA_CHOICES,
     })
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -61,6 +63,7 @@ class MessageDetailView(LoginRequiredMixin, DetailView):
 class AutoFilter:
     def __init__(self, data):
         self.data = data
+        self.disponibilita_choices = DISPONIBILITA_CHOICES
 
     def filter(self, queryset):
         marca = self.data.get('marca')
@@ -87,7 +90,7 @@ class AutoFilter:
             queryset = queryset.filter(cambio=cambio)
         if trazione != '' and trazione is not None:
             queryset = queryset.filter(trazione=trazione)
-        if disponibilita != '' and disponibilita is not None:
+        if disponibilita and disponibilita in dict(DISPONIBILITA_CHOICES):
             queryset = queryset.filter(disponibilita=disponibilita)
         if prezzo:
             queryset = queryset.filter(prezzo__lte=prezzo)
@@ -101,7 +104,7 @@ class AutoFilterSet(django_filters.FilterSet):
     carburante = django_filters.ChoiceFilter(choices=Auto._meta.get_field('carburante').choices, label='Carburante')
     cambio = django_filters.ChoiceFilter(choices=Auto._meta.get_field('cambio').choices, label='Cambio')
     trazione = django_filters.ChoiceFilter(choices=Auto._meta.get_field('trazione').choices, label='Trazione')
-    disponibilita = django_filters.ChoiceFilter(choices=Auto._meta.get_field('disponibilita').choices, label='Disponibilità')
+    disponibilita = django_filters.ChoiceFilter(choices=DISPONIBILITA_CHOICES, label='Disponibilità')
     chilometraggio = django_filters.NumberFilter(label='Chilometraggio massimo', field_name='chilometraggio', lookup_expr='lte')
     prezzo = django_filters.NumberFilter(label='Prezzo massimo', method='filter_prezzo')
 

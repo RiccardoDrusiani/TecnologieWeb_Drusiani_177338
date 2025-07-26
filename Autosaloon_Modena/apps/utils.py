@@ -34,3 +34,11 @@ def is_possessore_auto(user, auto):
 
 def get_success_url_by_possessore(request):
     return '/Auto/user-autos'
+
+
+# Aggiungi una funzione di utilità per le scelte di disponibilità
+DISPONIBILITA_CHOICES = [
+    (0, "Vendita"),
+    (1, "Affitto"),
+    (2, "Vendita e Affitto"),
+]
