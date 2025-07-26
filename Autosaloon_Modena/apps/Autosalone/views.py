@@ -24,7 +24,7 @@ def home(request):
 
     # Determina se l'utente appartiene a un gruppo specifico
     is_concessionaria = request.user.groups.filter(name='concessionaria').exists() if request.user.is_authenticated else False
-    is_user = request.user.groups.filter(name='user').exists() if request.user.is_authenticated else False
+    is_user = request.user.groups.filter(name='utente').exists() if request.user.is_authenticated else False
 
     return render(request, 'Autosalone/home.html', {
         'cars_page': cars_page,

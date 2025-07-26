@@ -1,32 +1,36 @@
 from datetime import timezone, datetime, timedelta
 
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 
 from .auto_utils import gestione_vendita_affitto
 from .form import AddAutoForm, ModifyAutoForm, AffittoAutoForm, PrenotazioneAutoForm, VenditaAutoForm, ContrattoAutoForm
+from .mixin import UserIsOwnerMixin
 from .models import Auto, AutoAffitto, AutoVendita, AutoPrenotazione, AutoContrattazione
 from ..decorator import user_or_concessionaria_required
 from ..utils import user_or_concessionaria, get_success_url_by_possessore, is_possessore_auto
 
 
 
-@method_decorator(user_or_concessionaria_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class AutoAddView(CreateView):
     model = Auto
-    template_name = 'Auto/add_auto.html'
+    template_name = 'Auto/add_auto_template.html'  # Cambiato il template
     form_class = AddAutoForm
 
     def form_valid(self, form):
         auto = form.save(commit=False)
         auto.tipologia_possessore, auto.id_possessore = user_or_concessionaria(self.request.user)
+        auto.user_auto = self.request.user  # Associa l'utente autenticato
         auto.save()
         prezzo_vendita = form.cleaned_data.get('prezzo_vendita')
         prezzo_affitto = form.cleaned_data.get('prezzo_affitto')
         if prezzo_vendita:
-            AutoVendita.objects.create(auto=auto, prezzo_vendita=prezzo_vendita, venditore_id=auto.id_possessore, venditore_tipologia=auto.tipologia_possessore)
+            AutoVendita.objects.create(auto=auto, prezzo_vendita=prezzo_vendita, venditore=auto.id_possessore)
         if prezzo_affitto:
             AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante_id=auto.id_possessore, affittante_tipologia=auto.tipologia_possessore)
         return super().form_valid(form)
@@ -38,30 +42,25 @@ class AutoAddView(CreateView):
         return get_success_url_by_possessore(self.request)
 
 
-
-@method_decorator(user_or_concessionaria_required, name='dispatch')
-class AutoDeleteView(DeleteView):
+@method_decorator(login_required, name='dispatch')
+class AutoDeleteView(UserIsOwnerMixin, DeleteView):
     model = Auto
-    template_name = 'Auto/delete_auto.html'
+    template_name = 'Autosalone/confirm_delete_popup.html'
 
     def delete(self, request, *args, **kwargs):
         auto = self.get_object()
-        tipologia, id_possessore = user_or_concessionaria(request.user)
-        if is_possessore_auto(tipologia, id_possessore, auto):
-            # Elimina le istanze collegate in AutoVendita e AutoAffitto
-            AutoVendita.objects.filter(auto=auto).delete()
-            AutoAffitto.objects.filter(auto=auto).delete()
-            return super().delete(request, *args, **kwargs)
-        else:
-            return HttpResponse("Non sei il possessore di questa auto.", status=403)
+        # Elimina le istanze collegate in AutoVendita e AutoAffitto
+        AutoVendita.objects.filter(auto=auto).delete()
+        AutoAffitto.objects.filter(auto=auto).delete()
+        return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
         return get_success_url_by_possessore(self.request)
 
 
 
-@method_decorator(user_or_concessionaria_required, name='dispatch')
-class AutoModifyView(UpdateView):
+@method_decorator(login_required, name='dispatch')
+class AutoModifyView(UserIsOwnerMixin, UpdateView):
     model = Auto
     template_name = 'Auto/modify_auto.html'
     form_class = ModifyAutoForm
@@ -92,7 +91,7 @@ class AutoModifyView(UpdateView):
 
 
 
-@method_decorator(user_or_concessionaria_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class AutoAffittoView(UpdateView):
     model = AutoAffitto
     form_class = AffittoAutoForm
@@ -113,7 +112,7 @@ class AutoAffittoView(UpdateView):
 
 
 
-@method_decorator(user_or_concessionaria_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class AutoAcquistoView(UpdateView):
     model = AutoVendita
     form_class = VenditaAutoForm  # Assuming the same form is used for both
@@ -143,7 +142,7 @@ class AutoAcquistoView(UpdateView):
 
 
 
-@method_decorator(user_or_concessionaria_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class AutoPrenotaView(CreateView):
     model = AutoPrenotazione
     template_name = 'Auto/prenota_auto.html'
@@ -167,7 +166,7 @@ class AutoPrenotaView(CreateView):
         return get_success_url_by_possessore(self.request)
 
 
-@method_decorator(user_or_concessionaria_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class AutoInContrattazioneView(UpdateView):
     model = AutoContrattazione
     template_name = 'Auto/contrattazione_auto.html'
@@ -191,7 +190,7 @@ class AutoInContrattazioneView(UpdateView):
         return get_success_url_by_possessore(self.request)
 
 
-@method_decorator(user_or_concessionaria_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class AutoFineContrattazioneView(UpdateView):
     model = AutoContrattazione
     template_name = 'Auto/fine_contrattazione_auto.html'
@@ -234,4 +233,15 @@ class AutoDetailView(DetailView):
     context_object_name = 'auto'
 
 
-
+@login_required
+def user_autos_view(request):
+    autos = Auto.objects.filter(user_auto=request.user)
+    is_utente = request.user.groups.filter(name='utente').exists()
+    is_concessionaria = request.user.groups.filter(name='concessionaria').exists()
+    form = AddAutoForm()
+    return render(request, 'Auto/user_autos.html', {
+        'autos': autos,
+        'is_utente': is_utente,
+        'is_concessionaria': is_concessionaria,
+        'form': form
+    })

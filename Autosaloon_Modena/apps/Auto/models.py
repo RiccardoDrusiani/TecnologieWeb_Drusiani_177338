@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.db import models
+from django.contrib.auth.models import User
 
 from ..utils import pillowImage
 
@@ -39,6 +40,7 @@ DISPONIBILITA = [
 
 # Create your models here.
 class Auto(models.Model):
+    user_auto = models.ForeignKey(User, on_delete=models.CASCADE, related_name='possessore_auto')
     id_possessore = models.PositiveIntegerField()
     tipologia_possessore = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')])
     marca = models.CharField(max_length=100)
@@ -56,7 +58,7 @@ class Auto(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.immagine:
-            self.immagine = pillowImage(self.immagine, 300, 300)
+            pillowImage(self.immagine, 300, 300)
 
 
 class AutoVendita(models.Model):

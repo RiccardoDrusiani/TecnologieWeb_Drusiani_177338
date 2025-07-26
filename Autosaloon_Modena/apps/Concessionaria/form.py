@@ -74,4 +74,3 @@ class ConcessionariaCreateForm(forms.ModelForm):
         if password != conferma_password:
             raise ValidationError("Le password non corrispondono.")
         return cleaned_data
-

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-primary">Aggiungi una nuova auto</h2>
+    <form method="post" enctype="multipart/form-data" id="add-auto-form">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form.marca.label_tag }}
+                {{ form.marca }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.modello.label_tag }}
+                {{ form.modello }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.cilindrata.label_tag }}
+                {{ form.cilindrata }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.anno.label_tag }}
+                {{ form.anno }}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.chilometraggio.label_tag }}
+                {{ form.chilometraggio }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.carburante.label_tag }}
+                {{ form.carburante }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.cambio.label_tag }}
+                {{ form.cambio }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.trazione.label_tag }}
+                {{ form.trazione }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="id_disponibilita" class="form-label">Disponibilità</label>
+                <select name="disponibilita" id="id_disponibilita" class="form-select">
+                    <option value="0" {% if form.disponibilita.value == '0' %}selected{% endif %}>Vendita</option>
+                    <option value="1" {% if form.disponibilita.value == '1' %}selected{% endif %}>Affitto</option>
+                    <option value="2" {% if form.disponibilita.value == '2' %}selected{% endif %}>Vendita e Affitto</option>
+                </select>
+            </div>
+            <div class="col-md-12 mb-3" id="prezzo-vendita-group" style="display:none;">
+                <label for="prezzo_vendita" class="form-label">Prezzo di Vendita</label>
+                <input type="number" step="0.01" name="prezzo_vendita" id="prezzo_vendita" class="form-control" value="{{ form.prezzo_vendita.value|default:'' }}">
+            </div>
+            <div class="col-md-12 mb-3" id="prezzo-affitto-group" style="display:none;">
+                <label for="prezzo_affitto" class="form-label">Prezzo di Affitto al Giorno</label>
+                <input type="number" step="0.01" name="prezzo_affitto" id="prezzo_affitto" class="form-control" value="{{ form.prezzo_affitto.value|default:'' }}">
+            </div>
+            <div class="col-md-12 mb-3">
+                {{ form.descrizione.label_tag }}
+                {{ form.descrizione }}
+            </div>
+            <div class="col-md-12 mb-3">
+                {{ form.immagine.label_tag }}
+                {{ form.immagine }}
+            </div>
+        </div>
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'Auto:user_autos' %}" class="btn btn-secondary">Chiudi</a>
+            <button type="submit" class="btn btn-primary">Salva</button>
+        </div>
+    </form>
+    <script>
+    function togglePrezzi() {
+        var disp = document.getElementById('id_disponibilita').value;
+        document.getElementById('prezzo-vendita-group').style.display = (disp == '0' || disp == '2') ? '' : 'none';
+        document.getElementById('prezzo-affitto-group').style.display = (disp == '1' || disp == '2') ? '' : 'none';
+    }
+    document.getElementById('id_disponibilita').addEventListener('change', togglePrezzi);
+    window.addEventListener('DOMContentLoaded', togglePrezzi);
+    </script>
+</div>
+{% endblock %}

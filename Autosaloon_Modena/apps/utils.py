@@ -18,28 +18,19 @@ def pillowImage(immagine, x, y):
 
 
 
-def user_or_concessionaria(request):
-    if hasattr(request.user, 'user_extend_profile'):
-        return "Utente", request.user.user_extend_profile.id
-    elif hasattr(request.user, 'concessionaria'):
-        return "Concessionaria", request.user.concessionaria.id
+def user_or_concessionaria(user):
+    if user.groups.filter(name='concessionaria').exists():
+        return 'Concessionaria', user.id
+    elif user.groups.filter(name='utente').exists():
+        return 'Utente', user.id
     return None, None
 
 
 
-def is_possessore_auto(tipologia_possessore, id_possessore, auto):
-    return (
-        auto.tipologia_possessore == tipologia_possessore and
-        auto.id_possessore == id_possessore
-    )
+def is_possessore_auto(user, auto):
+    return auto.user_auto == user
 
 
 
 def get_success_url_by_possessore(request):
-    tipologia, id_possessore = user_or_concessionaria(request.user)
-    if tipologia == "Utente":
-        return reverse('elenco_auto_utente', kwargs={'id': id_possessore})
-    elif tipologia == "Concessionaria":
-        return reverse('elenco_auto_concessionaria', kwargs={'id': id_possessore})
-    else:
-        return reverse('home')
+    return '/Auto/user-autos'

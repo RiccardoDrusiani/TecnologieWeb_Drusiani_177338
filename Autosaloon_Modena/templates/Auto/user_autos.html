@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<table style="width:100%; min-height:70vh; margin-top:3rem;">
+    <tr style="position: absolute; left: 10px;">
+        {% if is_concessionaria %}
+        <!-- Sidebar Filter a sinistra -->
+        <td style="width:340px; min-width:260px; max-width:400px; vertical-align:top; padding-right:24px; height:1%;">
+            <div class="card shadow-sm p-3 bg-white rounded sticky-top" style="top: 90px; min-height: 400px;">
+                <form method="get">
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" id="marca" name="marca" class="form-control" value="{{ request.GET.marca }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modello" class="form-label">Modello</label>
+                        <input type="text" id="modello" name="modello" class="form-control" value="{{ request.GET.modello }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cilindrata" class="form-label">Cilindrata</label>
+                        <input type="text" id="cilindrata" name="cilindrata" class="form-control" value="{{ request.GET.cilindrata }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="trazione" class="form-label">Trazione</label>
+                        <input type="text" id="trazione" name="trazione" class="form-control" value="{{ request.GET.trazione }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="carburante" class="form-label">Carburante</label>
+                        <input type="text" id="carburante" name="carburante" class="form-control" value="{{ request.GET.carburante }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Filtra</button>
+                </form>
+            </div>
+        </td>
+        <!-- Sidebar Filter a sinistra -->
+        {% else %}
+        <!-- Sidebar Filter a sinistra (non concessionaria) -->
+        <td style="width:340px; min-width:260px; max-width:400px; vertical-align:top; padding-right:24px; height:1%;">
+        {% endif %}
+        <!-- Main Content: auto a destra -->
+        <td style="vertical-align:top; padding-left: 15px; padding-right: 15px; width:100%;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary mb-0">Le mie Auto</h1>
+                <a href="{% url 'Auto:add_auto' %}" class="btn btn-success" style="min-width:180px;">Aggiungi Auto</a>
+            </div>
+
+            <div class="row">
+                {% if autos|length == 0 %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">Nessuna auto disponibile</p>
+                </div>
+                {% else %}
+                {% for auto in autos %}
+                <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="{{ auto.immagine.url }}" class="card-img-top" alt="{{ auto.nome }}" style="object-fit:cover; height:200px;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ auto.nome }}</h5>
+                            <p class="card-text mb-1">Anno: {{ auto.anno }}</p>
+                            <p class="card-text mb-2">Prezzo: <strong>€{{ auto.prezzo }}</strong></p>
+                            <div class="mt-auto d-flex justify-content-between gap-1">
+                                <a href="{% url 'Auto:auto-detail' auto.pk %}" class="btn btn-primary btn-sm">Visualizza</a>
+                                <a href="#" class="btn btn-warning btn-sm">Modifica</a>
+                                <form method="post" action="{% url 'Auto:delete_auto' auto.pk %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="button" class="btn btn-danger btn-sm delete-auto-btn">Elimina</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+            <div class="d-flex justify-content-center">
+                <nav aria-label="Paginazione">
+                    <ul class="pagination">
+                        {% if autos.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ autos.previous_page_number }}" aria-label="Precedente">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% for num in autos.paginator.page_range %}
+                        <li class="page-item {% if autos.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if autos.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ autos.next_page_number }}" aria-label="Successivo">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </td>
+    </tr>
+</table>
+{% include 'Autosalone/confirm_delete_popup.html' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formToDelete = null;
+    document.querySelectorAll('.delete-auto-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            formToDelete = btn.closest('form');
+            var modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            var confirmBtn = document.getElementById('confirmDeleteBtn');
+            confirmBtn.onclick = function() {
+                if(formToDelete) formToDelete.submit();
+                modal.hide();
+            };
+            modal.show();
+        });
+    });
+});
+</script>
+{% endblock %}

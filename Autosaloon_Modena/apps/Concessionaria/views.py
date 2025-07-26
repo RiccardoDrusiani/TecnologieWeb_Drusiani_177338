@@ -1,6 +1,6 @@
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Concessionaria, ConcessionariaExtendModel
+from .models import Concessionaria
 from .form import ConcessionariaForm, ConcessionariaUpdateForm, ConcessionariaLoginForm, ConcessionariaCreateForm
 from django.contrib.auth.views import LoginView
 from django.contrib import messages

@@ -7,6 +7,8 @@ class Concessionaria(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='concessionaria_profile')
     partita_iva = models.CharField(max_length=11, unique=True)
     codice_fiscale = models.CharField(max_length=16, unique=True)
+    telefono = models.CharField(max_length=15, blank=True, null=True)
+    indirizzo = models.CharField(max_length=255, blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True, null=True, max_length=255)
 
     def __str__(self):
@@ -23,11 +25,3 @@ class Concessionaria(models.Model):
             self.slug = unique_slug
         super().save(*args, **kwargs)
 
-class ConcessionariaExtendModel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='concessionaria_extend')
-    nome_concessionaria = models.CharField(max_length=255)
-    indirizzo = models.CharField(max_length=255)
-    telefono = models.CharField(max_length=15)
-
-    def __str__(self):
-        return self.nome_concessionaria
