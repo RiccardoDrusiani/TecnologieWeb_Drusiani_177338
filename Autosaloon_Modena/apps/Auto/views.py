@@ -1,5 +1,6 @@
 from datetime import timezone, datetime, timedelta
 
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -10,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from .auto_utils import gestione_vendita_affitto
 from .form import AddAutoForm, ModifyAutoForm, AffittoAutoForm, PrenotazioneAutoForm, VenditaAutoForm, ContrattoAutoForm
 from .mixin import UserIsOwnerMixin
-from .models import Auto, AutoAffitto, AutoVendita, AutoPrenotazione, AutoContrattazione
+from .models import Auto, AutoAffitto, AutoVendita, AutoPrenotazione, AutoContrattazione, TIPOLOGIE_CARBURANTE, TIPOLOGIE_TRAZIONE, DISPONIBILITA
 from ..decorator import user_or_concessionaria_required
 from ..utils import user_or_concessionaria, get_success_url_by_possessore, is_possessore_auto
 
@@ -65,23 +66,39 @@ class AutoModifyView(UserIsOwnerMixin, UpdateView):
     template_name = 'Auto/modify_auto.html'
     form_class = ModifyAutoForm
 
+    def get_initial(self):
+        initial = super().get_initial()
+        auto = self.get_object()
+        vendita = AutoVendita.objects.filter(auto=auto).first()
+        affitto = AutoAffitto.objects.filter(auto=auto).first()
+        # Imposta la disponibilità in base a cosa esiste
+        if vendita and affitto:
+            initial['disponibilita'] = '2'  # Vendita e Affitto
+        elif vendita:
+            initial['disponibilita'] = '0'  # Solo Vendita
+        elif affitto:
+            initial['disponibilita'] = '1'  # Solo Affitto
+        if vendita:
+            initial['prezzo_vendita'] = vendita.prezzo_vendita
+        if affitto:
+            initial['prezzo_affitto'] = affitto.prezzo_affitto
+        return initial
+
     def form_valid(self, form):
         auto = form.save(commit=False)
         auto.tipologia_possessore, auto.id_possessore = user_or_concessionaria(self.request.user)
-        if is_possessore_auto(auto.tipologia_possessore, auto.id_possessore, auto.id):
-            auto.save()
-            # Recupera i valori originali
-            original_auto = Auto.objects.get(pk=auto.id)
-            original_vendita = AutoVendita.objects.filter(auto=original_auto).first() or None
-            original_affitto = AutoAffitto.objects.filter(auto=original_auto).first() or None
-            # Nuovi valori dal form
-            prezzo_vendita = form.cleaned_data.get('prezzo_vendita')
-            prezzo_affitto = form.cleaned_data.get('prezzo_affitto')
-            # Gestione della logica di vendita e affitto
-            gestione_vendita_affitto(prezzo_vendita, prezzo_affitto, original_auto, original_vendita, original_affitto)
-            return super().form_valid(form)
-        else:
-            return HttpResponse("Non sei il possessore di questa auto.", status=403)
+        auto.save()
+        # Recupera i valori originali
+        original_auto = Auto.objects.get(pk=auto.id)
+        original_vendita = AutoVendita.objects.filter(auto=original_auto).first() or None
+        original_affitto = AutoAffitto.objects.filter(auto=original_auto).first() or None
+        # Nuovi valori dal form
+        prezzo_vendita = form.cleaned_data.get('prezzo_vendita')
+        prezzo_affitto = form.cleaned_data.get('prezzo_affitto')
+        # Gestione della logica di vendita e affitto
+        gestione_vendita_affitto(prezzo_vendita, prezzo_affitto, original_auto, original_vendita, original_affitto)
+        return super().form_valid(form)
+
 
     def form_invalid(self, form):
         return render(self.request, self.template_name, {'form': form, 'auto': self.get_object()})
@@ -236,12 +253,46 @@ class AutoDetailView(DetailView):
 @login_required
 def user_autos_view(request):
     autos = Auto.objects.filter(user_auto=request.user)
+    # Filtri da GET
+    marca = request.GET.get('marca', '').strip()
+    modello = request.GET.get('modello', '').strip()
+    anno = request.GET.get('anno', '').strip()
+    chilometri = request.GET.get('chilometri', '').strip()
+    cilindrata = request.GET.get('cilindrata', '').strip()
+    carburante = request.GET.get('carburante', '').strip()
+    trazione = request.GET.get('trazione', '').strip()
+    disponibilita = request.GET.get('disponibilita', '').strip()
+
+    if marca:
+        autos = autos.filter(marca__icontains=marca)
+    if modello:
+        autos = autos.filter(modello__icontains=modello)
+    if anno:
+        autos = autos.filter(anno=anno)
+    if chilometri:
+        autos = autos.filter(chilometraggio=chilometri)
+    if cilindrata:
+        autos = autos.filter(cilindrata=cilindrata)
+    if carburante:
+        autos = autos.filter(carburante=carburante)
+    if trazione:
+        autos = autos.filter(trazione=trazione)
+    if disponibilita:
+        autos = autos.filter(disponibilita=disponibilita)
+
+    paginator = Paginator(autos, 9)  # 9 auto per pagina
+    page_number = request.GET.get('page')
+    autos_page = paginator.get_page(page_number)
+
     is_utente = request.user.groups.filter(name='utente').exists()
     is_concessionaria = request.user.groups.filter(name='concessionaria').exists()
     form = AddAutoForm()
     return render(request, 'Auto/user_autos.html', {
-        'autos': autos,
+        'autos': autos_page,
         'is_utente': is_utente,
         'is_concessionaria': is_concessionaria,
-        'form': form
+        'form': form,
+        'TIPOLOGIE_CARBURANTE': TIPOLOGIE_CARBURANTE,
+        'TIPOLOGIE_TRAZIONE': TIPOLOGIE_TRAZIONE,
+        'DISPONIBILITA': DISPONIBILITA
     })

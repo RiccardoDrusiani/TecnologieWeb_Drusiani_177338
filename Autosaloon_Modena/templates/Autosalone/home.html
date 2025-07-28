@@ -173,7 +173,9 @@
                 <div class="card-list">
                     {% for car in cars_page %}
                     <div class="card">
-                        <img src="{{ car.immagine.url }}" class="card-img-top" alt="{{ car.nome }}">
+                        {% if car.immagine %}
+                            <img src="{{ car.immagine.url }}" class="card-img-top" alt="{{ car.nome }}">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ car.marca }} {{ car.modello }}</h5>
                             <p class="card-text">Anno: {{ car.anno }}<br>

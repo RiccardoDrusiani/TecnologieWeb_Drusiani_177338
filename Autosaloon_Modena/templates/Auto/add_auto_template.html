@@ -2,80 +2,95 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4 text-primary">Aggiungi una nuova auto</h2>
-    <form method="post" enctype="multipart/form-data" id="add-auto-form">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                {{ form.marca.label_tag }}
-                {{ form.marca }}
-            </div>
-            <div class="col-md-6 mb-3">
-                {{ form.modello.label_tag }}
-                {{ form.modello }}
-            </div>
-            <div class="col-md-4 mb-3">
-                {{ form.cilindrata.label_tag }}
-                {{ form.cilindrata }}
-            </div>
-            <div class="col-md-4 mb-3">
-                {{ form.anno.label_tag }}
-                {{ form.anno }}
-            </div>
-            <div class="col-md-4 mb-3">
-                {{ form.chilometraggio.label_tag }}
-                {{ form.chilometraggio }}
-            </div>
-            <div class="col-md-6 mb-3">
-                {{ form.carburante.label_tag }}
-                {{ form.carburante }}
-            </div>
-            <div class="col-md-6 mb-3">
-                {{ form.cambio.label_tag }}
-                {{ form.cambio }}
-            </div>
-            <div class="col-md-6 mb-3">
-                {{ form.trazione.label_tag }}
-                {{ form.trazione }}
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="id_disponibilita" class="form-label">Disponibilità</label>
-                <select name="disponibilita" id="id_disponibilita" class="form-select">
-                    <option value="0" {% if form.disponibilita.value == '0' %}selected{% endif %}>Vendita</option>
-                    <option value="1" {% if form.disponibilita.value == '1' %}selected{% endif %}>Affitto</option>
-                    <option value="2" {% if form.disponibilita.value == '2' %}selected{% endif %}>Vendita e Affitto</option>
-                </select>
-            </div>
-            <div class="col-md-12 mb-3" id="prezzo-vendita-group" style="display:none;">
-                <label for="prezzo_vendita" class="form-label">Prezzo di Vendita</label>
-                <input type="number" step="0.01" name="prezzo_vendita" id="prezzo_vendita" class="form-control" value="{{ form.prezzo_vendita.value|default:'' }}">
-            </div>
-            <div class="col-md-12 mb-3" id="prezzo-affitto-group" style="display:none;">
-                <label for="prezzo_affitto" class="form-label">Prezzo di Affitto al Giorno</label>
-                <input type="number" step="0.01" name="prezzo_affitto" id="prezzo_affitto" class="form-control" value="{{ form.prezzo_affitto.value|default:'' }}">
-            </div>
-            <div class="col-md-12 mb-3">
-                {{ form.descrizione.label_tag }}
-                {{ form.descrizione }}
-            </div>
-            <div class="col-md-12 mb-3">
-                {{ form.immagine.label_tag }}
-                {{ form.immagine }}
+     <div class="row justify-content-center" style="width: 100%;">
+        <div class="col-md-10" style="width: 100%;">
+            <div class="card shadow-lg border-0" style="border-radius: 18px; width: 100%;">
+                <div class="card-header bg-gradient bg-primary text-white rounded-top-4 py-3 d-flex align-items-center">
+                    <i class="bi bi-plus-circle fs-3 me-2"></i>
+                    <h3 class="mb-0">Aggiungi una nuova auto</h3>
+                </div>
+                <div class="card-body bg-light rounded-bottom-4">
+                    <form method="post" enctype="multipart/form-data" id="add-auto-form" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">{{ form.marca.label_tag }}{{ form.marca }}</div>
+                                <div class="mb-3">{{ form.cilindrata.label_tag }}{{ form.cilindrata }}</div>
+                                <div class="mb-3">{{ form.carburante.label_tag }}{{ form.carburante }}</div>
+                                <div class="mb-3">{{ form.cambio.label_tag }}{{ form.cambio }}</div>
+                                <div class="mb-3">{{ form.anno.label_tag }}{{ form.anno }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">{{ form.modello.label_tag }}{{ form.modello }}</div>
+                                <div class="mb-3">{{ form.chilometraggio.label_tag }}{{ form.chilometraggio }}</div>
+                                <div class="mb-3">{{ form.trazione.label_tag }}{{ form.trazione }}</div>
+                                <div class="mb-3">
+                                    <label for="id_disponibilita" class="form-label">Disponibilità</label>
+                                    <select name="disponibilita" id="id_disponibilita" class="form-select" required>
+                                        <option value="0" {% if form.disponibilita.value == '0' %}selected{% endif %}>Vendita</option>
+                                        <option value="1" {% if form.disponibilita.value == '1' %}selected{% endif %}>Affitto</option>
+                                        <option value="2" {% if form.disponibilita.value == '2' %}selected{% endif %}>Vendita e Affitto</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3" id="prezzo-vendita-group" style="display:none;">
+                                    {{ form.prezzo_vendita.label_tag }}
+                                    <input type="number" name="prezzo_vendita" id="id_prezzo_vendita" class="form-control" step="0.01" min="0" value="{{ form.prezzo_vendita.value|default:'' }}" required>
+                                </div>
+                                <div class="mb-3" id="prezzo-affitto-group" style="display:none;">
+                                    {{ form.prezzo_affitto.label_tag }}
+                                    <input type="number" name="prezzo_affitto" id="id_prezzo_affitto" class="form-control" step="0.01" min="0" value="{{ form.prezzo_affitto.value|default:'' }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-center mb-3">
+                                <div style="min-width:300px; max-width:400px; width:100%;">
+                                    {{ form.immagine.label_tag }}{{ form.immagine }}
+                                </div>
+                            </div>
+                            <div class="col-12 d-flex justify-content-center">
+                                <div style="min-width:300px; max-width:600px; width:100%;">
+                                    {{ form.descrizione.label_tag }}{{ form.descrizione }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'Auto:user_autos' %}" class="btn btn-outline-secondary">Chiudi</a>
+                            <button type="submit" class="btn btn-primary px-4">Salva</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="d-flex justify-content-between mt-4">
-            <a href="{% url 'Auto:user_autos' %}" class="btn btn-secondary">Chiudi</a>
-            <button type="submit" class="btn btn-primary">Salva</button>
-        </div>
-    </form>
-    <script>
+    </div>
+</div>
+<script>
     function togglePrezzi() {
         var disp = document.getElementById('id_disponibilita').value;
-        document.getElementById('prezzo-vendita-group').style.display = (disp == '0' || disp == '2') ? '' : 'none';
-        document.getElementById('prezzo-affitto-group').style.display = (disp == '1' || disp == '2') ? '' : 'none';
+        var vendita = document.getElementById('prezzo-vendita-group');
+        var affitto = document.getElementById('prezzo-affitto-group');
+        var venditaInput = document.getElementById('id_prezzo_vendita');
+        var affittoInput = document.getElementById('id_prezzo_affitto');
+        if (disp === '0') {
+            vendita.style.display = '';
+            affitto.style.display = 'none';
+            venditaInput.required = true;
+            affittoInput.required = false;
+            affittoInput.value = '';
+        } else if (disp === '1') {
+            vendita.style.display = 'none';
+            affitto.style.display = '';
+            venditaInput.required = false;
+            affittoInput.required = true;
+            venditaInput.value = '';
+        } else if (disp === '2') {
+            vendita.style.display = '';
+            affitto.style.display = '';
+            venditaInput.required = true;
+            affittoInput.required = true;
+        }
     }
     document.getElementById('id_disponibilita').addEventListener('change', togglePrezzi);
     window.addEventListener('DOMContentLoaded', togglePrezzi);
-    </script>
-</div>
+</script>
 {% endblock %}

@@ -1,0 +1,148 @@
+/* CSS personalizzato per il filtro centrale in user_autos.html */
+.filter-section {
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 16px #2563eb22;
+    border: 1.5px solid #e0e0e0;
+    margin-bottom: 2rem;
+    max-width: 1200px;
+    min-width: 700px;
+    width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.filter-section form {
+    width: 100%;
+}
+.filter-section .row.g-3.filter-grid {
+    flex-wrap: wrap;
+    gap: 1.2rem 0.5rem;
+    justify-content: flex-start;
+}
+.filter-grid-custom {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.7rem;
+    justify-content: flex-start;
+}
+.filter-grid-custom.filter-grid-2rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+.filter-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.7rem;
+}
+.filter-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 80px;
+    min-width: 60px;
+    max-width: 90px;
+    margin: 0;
+    padding: 0;
+    flex: 1 1 0;
+    min-width: 120px;
+    max-width: 220px;
+}
+.filter-section .filter-col {
+    flex: 0 0 22%;
+    max-width: 22%;
+    min-width: 180px;
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 0.5rem;
+}
+.filter-section .form-control, .filter-section .form-select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    font-size: 1rem;
+    padding: 0.5rem 0.7rem;
+    height: 2.7rem;
+}
+.filter-input {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    font-size: 0.92rem;
+    padding: 0.3rem 0.4rem;
+    box-sizing: border-box;
+}
+.filter-section .form-control:focus, .filter-section .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.15rem #2563eb33;
+}
+.filter-label {
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: 0.3rem;
+}
+.btn-primary {
+    border-radius: 0.5rem;
+    background: linear-gradient(90deg, #2563eb 60%, #1e40af 100%);
+    border: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px #2563eb22;
+}
+.filter-section .filter-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.2rem;
+}
+@media (max-width: 1300px) {
+    .filter-section {
+        max-width: 98vw;
+        min-width: 0;
+        width: 98vw;
+    }
+    .filter-section .row.g-3.filter-grid {
+        gap: 1.2rem;
+    }
+}
+@media (max-width: 1200px) {
+    .filter-section .filter-col {
+        flex: 0 0 45%;
+        max-width: 45%;
+        min-width: 140px;
+    }
+}
+@media (max-width: 900px) {
+    .filter-section {
+        min-width: 90vw !important;
+        max-width: 98vw !important;
+        padding: 1.2rem !important;
+    }
+    .filter-section .row.g-3 {
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+    .filter-section .col.filter-col {
+        width: 100%;
+        margin-bottom: 0.7rem;
+        max-width: 100%;
+    }
+    .filter-row {
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+    .filter-col {
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+@media (min-width: 768px) {
+    .filter-section .filter-col {
+        min-width: 180px;
+        max-width: 320px;
+    }
+}

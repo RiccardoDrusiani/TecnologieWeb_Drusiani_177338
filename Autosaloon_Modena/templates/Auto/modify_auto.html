@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 mb-5" style="width: 100%;">
+    <div class="row justify-content-center" style="width: 100%;">
+        <div class="col-md-8" style="width: 100%;">
+            <div class="card shadow-lg border-0" style="width: 100%;">
+                <div class="card-header bg-gradient bg-warning text-dark rounded-top-4 py-3 d-flex align-items-center" style="width: 100%;">
+                    <i class="bi bi-pencil-square fs-3 me-2"></i>
+                    <h3 class="mb-0">Modifica Auto</h3>
+                </div>
+                <div class="card-body bg-light rounded-bottom-4" style="width: 100%;">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">{{ form.marca.label_tag }}{{ form.marca }}</div>
+                                <div class="mb-3">{{ form.cilindrata.label_tag }}{{ form.cilindrata }}</div>
+                                <div class="mb-3">{{ form.carburante.label_tag }}{{ form.carburante }}</div>
+                                <div class="mb-3">{{ form.cambio.label_tag }}{{ form.cambio }}</div>
+                                <div class="mb-3">{{ form.anno.label_tag }}{{ form.anno }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">{{ form.modello.label_tag }}{{ form.modello }}</div>
+                                <div class="mb-3">{{ form.chilometraggio.label_tag }}{{ form.chilometraggio }}</div>
+                                <div class="mb-3">{{ form.trazione.label_tag }}{{ form.trazione }}</div>
+                                <div class="mb-3 d-flex align-items-end gap-2">
+                                    <div style="flex:2;">
+                                        <label for="id_disponibilita" class="form-label">Disponibilità</label>
+                                        <select name="disponibilita" id="id_disponibilita" class="form-select">
+                                            <option value="0" {% if form.disponibilita.value == '0' %}selected{% endif %}>Vendita</option>
+                                            <option value="1" {% if form.disponibilita.value == '1' %}selected{% endif %}>Affitto</option>
+                                            <option value="2" {% if form.disponibilita.value == '2' %}selected{% endif %}>Vendita e Affitto</option>
+                                        </select>
+                                    </div>
+                                    <div id="prezzo-vendita-group" style="flex:1; display:none;">
+                                        <label for="prezzo_vendita" class="form-label">Vendita</label>
+                                        <input type="number" step="0.01" name="prezzo_vendita" id="prezzo_vendita" class="form-control" placeholder="€" value="{{ form.prezzo_vendita.value|default:'' }}">
+                                    </div>
+                                    <div id="prezzo-affitto-group" style="flex:1; display:none;">
+                                        <label for="prezzo_affitto" class="form-label">Affitto/g</label>
+                                        <input type="number" step="0.01" name="prezzo_affitto" id="prezzo_affitto" class="form-control" placeholder="€/g" value="{{ form.prezzo_affitto.value|default:'' }}">
+                                    </div>
+                                </div>
+                                <script>
+                                    // Funzione per mostrare/nascondere i campi prezzo in base alla disponibilità selezionata
+                                    // Caricata quando la pagina viene caricata
+                                    function togglePrezzi() {
+                                        // Ottiene il valore della disponibilità selezionata
+                                        const disp = document.getElementById('id_disponibilita').value;
+                                        // Mostra o nasconde i campi prezzo in base alla disponibilità
+                                        // Se la disponibilità è 0 (Vendita) o 2 (Vendita e Affitto), mostra il campo prezzo vendita
+                                        // Se la disponibilità è 1 (Affitto) o 2 (Vendita e Affitto), mostra il campo prezzo affitto
+                                        document.getElementById('prezzo-vendita-group').style.display = (disp === '0' || disp === '2') ? 'block' : 'none';
+                                        document.getElementById('prezzo-affitto-group').style.display = (disp === '1' || disp === '2') ? 'block' : 'none';
+                                    }
+                                    // Aggiunge un listener per il cambiamento della disponibilità
+                                    // quindi quando l'utente cambia la disponibilità, i campi prezzo vengono aggiornati
+                                    document.getElementById('id_disponibilita').addEventListener('change', togglePrezzi);
+                                    // Viene caricato il valore iniziale al caricamento della pagina
+                                    window.addEventListener('DOMContentLoaded', togglePrezzi);
+                                </script>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12 d-flex justify-content-center mb-3">
+                                <div style="min-width:300px; max-width:400px; width:100%;">
+                                    {{ form.immagine.label_tag }}{{ form.immagine }}
+                                </div>
+                            </div>
+                            <div class="col-12 d-flex justify-content-center">
+                                <div style="min-width:300px; max-width:600px; width:100%;">
+                                    {{ form.descrizione.label_tag }}{{ form.descrizione }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{% url 'Auto:user_autos' %}" class="btn btn-outline-secondary">Annulla</a>
+                            <button type="submit" class="btn btn-warning px-4">Salva Modifiche</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
