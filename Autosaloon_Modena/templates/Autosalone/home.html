@@ -114,13 +114,19 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                             <li>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="darkblue" class="bi bi-gear me-2" viewBox="0 0 16 16">
-                                        <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
-                                        <path d="M9.796 1.343c-.527-1.013-1.065-1.012-1.592 0l-.094.187a1.319 1.319 0 0 1-1.255.83c-1.07.09-1.342.507-1.342 1.23v.272c0 .723.272 1.14 1.342 1.23.52.044.98.316 1.255.83l.094.187c.527 1.013 1.065 1.012 1.592 0l.094-.187a1.319 1.319 0 0 1 1.255-.83c1.07-.09 1.342-.507 1.342-1.23v-.272c0-.723-.272-1.14-1.342-1.23a1.319 1.319 0 0 1-1.255-.83l-.094-.187zm-2.633.283c.246-.492.532-.492.778 0l.094.187a2.319 2.319 0 0 0 2.21 1.46c.723.09.995.507.995 1.23v.272c0 .723-.272 1.14-.995 1.23a2.319 2.319 0 0 0-2.21 1.46l-.094.187c-.246.492-.532.492-.778 0l-.094-.187a2.319 2.319 0 0 0-2.21-1.46c-.723-.09-.995-.507-.995-1.23v-.272c0-.723.272-1.14.995-1.23a2.319 2.319 0 0 0 2.21-1.46l.094-.187z"/>
-                                    </svg>
-                                    Impostazioni
-                                </a>
+                                {% if is_user %}
+                                    <a class="dropdown-item d-flex align-items-center" href="{% url 'Utente:impostazioni_utente' %}">
+                                {% elif is_concessionaria %}
+                                    <a class="dropdown-item d-flex align-items-center" href="{% url 'Concessionaria:impostazioni_concessionaria' %}">
+                                {% else %}
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                {% endif %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="darkblue" class="bi bi-gear me-2" viewBox="0 0 16 16">
+                                            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                                            <path d="M9.796 1.343c-.527-1.013-1.065-1.012-1.592 0l-.094.187a1.319 1.319 0 0 1-1.255.83c-1.07.09-1.342.507-1.342 1.23v.272c0 .723.272 1.14 1.342 1.23.52.044.98.316 1.255.83l.094.187c.527 1.013 1.065 1.012 1.592 0l.094-.187a1.319 1.319 0 0 1 1.255-.83c1.07-.09 1.342-.507 1.342-1.23v-.272c0-.723-.272-1.14-1.342-1.23a1.319 1.319 0 0 1-1.255-.83l-.094-.187zm-2.633.283c.246-.492.532-.492.778 0l.094.187a2.319 2.319 0 0 0 2.21 1.46c.723.09.995.507.995 1.23v.272c0 .723-.272 1.14-.995 1.23a2.319 2.319 0 0 0-2.21 1.46l-.094.187c-.246.492-.532.492-.778 0l-.094-.187a2.319 2.319 0 0 0-2.21-1.46c-.723-.09-.995-.507-.995-1.23v-.272c0-.723.272-1.14.995-1.23a2.319 2.319 0 0 0 2.21-1.46l.094-.187z"/>
+                                        </svg>
+                                        Impostazioni
+                                    </a>
                             </li>
                             <li>
                                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
@@ -139,7 +145,7 @@
                 {% else %}
                     <div class="d-flex align-items-center" style="gap: 12px;">
                         <a href="{% url 'login' %}" class="btn btn-link btn-sm text-white fw-bold text-decoration-none" style="color: white">Accedi</a>
-                        <a href="{% url 'register' %}" class="btn btn-link btn-sm text-white fw-bold text-decoration-none" style="color: white">Registrati</a>
+                        <a href="{% url 'Utente:register' %}" class="btn btn-link btn-sm text-white fw-bold text-decoration-none" style="color: white">Registrati</a>
                     </div>
                 {% endif %}
             </nav>

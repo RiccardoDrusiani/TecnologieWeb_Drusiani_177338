@@ -7,8 +7,10 @@ from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib import messages
 from .models import UserExtendModel
 from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm
-from apps.Auto.models import Commento, Risposta, Auto
+from ..Auto.models import Commento, Risposta, Auto, AutoVendita, AutoAffitto
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 
 
 # Creazione utente base + profilo esteso
@@ -54,6 +56,20 @@ class UserDeleteView(DeleteView):
     success_url = reverse_lazy('home')
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        user = self.object.user
+        # Elimina tutte le auto associate all'utente
+        Auto.objects.filter(user_auto=user).delete()
+        # Elimina l'utente (che elimina anche UserExtendModel per on_delete=models.CASCADE)
+        user.delete()
+        logout(request)
+        request.session.flush()
+        return redirect(self.success_url)
+
+    def post(self, request, *args, **kwargs):
+        return self.delete(request, *args, **kwargs)
 
 # Creazione commento
 class CommentoCreateView(CreateView):
@@ -138,3 +154,14 @@ class UserLoginView(LoginView):
     def form_invalid(self, form):
         messages.error(self.request, "Email o password non validi.")
         return redirect('login')
+
+@login_required
+def impostazioni_utente(request):
+    try:
+        user_profile = request.user.user_extend_profile
+    except UserExtendModel.DoesNotExist:
+        user_profile = UserExtendModel.objects.create(user=request.user)
+    return render(request, 'Utente/impostazioni_utente_template.html', {
+        'user': request.user,
+        'user_extend_profile': user_profile,
+    })

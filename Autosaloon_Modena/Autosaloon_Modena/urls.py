@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.Autosalone.urls')),
     path('Utente/', include(('apps.Utente.urls', 'Utente'), namespace='Utente')),
-    path('Concessionaria/', include('apps.Concessionaria.urls')),
+    path('Concessionaria/', include(('apps.Concessionaria.urls', 'Concessionaria'), namespace='Concessionaria')),
     path('Auto/', include('apps.Auto.urls')),
     path("accounts/", include(registration_urls)),
     path("accounts/", include("django.contrib.auth.urls")),

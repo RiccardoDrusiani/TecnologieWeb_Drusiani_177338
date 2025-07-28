@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Impostazioni Concessionaria{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Impostazioni Concessionaria</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post" enctype="multipart/form-data" class="card p-4 shadow-sm mb-4">
+                {% csrf_token %}
+                <h5 class="mb-3">Modifica Dati Concessionaria</h5>
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="id_email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="id_partita_iva" class="form-label">Partita IVA</label>
+                    <input type="text" class="form-control" id="id_partita_iva" name="partita_iva" value="{{ user.concessionaria_profile.partita_iva }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="id_codice_fiscale" class="form-label">Codice Fiscale</label>
+                    <input type="text" class="form-control" id="id_codice_fiscale" name="codice_fiscale" value="{{ user.concessionaria_profile.codice_fiscale }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="id_telefono" class="form-label">Telefono</label>
+                    <input type="text" class="form-control" id="id_telefono" name="telefono" value="{{ user.concessionaria_profile.telefono }}">
+                </div>
+                <div class="mb-3">
+                    <label for="id_indirizzo" class="form-label">Indirizzo</label>
+                    <input type="text" class="form-control" id="id_indirizzo" name="indirizzo" value="{{ user.concessionaria_profile.indirizzo }}">
+                </div>
+                <button type="submit" class="btn btn-primary">Salva Modifiche</button>
+            </form>
+        </div>
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+            <div class="card p-4 shadow-sm w-100">
+                <h5 class="mb-3 text-danger">Elimina Account Concessionaria</h5>
+                <p>Attenzione: questa azione è irreversibile!</p>
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Elimina Account</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal conferma eliminazione account -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteAccountModalLabel">Conferma Eliminazione</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Sei sicuro di voler eliminare il tuo account concessionaria? Questa operazione non può essere annullata.
+          </div>
+          <div class="modal-footer">
+            <form method="post" action="{% url 'Concessionaria:elimina_utente' user.concessionaria_profile.slug %}">
+                {% csrf_token %}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="submit" class="btn btn-danger">Elimina definitivamente</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}

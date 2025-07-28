@@ -9,4 +9,5 @@ urlpatterns = [
     path('elimina/<slug:slug>/', ConcessionariaDeleteView.as_view(), name='concessionaria-delete'),
     path('registrazione/', ConcessionariaCreateView.as_view(), name='concessionaria-registrazione'),
     path('login/', LoginView.as_view(template_name='Concessionaria/login.html'), name='concessionaria-login'),
+    path('impostazioni/', views.impostazioni_concessionaria, name='impostazioni_concessionaria'),
 ]

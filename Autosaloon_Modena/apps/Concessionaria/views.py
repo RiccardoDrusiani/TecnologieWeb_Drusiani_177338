@@ -6,7 +6,8 @@ from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import login, authenticate
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
 
 class ConcessionariaCreateView(CreateView):
     model = User
@@ -56,3 +57,7 @@ class ConcessionariaLoginView(LoginView):
     def form_invalid(self, form):
         messages.error(self.request, "Email o password non validi.")
         return redirect('concessionaria-login')
+
+@login_required
+def impostazioni_concessionaria(request):
+    return render(request, 'Concessionaria/impostazioni_concessionaria_template.html')
