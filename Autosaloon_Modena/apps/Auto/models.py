@@ -2,6 +2,7 @@ from typing import Any
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from ..utils import pillowImage
 
@@ -60,6 +61,9 @@ class Auto(models.Model):
         if self.immagine:
             pillowImage(self.immagine, 300, 300)
 
+    def get_absolute_url(self):
+        return reverse('Auto:auto-detail', kwargs={'pk': self.pk})
+
 
 class AutoVendita(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='vendita')
@@ -100,3 +104,15 @@ class AutoPrenotazione(models.Model):
     proprietario_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')])
     prenotante_id = models.PositiveIntegerField(blank=True, null=True)
     prenotante_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')], blank=True, null=True)
+
+class Commento(models.Model):
+    auto = models.ForeignKey('Auto', on_delete=models.CASCADE, related_name='commenti')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    testo = models.TextField()
+    data_creazione = models.DateTimeField(auto_now_add=True)
+
+class Risposta(models.Model):
+    commento = models.ForeignKey(Commento, on_delete=models.CASCADE, related_name='risposte')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    testo = models.TextField()
+    data_creazione = models.DateTimeField(auto_now_add=True)

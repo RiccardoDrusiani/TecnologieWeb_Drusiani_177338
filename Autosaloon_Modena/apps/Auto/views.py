@@ -249,6 +249,17 @@ class AutoDetailView(DetailView):
     template_name = 'Auto/auto_detail.html'
     context_object_name = 'auto'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context['is_utente'] = False
+        if user.is_authenticated:
+            try:
+                context['is_utente'] = user.groups.filter(name="utente").exists()
+            except Exception:
+                context['is_utente'] = False
+        return context
+
 
 @login_required
 def user_autos_view(request):
@@ -283,12 +294,11 @@ def user_autos_view(request):
     paginator = Paginator(autos, 9)  # 9 auto per pagina
     page_number = request.GET.get('page')
     autos_page = paginator.get_page(page_number)
-
     is_utente = request.user.groups.filter(name='utente').exists()
     is_concessionaria = request.user.groups.filter(name='concessionaria').exists()
     form = AddAutoForm()
     return render(request, 'Auto/user_autos.html', {
-        'autos': autos_page,
+        'autos': autos,
         'is_utente': is_utente,
         'is_concessionaria': is_concessionaria,
         'form': form,

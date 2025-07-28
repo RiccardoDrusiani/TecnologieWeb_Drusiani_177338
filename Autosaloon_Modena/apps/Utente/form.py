@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import UserExtendModel
+from apps.Auto.models import Commento, Risposta
 
 class UserCreateForm(forms.ModelForm):
     class Meta:
@@ -39,11 +40,21 @@ class UserDeleteForm(forms.Form):
     confirm = forms.BooleanField(label='Conferma eliminazione utente', widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
 
 # Placeholder per Commento, Risposta, Segnalazione
-class CommentoForm(forms.Form):
-    testo = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': ''}))
+class CommentoForm(forms.ModelForm):
+    class Meta:
+        model = Commento
+        fields = ['testo']
+        widgets = {
+            'testo': forms.Textarea(attrs={'class': 'form-control', 'placeholder': ''}),
+        }
 
-class RispostaForm(forms.Form):
-    testo = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': ''}))
+class RispostaForm(forms.ModelForm):
+    class Meta:
+        model = Risposta
+        fields = ['testo']
+        widgets = {
+            'testo': forms.Textarea(attrs={'class': 'form-control', 'placeholder': ''}),
+        }
 
 class SegnalazioneForm(forms.Form):
     motivo = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': ''}))

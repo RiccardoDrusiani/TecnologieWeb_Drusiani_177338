@@ -26,7 +26,7 @@
                                 <div class="mb-3">{{ form.trazione.label_tag }}{{ form.trazione }}</div>
                                 <div class="mb-3">
                                     <label for="id_disponibilita" class="form-label">Disponibilità</label>
-                                    <select name="disponibilita" id="id_disponibilita" class="form-select" required>
+                                     <select name="disponibilita" id="id_disponibilita" class="form-select" required>
                                         <option value="0" {% if form.disponibilita.value == '0' %}selected{% endif %}>Vendita</option>
                                         <option value="1" {% if form.disponibilita.value == '1' %}selected{% endif %}>Affitto</option>
                                         <option value="2" {% if form.disponibilita.value == '2' %}selected{% endif %}>Vendita e Affitto</option>

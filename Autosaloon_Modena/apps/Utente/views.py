@@ -7,6 +7,9 @@ from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib import messages
 from .models import UserExtendModel
 from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm
+from apps.Auto.models import Commento, Risposta, Auto
+from django.http import JsonResponse
+
 
 # Creazione utente base + profilo esteso
 class UserCreateView(CreateView):
@@ -54,21 +57,73 @@ class UserDeleteView(DeleteView):
 
 # Creazione commento
 class CommentoCreateView(CreateView):
+    model = Commento
     form_class = CommentoForm
     template_name = 'Utente/create_commento.html'
     success_url = reverse_lazy('home')
 
+    def form_valid(self, form):
+        auto_id = self.request.POST.get('auto_id')
+        auto = None
+        if auto_id:
+            auto = Auto.objects.get(pk=auto_id)
+        commento = form.save(commit=False)
+        commento.user = self.request.user
+        commento.auto = auto
+        commento.save()
+        return redirect(auto.get_absolute_url() if auto else self.success_url)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['testo'].widget.attrs['placeholder'] = 'Scrivi un commento...'
+        return form
+
 # Creazione risposta
 class RispostaCreateView(CreateView):
+    model = Risposta
     form_class = RispostaForm
-    template_name = 'Utente/create_risposta.html'
     success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        commento_id = self.request.GET.get('commento_id') or self.request.POST.get('commento_id')
+        commento = Commento.objects.get(pk=commento_id)
+        risposta = form.save(commit=False)
+        risposta.user = self.request.user
+        risposta.commento = commento
+        risposta.save()
+        auto = commento.auto
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'testo': risposta.testo,
+                'username': risposta.user.username,
+                'data_creazione': risposta.data_creazione.strftime('%d/%m/%Y %H:%M'),
+            })
+        return redirect(auto.get_absolute_url())
+
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Dati non validi.'})
+        return super().form_invalid(form)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['testo'].widget.attrs['placeholder'] = 'Scrivi una risposta...'
+        return form
+
+    def get(self, request, *args, **kwargs):
+        return redirect('home')
 
 # Creazione segnalazione
 class SegnalazioneCreateView(CreateView):
     form_class = SegnalazioneForm
     template_name = 'Utente/create_segnalazione.html'
     success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        # Qui puoi implementare la logica di salvataggio della segnalazione
+        # (ad esempio, incrementare un contatore o inviare una notifica)
+        return super().form_valid(form)
 
 # View per il logout utente
 class UserLogoutView(LogoutView):
