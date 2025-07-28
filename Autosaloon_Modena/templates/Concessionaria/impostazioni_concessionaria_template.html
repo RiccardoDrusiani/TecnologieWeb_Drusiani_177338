@@ -35,7 +35,15 @@
                 <button type="submit" class="btn btn-primary">Salva Modifiche</button>
             </form>
         </div>
-        <div class="col-md-6 d-flex align-items-center justify-content-center">
+        <div class="col-md-6 d-flex flex-column gap-4 justify-content-center">
+            <div class="card p-4 shadow-sm mb-4">
+                <h5 class="mb-3 text-primary">Cambia Password</h5>
+                <form method="get" action="{% url 'Concessionaria:password_change' %}">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        Cambia Password
+                    </button>
+                </form>
+            </div>
             <div class="card p-4 shadow-sm w-100">
                 <h5 class="mb-3 text-danger">Elimina Account Concessionaria</h5>
                 <p>Attenzione: questa azione è irreversibile!</p>
@@ -55,11 +63,15 @@
             Sei sicuro di voler eliminare il tuo account concessionaria? Questa operazione non può essere annullata.
           </div>
           <div class="modal-footer">
-            <form method="post" action="{% url 'Concessionaria:elimina_utente' user.concessionaria_profile.slug %}">
+            {% if concessionaria_profile and concessionaria_profile.slug %}
+            <form method="post" action="{% url 'Concessionaria:concessionaria-delete' concessionaria_profile.slug %}">
                 {% csrf_token %}
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
                 <button type="submit" class="btn btn-danger">Elimina definitivamente</button>
             </form>
+            {% else %}
+            <div class="alert alert-warning w-100 mb-0">Impossibile eliminare: profilo non valido.</div>
+            {% endif %}
           </div>
         </div>
       </div>

@@ -5,9 +5,14 @@ from .form import ConcessionariaForm, ConcessionariaUpdateForm, ConcessionariaLo
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+from ..Auto.models import Auto
+
 
 class ConcessionariaCreateView(CreateView):
     model = User
@@ -48,9 +53,24 @@ class ConcessionariaUpdateView(UpdateView):
 class ConcessionariaDeleteView(DeleteView):
     model = Concessionaria
     template_name = 'Concessionaria/concessionaria_confirm_delete.html'
-    success_url = reverse_lazy('concessionaria-list')
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+    success_url = reverse_lazy('home')
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        user = self.object.user
+        Auto.objects.filter(user_auto=user).delete()
+        user.delete()
+        logout(request)
+        request.session.flush()
+        return redirect(self.success_url)
+
+    def delete(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return self.success_url
 
 class ConcessionariaLoginView(LoginView):
     # ...existing code...
@@ -60,4 +80,11 @@ class ConcessionariaLoginView(LoginView):
 
 @login_required
 def impostazioni_concessionaria(request):
-    return render(request, 'Concessionaria/impostazioni_concessionaria_template.html')
+    try:
+        concessionaria_profile = request.user.concessionaria_profile
+    except Concessionaria.DoesNotExist:
+        concessionaria_profile = Concessionaria.objects.create(user=request.user)
+    return render(request, 'Concessionaria/impostazioni_concessionaria_template.html', {
+        'user': request.user,
+        'concessionaria_profile': concessionaria_profile,
+    })
