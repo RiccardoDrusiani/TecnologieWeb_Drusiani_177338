@@ -74,3 +74,32 @@ class ConcessionariaCreateForm(forms.ModelForm):
         if password != conferma_password:
             raise ValidationError("Le password non corrispondono.")
         return cleaned_data
+
+class ConcessionariaFullUpdateForm(forms.ModelForm):
+    username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    partita_iva = forms.CharField(label='Partita IVA', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    codice_fiscale = forms.CharField(label='Codice Fiscale', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    telefono = forms.CharField(label='Telefono', required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    indirizzo = forms.CharField(label='Indirizzo', required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Concessionaria
+        fields = ['partita_iva', 'codice_fiscale', 'telefono', 'indirizzo']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['username'].initial = user.username
+            self.fields['email'].initial = user.email
+
+    def save(self, commit=True):
+        concessionaria = super().save(commit=False)
+        user = concessionaria.user
+        user.username = self.cleaned_data['username']
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+            concessionaria.save()
+        return concessionaria

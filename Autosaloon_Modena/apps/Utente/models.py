@@ -31,3 +31,9 @@ class UserModelBan(models.Model):
     data_inizio_ban = models.DateTimeField(blank=True, null=True)
     data_fine_ban = models.DateTimeField(blank=True, null=True)
     qnt_ban = models.IntegerField(blank=True, null=True, default=0)  # Nuova colonna
+
+class Segnalazione(models.Model):
+    segnalatore = models.ForeignKey(User, on_delete=models.CASCADE, related_name='segnalazioni_inviate')
+    segnalato = models.ForeignKey(User, on_delete=models.CASCADE, related_name='segnalazioni_ricevute')
+    motivo = models.TextField()
+    data_segnalazione = models.DateTimeField(auto_now_add=True)

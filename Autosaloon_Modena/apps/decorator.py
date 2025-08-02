@@ -1,5 +1,9 @@
+import datetime
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
+from django.contrib import messages
+from django.utils import timezone
+from apps.Utente.models import UserModelBan
 
 def user_or_concessionaria_required(func):
     """
@@ -14,3 +18,19 @@ def user_or_concessionaria_required(func):
         return func(request, *args, **kwargs)
 
     return wrapper
+
+def ban_check(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            try:
+                ban_profile = request.user.user_ban_profile
+                now = timezone.now()
+                if ban_profile.data_fine_ban and now < ban_profile.data_fine_ban:
+                    remaining = ban_profile.data_fine_ban - now
+                    minutes = int(remaining.total_seconds() // 60)
+                    messages.error(request, f"Sei bannato! Tempo rimanente: {minutes} minuti.")
+                    return redirect('Utente:login')
+            except UserModelBan.DoesNotExist:
+                pass
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view

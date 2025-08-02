@@ -6,11 +6,14 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib import messages
 from .models import UserExtendModel
-from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm
+from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm, UserFullUpdateForm
 from ..Auto.models import Commento, Risposta, Auto, AutoVendita, AutoAffitto
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from apps.Utente.models import UserModelBan
+from django.utils import timezone
+from apps.decorator import ban_check
 
 
 # Creazione utente base + profilo esteso
@@ -40,14 +43,23 @@ class UserCreateView(CreateView):
         messages.error(self.request, "Errore durante la registrazione. Controlla i dati inseriti.")
         return super().form_invalid(form)
 
-# Modifica utente base
+# Modifica utente base + esteso
 class UserUpdateView(UpdateView):
     model = UserExtendModel
-    form_class = UserUpdateForm
+    form_class = UserFullUpdateForm
     template_name = 'Utente/update_user.html'
     success_url = reverse_lazy('home')
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, "Profilo aggiornato correttamente.")
+        return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Errore durante la modifica del profilo. Controlla i dati inseriti.")
+        return super().form_invalid(form)
 
 # Eliminazione utente
 class UserDeleteView(DeleteView):
@@ -133,13 +145,66 @@ class RispostaCreateView(CreateView):
 # Creazione segnalazione
 class SegnalazioneCreateView(CreateView):
     form_class = SegnalazioneForm
-    template_name = 'Utente/create_segnalazione.html'
+    template_name = 'Auto/auto_detail.html'
     success_url = reverse_lazy('home')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Esegui il controllo ban qui
+        if request.user.is_authenticated:
+            try:
+                ban_profile = request.user.user_ban_profile
+                now = timezone.now()
+                if ban_profile.data_fine_ban and now < ban_profile.data_fine_ban:
+                    remaining = ban_profile.data_fine_ban - now
+                    minutes = int(remaining.total_seconds() // 60)
+                    messages.error(request, f"Sei bannato! Tempo rimanente: {minutes} minuti.")
+                    return redirect('Utente:login')
+            except UserModelBan.DoesNotExist:
+                pass
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
-        # Qui puoi implementare la logica di salvataggio della segnalazione
-        # (ad esempio, incrementare un contatore o inviare una notifica)
-        return super().form_valid(form)
+        commento_id = self.request.GET.get('commento_id')
+        if not commento_id:
+            messages.error(self.request, "Segnalazione non valida: commento mancante.")
+            return redirect(self.success_url)
+        try:
+            commento = Commento.objects.get(id=commento_id)
+            segnalato = commento.user
+            # Solo utenti normali possono essere segnalati
+            if hasattr(segnalato, 'concessionaria_profile'):
+                messages.error(self.request, "Non puoi segnalare una concessionaria.")
+                return redirect(self.success_url)
+            # Salva la segnalazione
+            segnalazione = form.save(commit=False)
+            segnalazione.segnalante = self.request.user
+            segnalazione.segnalato = segnalato
+            segnalazione.commento = commento
+            segnalazione.save()
+            # Gestione ban
+            ban_profile, _ = UserModelBan.objects.get_or_create(user=segnalato)
+            ban_profile.segnalazioni = (ban_profile.segnalazioni or 0) + 1
+            if ban_profile.segnalazioni >= 5:
+                now = timezone.now()
+                # Ban incrementale
+                if ban_profile.qnt_ban:
+                    ban_hours = 2 * (2 ** (ban_profile.qnt_ban - 1))
+                else:
+                    ban_hours = 2
+                ban_profile.data_inizio_ban = now
+                ban_profile.data_fine_ban = now + timezone.timedelta(hours=ban_hours)
+                ban_profile.qnt_ban = (ban_profile.qnt_ban or 0) + 1
+                ban_profile.segnalazioni = 0
+                messages.error(self.request, f"Utente bannato per {ban_hours} ore!")
+            ban_profile.save()
+            messages.success(self.request, "Segnalazione inviata correttamente.")
+        except Commento.DoesNotExist:
+            messages.error(self.request, "Commento non trovato.")
+        return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Errore nell'invio della segnalazione.")
+        return redirect(self.success_url)
 
 # View per il logout utente
 class UserLogoutView(LogoutView):
@@ -161,7 +226,20 @@ def impostazioni_utente(request):
         user_profile = request.user.user_extend_profile
     except UserExtendModel.DoesNotExist:
         user_profile = UserExtendModel.objects.create(user=request.user)
+
+    if request.method == 'POST':
+        form = UserFullUpdateForm(request.POST, request.FILES, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profilo aggiornato correttamente.")
+            return redirect('Utente:impostazioni_utente')
+        else:
+            messages.error(request, "Errore durante la modifica del profilo. Controlla i dati inseriti.")
+    else:
+        form = UserFullUpdateForm(instance=user_profile)
+
     return render(request, 'Utente/impostazioni_utente_template.html', {
+        'form': form,
         'user': request.user,
         'user_extend_profile': user_profile,
     })

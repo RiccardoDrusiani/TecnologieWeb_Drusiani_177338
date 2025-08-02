@@ -1,7 +1,7 @@
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Concessionaria
-from .form import ConcessionariaForm, ConcessionariaUpdateForm, ConcessionariaLoginForm, ConcessionariaCreateForm
+from .form import ConcessionariaForm, ConcessionariaUpdateForm, ConcessionariaLoginForm, ConcessionariaCreateForm, ConcessionariaFullUpdateForm
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
@@ -84,7 +84,18 @@ def impostazioni_concessionaria(request):
         concessionaria_profile = request.user.concessionaria_profile
     except Concessionaria.DoesNotExist:
         concessionaria_profile = Concessionaria.objects.create(user=request.user)
+    if request.method == 'POST':
+        form = ConcessionariaFullUpdateForm(request.POST, instance=concessionaria_profile, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Dati aggiornati correttamente!')
+            return redirect('Concessionaria:impostazioni_concessionaria')
+        else:
+            messages.error(request, 'Errore nell\'aggiornamento dei dati. Controlla i campi.')
+    else:
+        form = ConcessionariaFullUpdateForm(instance=concessionaria_profile, user=request.user)
     return render(request, 'Concessionaria/impostazioni_concessionaria_template.html', {
         'user': request.user,
         'concessionaria_profile': concessionaria_profile,
+        'form': form,
     })

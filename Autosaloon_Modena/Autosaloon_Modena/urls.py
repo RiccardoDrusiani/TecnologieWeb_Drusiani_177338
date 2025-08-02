@@ -19,6 +19,7 @@ from django.urls import path, include
 from django_registration.backends.one_step import urls as registration_urls
 from django.conf import settings
 from django.conf.urls.static import static
+from django_registration.backends.one_step.views import RegistrationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +27,10 @@ urlpatterns = [
     path('Utente/', include(('apps.Utente.urls', 'Utente'), namespace='Utente')),
     path('Concessionaria/', include(('apps.Concessionaria.urls', 'Concessionaria'), namespace='Concessionaria')),
     path('Auto/', include('apps.Auto.urls')),
+    # Registrazione utente con template personalizzato (anche su /accounts/register/)
+    path('accounts/register/', RegistrationView.as_view(template_name='Utente/registration_form.html'), name='django_registration_register'),
+    # Registrazione concessionaria con template personalizzato
+    path('accounts/register/', RegistrationView.as_view(template_name='Concessionaria/registration_form.html'), name='register_concessionaria'),
     path("accounts/", include(registration_urls)),
     path("accounts/", include("django.contrib.auth.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

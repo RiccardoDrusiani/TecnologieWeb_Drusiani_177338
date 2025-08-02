@@ -33,7 +33,7 @@ class AutoAddView(CreateView):
         if prezzo_vendita:
             AutoVendita.objects.create(auto=auto, prezzo_vendita=prezzo_vendita, venditore=auto.id_possessore)
         if prezzo_affitto:
-            AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante_id=auto.id_possessore, affittante_tipologia=auto.tipologia_possessore)
+            AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante=auto.id_possessore)
         return super().form_valid(form)
 
     def form_invalid(self, form):

@@ -39,10 +39,10 @@
                         <div class="mb-3">
                             <form method="post" action="">
                                 {% csrf_token %}
-                                <button type="submit" formaction="{% url 'Auto:acquisto_auto' auto.pk %}" class="btn btn-success me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Compra</button>
-                                <button type="submit" formaction="{% url 'Auto:affitto_auto' auto.pk %}" class="btn btn-primary me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Affitta</button>
-                                <button type="submit" formaction="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Prenota</button>
-                                <button type="submit" formaction="{% url 'Auto:contrattazione_auto' auto.pk %}" class="btn btn-info me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Contratta</button>
+                                <button type="button" class="btn btn-success me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Compra</button>
+                                <button type="button" class="btn btn-primary me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Affitta</button>
+                                <button type="button" class="btn btn-warning me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Prenota</button>
+                                <button type="button" class="btn btn-info me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Contratta</button>
                             </form>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
                                 {% if user.is_authenticated and auto.user_auto == user %}
                                     <a href="#" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#rispostaModal{{ commento.id }}" onclick="event.stopPropagation();">Rispondi</a>
                                 {% endif %}
-                                {% if user.is_authenticated %}
+                                {% if user.is_authenticated and not commento.user.concessionaria_profile %}
                                     <a href="{% url 'Utente:crea_segnalazione' %}?commento_id={{ commento.id }}" class="btn btn-sm btn-outline-danger">Segnala</a>
                                 {% endif %}
                             </div>
