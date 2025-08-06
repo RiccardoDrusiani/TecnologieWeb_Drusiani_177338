@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5" style="align-content: center;  text-align: center;">
+    <h2>Acquisto auto</h2>
+    <p>Stai per acquistare l'auto: <strong>{{ object.marca }} {{ object.modello }}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Conferma Acquisto</button>
+        <a href="{{ object.get_absolute_url }}" class="btn btn-secondary">Annulla</a>
+    </form>
+    <h3 style="text-align: left;"> Riepilogo </h3>
+        <div style="text-align: left;">
+            Auto: {{ object.marca }} {{ object.modello }}<br>
+            Data Acquisto: {% now "d/m/Y" %}<br>
+            Prezzo: {{ object.vendita.first.prezzo_vendita }} €<br>
+            Venditore: {{ object.user_auto.username }}
+        </div>
+</div>
+{% endblock %}
+

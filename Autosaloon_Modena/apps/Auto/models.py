@@ -78,7 +78,7 @@ class AutoAffitto(models.Model):
     data_fine = models.DateTimeField(null=True)
     affittata = models.BooleanField(default=False)
     data_pubblicazione = models.DateTimeField(auto_now_add=True)
-    affittante = models.PositiveIntegerField()
+    affittante = models.PositiveIntegerField(blank=True, null=True)
     affittuario = models.PositiveIntegerField(blank=True, null=True)
     affittuario_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')], blank=True, null=True)
 

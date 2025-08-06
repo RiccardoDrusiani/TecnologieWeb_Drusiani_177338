@@ -131,24 +131,27 @@ class AutoAffittoView(UpdateView):
 
 @method_decorator(login_required, name='dispatch')
 class AutoAcquistoView(UpdateView):
-    model = AutoVendita
+    model = Auto
     form_class = VenditaAutoForm  # Assuming the same form is used for both
     template_name = 'Auto/acquisto_auto.html'
 
     def form_valid(self, form):
-        vendita = form.save(commit=False)
-        vendita.auto = self.get_object()
-        vendita.venditore = self.request.user
-        vendita.data_pubblicazione = datetime.now()
-        auto = vendita.auto
+        auto = form.save(commit=False)
+        vendita = AutoVendita.objects.filter(auto=auto).first()
+        if vendita:
+            vendita.venditore = self.request.user.id
+            vendita.data_pubblicazione = datetime.now()
         auto.tipologia_possessore, auto.id_possessore = user_or_concessionaria(self.request.user)
-        auto_affitto = AutoAffitto.objects.filter(auto=auto).first()
+        print(auto.id_possessore, auto.tipologia_possessore)
+        auto.user_auto_id = self.request.user.id  # Associa l'utente autenticato
+        auto_affitto = AutoAffitto.objects.filter(auto_id=auto.id).first()
         if auto_affitto:
-            auto_affitto.affittuario_tipologia, auto_affitto.affittuario_id = user_or_concessionaria(self.request.user)
-            auto_affitto.affittante_id, auto_affitto.affittante_tipologia = None, None
-        auto_affitto.save()
+            auto_affitto.affittuario_tipologia, auto_affitto.affittuario = user_or_concessionaria(self.request.user)
+            auto_affitto.affittante = None
+            auto_affitto.save()
         auto.save()
-        vendita.save()
+        if vendita:
+            vendita.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):

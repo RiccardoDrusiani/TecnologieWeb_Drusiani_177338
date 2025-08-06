@@ -39,10 +39,14 @@
                         <div class="mb-3">
                             <form method="post" action="">
                                 {% csrf_token %}
-                                <button type="button" class="btn btn-success me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Compra</button>
-                                <button type="button" class="btn btn-primary me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Affitta</button>
-                                <button type="button" class="btn btn-warning me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Prenota</button>
-                                <button type="button" class="btn btn-info me-2" {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}>Contratta</button>
+                                {% if user.id != auto.user_auto.id %}
+                                    <a href="{% url 'Auto:acquisto_auto' auto.pk %}" class="btn btn-success me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Compra</a>
+                                    {% if is_utente %}
+                                        <a href="{% url 'Auto:affitto_auto' auto.pk %}" class="btn btn-primary me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Affitta</a>
+                                        <a href="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Prenota</a>
+                                    {% endif %}
+                                    <a href="{% url 'Auto:contrattazione_auto' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
+                                {% endif %}
                             </form>
                         </div>
                     </div>

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5" style="align-content: center;  text-align: center;">
+    <h2>Prenota auto</h2>
+    <p>Stai per bloccare l'auto: <strong>{{ object.marca }} {{ object.modello }}</strong> agli altri utenti per: <strong>24</strong> ore</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Conferma Prenotazione</button>
+        <a href="{{ object.get_absolute_url }}" class="btn btn-secondary">Annulla</a>
+    </form>
+    <h3 style="text-align: left;"> Leggere Attentamente </h3>
+    Confermando la prenotazione si bloccherà qualsiasi altro utente al di fuori del proprietario e dell'interessato <br>
+    a qualsiasi azione sull'auto per 24 ore, eccetto per la sua visualizzazione. <br>
+    Dopo 24 ore, la prenotazione scadrà e l'auto tornerà disponibile per tutti gli utenti. <br>
+    Non sarà possibile effettuare un'altra prenotazione se non dopo la scadenza della precedente <br>
+    e il periodo di stallo dalla precedente e quella successiva di 2 giorni, 48 ore. <br>
+    Grazie per la comprensione e buona navigazione! <br>
+</div>
+{% endblock %}
+
