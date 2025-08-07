@@ -28,7 +28,7 @@ def user_or_concessionaria(user):
 
 
 def is_possessore_auto(user, auto):
-    return auto.user_auto == user
+    return auto.user_auto_id == user.id
 
 
 

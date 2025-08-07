@@ -35,8 +35,9 @@ DISPONIBILITA = [
     (3, "Contrattazione"),
     (4, "In Contrattazione (Venditore)"),
     (5, "In Contrattazione (Acquirente)"),
-    (6, "Prenotazione"),
-    (7, "Sconosciuto")
+    (6, "Prenotata"),
+    (7, "Affittata"),
+    (8, "Sconosciuto")
 ]
 
 # Create your models here.
@@ -51,7 +52,8 @@ class Auto(models.Model):
     cambio = models.IntegerField(choices=TIPOLOGIE_CAMBIO)
     trazione = models.IntegerField(choices=TIPOLOGIE_TRAZIONE)
     anno = models.PositiveIntegerField()
-    disponibilita = models.IntegerField(choices=DISPONIBILITA, default=5)
+    disponibilita = models.IntegerField(choices=DISPONIBILITA, default=8)
+    disponibilita_prec = models.IntegerField(choices=DISPONIBILITA, default=8)
     chilometraggio = models.PositiveIntegerField()
     descrizione = models.TextField(blank=True, null=True)
     immagine = models.ImageField(upload_to='Auto/', blank=True, null=True)

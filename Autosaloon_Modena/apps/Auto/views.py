@@ -110,14 +110,21 @@ class AutoModifyView(UserIsOwnerMixin, UpdateView):
 
 @method_decorator(login_required, name='dispatch')
 class AutoAffittoView(UpdateView):
-    model = AutoAffitto
+    model = Auto
     form_class = AffittoAutoForm
     template_name = 'Auto/affitto_auto.html'
 
     def form_valid(self, form):
-        affitto = form.save(commit=False)
-        affitto.auto = self.get_object()
-        affitto.affittuario_id, affitto.affittuario_tipologia = user_or_concessionaria(self.request.user)
+        auto = form.save(commit=False)
+        auto.disponibilita = '7'  # Imposta l'auto come disponibile per affitto
+        affitto = AutoAffitto.objects.filter(auto_id=auto.id).first()
+
+        affitto.affittante = self.request.user.id
+        affitto.affittata = True
+        affitto.data_pubblicazione = datetime.now()
+        affitto.data_inizio = form.cleaned_data.get('data_inizio')
+        affitto.data_fine = form.cleaned_data.get('data_fine')
+
         affitto.save()
         return super().form_valid(form)
 
@@ -186,6 +193,7 @@ class AutoPrenotaView(CreateView):
         return get_success_url_by_possessore(self.request)
 
 
+
 @method_decorator(login_required, name='dispatch')
 class AutoInContrattazioneView(UpdateView):
     model = AutoContrattazione
@@ -208,6 +216,7 @@ class AutoInContrattazioneView(UpdateView):
 
     def get_success_url(self):
         return get_success_url_by_possessore(self.request)
+
 
 
 @method_decorator(login_required, name='dispatch')
@@ -261,6 +270,9 @@ class AutoDetailView(DetailView):
                 context['is_utente'] = user.groups.filter(name="utente").exists()
             except Exception:
                 context['is_utente'] = False
+        # Aggiunta variabile per disponibilità
+        DISPONIBILITA_CODES = [0, 1, 2, 8]  # Sostituisci con i codici che vuoi considerare
+        context['is_in_disponibilita'] = self.object.disponibilita in DISPONIBILITA_CODES
         return context
 
 
@@ -308,4 +320,33 @@ def user_autos_view(request):
         'TIPOLOGIE_CARBURANTE': TIPOLOGIE_CARBURANTE,
         'TIPOLOGIE_TRAZIONE': TIPOLOGIE_TRAZIONE,
         'DISPONIBILITA': DISPONIBILITA
+    })
+
+@login_required
+def AffittaAutoRiepilogoView(request, pk):
+    auto = get_object_or_404(Auto, pk=pk)
+    if is_possessore_auto(request.user, auto):
+        return HttpResponseForbidden("Non hai i permessi per affittare questa auto.")
+
+    data_inizio = request.POST.get('data_inizio') or request.GET.get('data_inizio')
+    data_fine = request.POST.get('data_fine') or request.GET.get('data_fine')
+    errore_date = None
+
+    # Controllo validità date
+    if data_inizio and data_fine:
+        try:
+            data_inizio_dt = datetime.strptime(data_inizio, "%Y-%m-%d")
+            data_fine_dt = datetime.strptime(data_fine, "%Y-%m-%d")
+            if data_fine_dt < data_inizio_dt:
+                errore_date = "La data di fine non può essere precedente alla data di inizio."
+        except Exception:
+            errore_date = "Formato data non valido."
+
+    if errore_date:
+        return HttpResponseForbidden(f"Errore: {errore_date}")
+
+    return render(request, 'Auto/affitta_auto.html', {
+        'object': auto,
+        'data_inizio': data_inizio,
+        'data_fine': data_fine,
     })

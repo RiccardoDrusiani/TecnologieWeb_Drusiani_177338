@@ -7,3 +7,9 @@ DATBASE: sqlite
 FRAMEWORK: django-registration
 PRIVACY: django-slugify
 FILTRO-VER: django-filter
+SCHEDULING: celery beat
+            Comandi:
+                celery-server.exe
+                celery -A Autosaloon_Modena beat --loglevel=info
+                celery -A Autosaloon_Modena worker --loglevel=info --pool=solo 
+                    Quest'ultimo bisogna farlo così perchè altrimendi da problemi

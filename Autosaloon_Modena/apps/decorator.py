@@ -1,9 +1,14 @@
 import datetime
+from functools import wraps
+
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from django.contrib import messages
 from django.utils import timezone
-from apps.Utente.models import UserModelBan
+from .Utente.models import UserModelBan
+
+from .Auto.models import Auto, AutoAffitto, AutoPrenotazione
+
 
 def user_or_concessionaria_required(func):
     """
@@ -34,3 +39,4 @@ def ban_check(view_func):
                 pass
         return view_func(request, *args, **kwargs)
     return _wrapped_view
+

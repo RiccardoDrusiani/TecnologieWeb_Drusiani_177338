@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,6 +43,8 @@ INSTALLED_APPS = [
     'apps.Concessionaria.apps.ConcessionariaConfig',
     'apps.Auto.apps.AutoConfig',
     'django_registration',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -142,3 +145,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REGISTRATION_AUTO_LOGIN = True  # login automatico dopo la registrazione
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BEAT_SCHEDULE = {
+    'check_auto_disponibilita_ogni_minuto': {
+        'task': 'apps.Auto.tasks.check_auto_disponibilita_task',
+        'schedule': crontab(minute='*/1'),  # ogni minuto
+    },
+}

@@ -4,12 +4,17 @@
     <div class="row justify-content-center">
         <div class="col-12 col-xl-12 col-xxl-11" style="max-width: 1200px; padding-left: 150px; padding-right: 150px; width: 100%;">
             {# ALERT STATO AUTO #}
+
             {% if auto.disponibilita == 3 %}
                 <div class="alert alert-danger text-center" role="alert">Auto attualmente in contrattazione</div>
-            {% elif auto.disponibilita == 1 %}
-                <div class="alert alert-danger text-center" role="alert">Auto attualmente affittata</div>
+            {% elif auto.disponibilita == 4 %}
+                <div class="alert alert-danger text-center" role="alert">Auto attualmente in contrattazione</div>
+            {% elif auto.disponibilita == 5 %}
+                <div class="alert alert-danger text-center" role="alert">Auto attualmente in contrattazione</div>
             {% elif auto.disponibilita == 6 %}
                 <div class="alert alert-danger text-center" role="alert">Auto attualmente prenotata</div>
+            {% elif auto.disponibilita == 7 %}
+                <div class="alert alert-danger text-center" role="alert">Auto attualmente in affitto</div>
             {% endif %}
             <div class="card shadow-lg border-0 rounded-4" style="margin-top: 20px; margin-bottom: 20px; width: 150%; margin-left: -25%;">
                 <div class="row g-0">
@@ -39,13 +44,15 @@
                         <div class="mb-3">
                             <form method="post" action="">
                                 {% csrf_token %}
-                                {% if user.id != auto.user_auto.id %}
-                                    <a href="{% url 'Auto:acquisto_auto' auto.pk %}" class="btn btn-success me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Compra</a>
-                                    {% if is_utente %}
-                                        <a href="{% url 'Auto:affitto_auto' auto.pk %}" class="btn btn-primary me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Affitta</a>
-                                        <a href="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Prenota</a>
+                                {% if is_in_disponibilita %}
+                                    {% if user.id != auto.user_auto.id %}
+                                        <a href="{% url 'Auto:acquisto_auto' auto.pk %}" class="btn btn-success me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Compra</a>
+                                        {% if is_utente %}
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#affittoModal" class="btn btn-primary me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Affitta</a>
+                                            <a href="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Prenota</a>
+                                        {% endif %}
+                                        <a href="{% url 'Auto:contrattazione_auto' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
                                     {% endif %}
-                                    <a href="{% url 'Auto:contrattazione_auto' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
                                 {% endif %}
                             </form>
                         </div>
@@ -137,4 +144,60 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Affitto -->
+<div class="modal fade" id="affittoModal" tabindex="-1" aria-labelledby="affittoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'Auto:affitta_auto' auto.pk %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="affittoModalLabel">Affitta l'auto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="data_inizio" class="form-label">Data inizio</label>
+            <input type="date" class="form-control" id="data_inizio" name="data_inizio" required>
+          </div>
+          <div class="mb-3">
+            <label for="data_fine" class="form-label">Data fine</label>
+            <input type="date" class="form-control" id="data_fine" name="data_fine" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Totale:</label>
+            <span id="totaleAffitto">0</span> €
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="submit" class="btn btn-primary">Conferma Affitto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  // Prezzo giornaliero passato dal backend, esempio:
+  const prezzoGiornaliero = {{ auto.affitto.first.prezzo_affitto|default:50 }};
+  const totaleSpan = document.getElementById('totaleAffitto');
+  function calcolaTotale() {
+    const inizio = document.getElementById('data_inizio').value;
+    const fine = document.getElementById('data_fine').value;
+    if (inizio && fine) {
+      const start = new Date(inizio);
+      const end = new Date(fine);
+      const diff = (end - start) / (1000 * 60 * 60 * 24) + 1;
+      if (diff > 0) {
+        totaleSpan.textContent = diff * prezzoGiornaliero;
+      } else {
+        totaleSpan.textContent = 0;
+      }
+    } else {
+      totaleSpan.textContent = 0;
+    }
+  }
+  document.getElementById('data_inizio').addEventListener('change', calcolaTotale);
+  document.getElementById('data_fine').addEventListener('change', calcolaTotale);
+</script>
 {% endblock %}

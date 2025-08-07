@@ -15,8 +15,6 @@
 
 {{ auto_prenotazione }}
 
-{{ auto_vendita }}
-
 {{ messaggistica }}
 
 
