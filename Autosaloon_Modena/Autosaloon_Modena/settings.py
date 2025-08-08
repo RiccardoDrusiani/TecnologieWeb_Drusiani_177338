@@ -149,8 +149,12 @@ LOGOUT_REDIRECT_URL = '/'
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_BEAT_SCHEDULE = {
-    'check_auto_disponibilita_ogni_minuto': {
+    'check_auto_disponibilita_ogni_ora': {
         'task': 'apps.Auto.tasks.check_auto_disponibilita_task',
+        'schedule': crontab(hour='*/1'),  # ogni ora
+    },
+    'check_utenti_bananti_ogni_minuto': {
+        'task': 'apps.Utente.tasks.check_utenti_bannati_task',
         'schedule': crontab(minute='*/1'),  # ogni minuto
     },
 }

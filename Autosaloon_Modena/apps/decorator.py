@@ -5,10 +5,8 @@ from django.shortcuts import redirect
 from django.http import HttpResponseForbidden
 from django.contrib import messages
 from django.utils import timezone
-from .Utente.models import UserModelBan
-
-from .Auto.models import Auto, AutoAffitto, AutoPrenotazione
-
+from apps.Utente.models import UserModelBan
+from apps.Auto.models import Commento
 
 def user_or_concessionaria_required(func):
     """
@@ -40,3 +38,25 @@ def ban_check(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
+def user_is_banned(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        # Recupera l'utente da segnalare (se presente)
+        commento_id = request.POST.get('commento_id') or request.GET.get('commento_id')
+        if commento_id:
+            try:
+                commento = Commento.objects.get(id=commento_id)
+                segnalato = commento.user
+                ban_profile, _ = UserModelBan.objects.get_or_create(user=segnalato)
+                ban_profile.segnalazioni = (ban_profile.segnalazioni or 0)
+                if ban_profile.segnalazioni >= 4:
+                    now = timezone.now()
+                    ban_hours = 2 * (2 ** (ban_profile.qnt_ban or 0))
+                    ban_profile.data_inizio_ban = now
+                    ban_profile.data_fine_ban = now + timezone.timedelta(hours=ban_hours)
+                    ban_profile.qnt_ban = (ban_profile.qnt_ban or 0) + 1
+                    ban_profile.segnalazioni = 0
+                ban_profile.save()
+            except Commento.DoesNotExist:
+                pass
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view

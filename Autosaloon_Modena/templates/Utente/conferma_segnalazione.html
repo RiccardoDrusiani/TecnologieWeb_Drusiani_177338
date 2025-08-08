@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-danger text-white rounded-top-4 d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-exclamation-triangle-fill me-2" viewBox="0 0 16 16">
+                      <path d="M8.982 1.566a1.13 1.13 0 0 0-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.707c.89 0 1.438-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1-2.002 0 1 1 0 0 1 2.002 0z"/>
+                    </svg>
+                    <h4 class="mb-0">Conferma segnalazione</h4>
+                </div>
+                <div class="card-body">
+                    <p class="fs-5">Vuoi davvero segnalare questo commento?</p>
+                    <div class="mb-3 p-3 border rounded bg-light">
+                        <span class="fw-bold text-danger">Commento di {{ commento.user.username }}:</span><br>
+                        <span class="fst-italic">{{ commento.testo }}</span>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="commento_id" value="{{ commento.id }}">
+                        <div class="mb-3">
+                            <label for="motivo" class="form-label">Motivazione della segnalazione</label>
+                            <textarea name="motivo" id="motivo" class="form-control" rows="3" placeholder="Spiega il motivo della segnalazione..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger px-4 py-2 shadow-sm">Conferma segnalazione</button>
+                        <a href="{{ request.META.HTTP_REFERER|default:'/' }}" class="btn btn-outline-secondary ms-2 px-4 py-2">Annulla</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -35,5 +35,5 @@ class UserModelBan(models.Model):
 class Segnalazione(models.Model):
     segnalatore = models.ForeignKey(User, on_delete=models.CASCADE, related_name='segnalazioni_inviate')
     segnalato = models.ForeignKey(User, on_delete=models.CASCADE, related_name='segnalazioni_ricevute')
-    motivo = models.TextField()
+    motivo = models.TextField(blank=True, null=True)
     data_segnalazione = models.DateTimeField(auto_now_add=True)

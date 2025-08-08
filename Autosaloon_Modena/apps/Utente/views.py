@@ -5,15 +5,16 @@ from django.urls import reverse_lazy
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib import messages
-from .models import UserExtendModel
+from .models import UserExtendModel, Segnalazione, UserModelBan
 from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm, UserFullUpdateForm
 from ..Auto.models import Commento, Risposta, Auto, AutoVendita, AutoAffitto
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from apps.Utente.models import UserModelBan
 from django.utils import timezone
-from apps.decorator import ban_check
+from django.utils.decorators import method_decorator
+
+from ..decorator import user_is_banned
 
 
 # Creazione utente base + profilo esteso
@@ -143,68 +144,62 @@ class RispostaCreateView(CreateView):
         return redirect('home')
 
 # Creazione segnalazione
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_is_banned, name='dispatch')
 class SegnalazioneCreateView(CreateView):
+    model = Segnalazione
     form_class = SegnalazioneForm
-    template_name = 'Auto/auto_detail.html'
+    template_name = 'Utente/conferma_segnalazione.html'
     success_url = reverse_lazy('home')
 
-    def dispatch(self, request, *args, **kwargs):
-        # Esegui il controllo ban qui
-        if request.user.is_authenticated:
-            try:
-                ban_profile = request.user.user_ban_profile
-                now = timezone.now()
-                if ban_profile.data_fine_ban and now < ban_profile.data_fine_ban:
-                    remaining = ban_profile.data_fine_ban - now
-                    minutes = int(remaining.total_seconds() // 60)
-                    messages.error(request, f"Sei bannato! Tempo rimanente: {minutes} minuti.")
-                    return redirect('Utente:login')
-            except UserModelBan.DoesNotExist:
-                pass
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        commento_id = self.request.GET.get('commento_id')
+    def get(self, request, *args, **kwargs):
+        commento_id = request.GET.get('commento_id')
         if not commento_id:
-            messages.error(self.request, "Segnalazione non valida: commento mancante.")
+            messages.error(request, "Segnalazione non valida: commento mancante.")
+            return redirect(self.success_url)
+        try:
+            commento = Commento.objects.get(id=commento_id)
+        except Commento.DoesNotExist:
+            messages.error(request, "Commento non trovato.")
+            return redirect(self.success_url)
+        # Mostra una pagina di conferma con il commento da segnalare
+        form = self.form_class(initial={'commento': commento})
+        return render(request, self.template_name, {'form': form, 'commento': commento})
+
+    def post(self, request, *args, **kwargs):
+        commento_id = request.POST.get('commento_id')
+        if not commento_id:
+            messages.error(request, "Segnalazione non valida: commento mancante.")
             return redirect(self.success_url)
         try:
             commento = Commento.objects.get(id=commento_id)
             segnalato = commento.user
-            # Solo utenti normali possono essere segnalati
             if hasattr(segnalato, 'concessionaria_profile'):
-                messages.error(self.request, "Non puoi segnalare una concessionaria.")
+                messages.error(request, "Non puoi segnalare una concessionaria.")
                 return redirect(self.success_url)
-            # Salva la segnalazione
-            segnalazione = form.save(commit=False)
-            segnalazione.segnalante = self.request.user
-            segnalazione.segnalato = segnalato
-            segnalazione.commento = commento
-            segnalazione.save()
-            # Gestione ban
-            ban_profile, _ = UserModelBan.objects.get_or_create(user=segnalato)
-            ban_profile.segnalazioni = (ban_profile.segnalazioni or 0) + 1
-            if ban_profile.segnalazioni >= 5:
-                now = timezone.now()
-                # Ban incrementale
-                if ban_profile.qnt_ban:
-                    ban_hours = 2 * (2 ** (ban_profile.qnt_ban - 1))
-                else:
-                    ban_hours = 2
-                ban_profile.data_inizio_ban = now
-                ban_profile.data_fine_ban = now + timezone.timedelta(hours=ban_hours)
-                ban_profile.qnt_ban = (ban_profile.qnt_ban or 0) + 1
-                ban_profile.segnalazioni = 0
-                messages.error(self.request, f"Utente bannato per {ban_hours} ore!")
-            ban_profile.save()
-            messages.success(self.request, "Segnalazione inviata correttamente.")
+            form = self.form_class(request.POST)
+            if form.is_valid():
+                segnalazione = form.save(commit=False)
+                segnalazione.commento = commento
+                segnalazione.segnalatore_id = request.user.id
+                segnalazione.segnalato_id = segnalato.id
+                segnalazione.data_segnalazione = timezone.now()
+                segnalazione.save()
+                # Incrementa il contatore di segnalazioni per l'utente segnalato
+                try:
+                    user_ban_profile = segnalato.user_ban_profile
+                    user_ban_profile.segnalazioni += 1
+                    user_ban_profile.save()
+                except UserModelBan.DoesNotExist:
+                    UserModelBan.objects.create(user=segnalato, segnalazioni=1, qnt_ban=0)
+                messages.success(request, "Segnalazione inviata correttamente.")
+                return redirect(self.success_url)
+            else:
+                return render(request, self.template_name, {'form': form, 'commento': commento})
         except Commento.DoesNotExist:
-            messages.error(self.request, "Commento non trovato.")
-        return redirect(self.success_url)
+            messages.error(request, "Commento non trovato.")
+            return redirect(self.success_url)
 
-    def form_invalid(self, form):
-        messages.error(self.request, "Errore nell'invio della segnalazione.")
-        return redirect(self.success_url)
 
 # View per il logout utente
 class UserLogoutView(LogoutView):

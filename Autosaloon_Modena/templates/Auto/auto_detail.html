@@ -82,7 +82,7 @@
                             <div>{{ commento.testo }}</div>
                             <div class="mt-2">
                                 {% if user.is_authenticated and auto.user_auto == user %}
-                                    <a href="#" class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#rispostaModal{{ commento.id }}" onclick="event.stopPropagation();">Rispondi</a>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary me-2" onclick="event.stopPropagation();">Rispondi</a>
                                 {% endif %}
                                 {% if user.is_authenticated and not commento.user.concessionaria_profile %}
                                     <a href="{% url 'Utente:crea_segnalazione' %}?commento_id={{ commento.id }}" class="btn btn-sm btn-outline-danger">Segnala</a>
@@ -205,5 +205,48 @@
   }
   document.getElementById('data_inizio').addEventListener('change', calcolaTotale);
   document.getElementById('data_fine').addEventListener('change', calcolaTotale);
+</script>
+<style>
+.popup-segnalazione-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.popup-segnalazione-overlay.attivo {
+    display: flex !important;
+}
+.popup-segnalazione-box {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    min-width: 300px;
+    max-width: 90vw;
+}
+</style>
+<script>
+function apriPopupSegnalazione(id) {
+    var el = document.getElementById('popup-segnalazione-' + id);
+    if(el) {
+        el.classList.add('attivo');
+        el.onclick = function(e) {
+            if(e.target === el) chiudiPopupSegnalazione(id);
+        };
+    }
+}
+function chiudiPopupSegnalazione(id) {
+    var el = document.getElementById('popup-segnalazione-' + id);
+    if(el) {
+        el.classList.remove('attivo');
+        el.onclick = null;
+    }
+}
+function confermaSegnalazione(id) {
+    window.location.href = '/Utente/segnalazione/crea/?commento_id=' + id;
+}
 </script>
 {% endblock %}
