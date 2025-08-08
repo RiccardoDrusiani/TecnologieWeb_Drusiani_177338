@@ -84,6 +84,15 @@ class AutoAffitto(models.Model):
     affittuario = models.PositiveIntegerField(blank=True, null=True)
     affittuario_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')], blank=True, null=True)
 
+class AutoListaAffitto(models.Model):
+    lista_auto_affitto = models.ForeignKey(AutoAffitto, on_delete=models.CASCADE, related_name='lista_affitto')
+    prezzo_affitto = models.DecimalField(max_digits=10, decimal_places=2)
+    data_pubblicazione = models.DateTimeField(auto_now_add=True)
+    affittante = models.PositiveIntegerField()
+    affittante_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')])
+    data_inizio = models.DateTimeField(null=True)
+    data_fine = models.DateTimeField(null=True)
+
 class AutoContrattazione(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='contrattazione')
     prezzo_iniziale = models.DecimalField(max_digits=10, decimal_places=2)

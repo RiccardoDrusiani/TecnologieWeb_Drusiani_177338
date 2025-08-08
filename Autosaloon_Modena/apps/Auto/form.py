@@ -1,5 +1,5 @@
 from django import forms
-from .models import Auto, AutoAffitto, AutoVendita, AutoContrattazione
+from .models import Auto, AutoAffitto, AutoVendita, AutoContrattazione, AutoListaAffitto
 
 
 class AddAutoForm(forms.ModelForm):
@@ -33,6 +33,17 @@ class ModifyAutoForm(forms.ModelForm):
 class AffittoAutoForm(forms.ModelForm):
     class Meta:
         model = AutoAffitto
+        fields = [
+            'data_inizio', 'data_fine'
+        ]
+        widgets = {
+            'data_inizio': forms.DateInput(attrs={'type': 'date'}),
+            'data_fine': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class AffittoAutoListaForm(forms.ModelForm):
+    class Meta:
+        model = AutoListaAffitto
         fields = [
             'data_inizio', 'data_fine'
         ]

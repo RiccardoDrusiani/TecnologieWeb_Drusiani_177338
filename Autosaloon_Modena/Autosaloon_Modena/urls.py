@@ -24,6 +24,7 @@ from django_registration.backends.one_step.views import RegistrationView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.Autosalone.urls')),
+    path('Autosalone/', include(('apps.Autosalone.urls', 'Autosalone'), namespace='Autosalone')),
     path('Utente/', include(('apps.Utente.urls', 'Utente'), namespace='Utente')),
     path('Concessionaria/', include(('apps.Concessionaria.urls', 'Concessionaria'), namespace='Concessionaria')),
     path('Auto/', include('apps.Auto.urls')),

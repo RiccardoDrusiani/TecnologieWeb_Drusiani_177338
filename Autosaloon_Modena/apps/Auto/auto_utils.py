@@ -1,4 +1,4 @@
-from .models import AutoVendita, AutoAffitto
+from .models import AutoVendita, AutoAffitto, AutoListaAffitto
 
 
 def gestione_vendita_affitto(prezzo_vendita, prezzo_affitto, auto, original_vendita, original_affitto):
@@ -25,3 +25,16 @@ def gestione_vendita_affitto(prezzo_vendita, prezzo_affitto, auto, original_vend
     elif prezzo_affitto and original_affitto:
         original_affitto.delete()
         AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante=auto.id_possessore)
+
+def check_affittata_in_periodo (auto, data_inizio, data_fine):
+    """
+    Controlla se l'auto è affittata in un determinato periodo.
+    """
+    print("data_inizio:", data_inizio)
+    print("data_fine:", data_fine)
+    affitti = AutoListaAffitto.objects.filter(lista_auto_affitto=auto, data_inizio__lte=data_fine, data_fine__gte=data_inizio)
+    print("Queryset affitti:", affitti)
+    print("Numero affitti trovati:", affitti.count())
+    for affitto in affitti:
+        print(f"Affitto trovato: id={affitto.id}, auto={affitto.auto_id}, data_inizio={affitto.data_inizio}, data_fine={affitto.data_fine}")
+    return affitti.exists()

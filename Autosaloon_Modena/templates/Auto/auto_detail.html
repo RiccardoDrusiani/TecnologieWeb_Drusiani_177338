@@ -44,14 +44,16 @@
                         <div class="mb-3">
                             <form method="post" action="">
                                 {% csrf_token %}
-                                {% if is_in_disponibilita %}
-                                    {% if user.id != auto.user_auto.id %}
-                                        <a href="{% url 'Auto:acquisto_auto' auto.pk %}" class="btn btn-success me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Compra</a>
-                                        {% if is_utente %}
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#affittoModal" class="btn btn-primary me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Affitta</a>
-                                            <a href="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Prenota</a>
+                                {% if user.is_authenticated %}
+                                    {% if is_in_disponibilita %}
+                                        {% if user.id != auto.user_auto.id %}
+                                            <a href="{% url 'Auto:acquisto_auto' auto.pk %}" class="btn btn-success me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Compra</a>
+                                            {% if is_utente %}
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#affittoModal" class="btn btn-primary me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Affitta</a>
+                                                <a href="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Prenota</a>
+                                            {% endif %}
+                                            <a href="{% url 'Auto:contrattazione_auto' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
                                         {% endif %}
-                                        <a href="{% url 'Auto:contrattazione_auto' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
                                     {% endif %}
                                 {% endif %}
                             </form>
@@ -140,7 +142,11 @@
                 </div>
             </div>
             {# BOTTONE STICKY #}
-            <a href="{% url 'Auto:user_autos' %}" class="btn btn-secondary position-fixed" style="bottom: 30px; right: 30px; z-index: 9999;">Torna alla schermata dei veicoli</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'Auto:user_autos' %}" class="btn btn-secondary position-fixed" style="bottom: 30px; right: 30px; z-index: 9999;">Torna alla schermata dei veicoli</a>
+            {% endif %}
+            {# BOTTONE TORNA ALLA HOME #}
+            <a href="{% url 'Autosalone:home' %}" class="btn btn-secondary position-fixed" style="bottom: 30px; right: 300px; z-index: 9999;">Torna alla schermata iniziale</a>
         </div>
     </div>
 </div>

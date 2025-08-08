@@ -8,10 +8,12 @@ from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 
-from .auto_utils import gestione_vendita_affitto
-from .form import AddAutoForm, ModifyAutoForm, AffittoAutoForm, PrenotazioneAutoForm, VenditaAutoForm, ContrattoAutoForm
+from .auto_utils import gestione_vendita_affitto, check_affittata_in_periodo
+from .form import AddAutoForm, ModifyAutoForm, AffittoAutoForm, PrenotazioneAutoForm, VenditaAutoForm, \
+    ContrattoAutoForm, AffittoAutoListaForm
 from .mixin import UserIsOwnerMixin
-from .models import Auto, AutoAffitto, AutoVendita, AutoPrenotazione, AutoContrattazione, TIPOLOGIE_CARBURANTE, TIPOLOGIE_TRAZIONE, DISPONIBILITA
+from .models import Auto, AutoAffitto, AutoVendita, AutoPrenotazione, AutoContrattazione, TIPOLOGIE_CARBURANTE, \
+    TIPOLOGIE_TRAZIONE, DISPONIBILITA, AutoListaAffitto
 from ..decorator import user_or_concessionaria_required
 from ..utils import user_or_concessionaria, get_success_url_by_possessore, is_possessore_auto
 
@@ -109,23 +111,27 @@ class AutoModifyView(UserIsOwnerMixin, UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class AutoAffittoView(UpdateView):
-    model = Auto
-    form_class = AffittoAutoForm
+class AutoAffittoView(CreateView):
+    model = AutoListaAffitto
+    form_class = AffittoAutoListaForm
     template_name = 'Auto/affitto_auto.html'
 
     def form_valid(self, form):
-        auto = form.save(commit=False)
-        auto.disponibilita = '7'  # Imposta l'auto come disponibile per affitto
-        affitto = AutoAffitto.objects.filter(auto_id=auto.id).first()
+        auto_id = self.kwargs.get('pk')
+        auto = Auto.objects.get(pk=auto_id)
+        affitto = AutoAffitto.objects.filter(auto=auto).first()
+        lista_affitto = form.save(commit=False)
+        print("Affitto auto:", affitto)
 
-        affitto.affittante = self.request.user.id
-        affitto.affittata = True
-        affitto.data_pubblicazione = datetime.now()
-        affitto.data_inizio = form.cleaned_data.get('data_inizio')
-        affitto.data_fine = form.cleaned_data.get('data_fine')
+        lista_affitto.lista_auto_affitto=affitto
+        lista_affitto.data_pubblicazione=datetime.now()
+        lista_affitto.prezzo_affitto=affitto.prezzo_affitto
+        lista_affitto.affittante = self.request.user.id
+        lista_affitto.affittante_tipologia = self.request.user.groups.first().name
+        lista_affitto.data_inizio = form.cleaned_data.get('data_inizio')
+        lista_affitto.data_fine = form.cleaned_data.get('data_fine')
 
-        affitto.save()
+        lista_affitto.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -325,6 +331,7 @@ def user_autos_view(request):
 @login_required
 def AffittaAutoRiepilogoView(request, pk):
     auto = get_object_or_404(Auto, pk=pk)
+    auto_affitto = AutoAffitto.objects.filter(auto=auto).first()
     if is_possessore_auto(request.user, auto):
         return HttpResponseForbidden("Non hai i permessi per affittare questa auto.")
 
@@ -335,10 +342,14 @@ def AffittaAutoRiepilogoView(request, pk):
     # Controllo validità date
     if data_inizio and data_fine:
         try:
+            print("data_inizio:", data_inizio)
+            print("data_fine:", data_fine)
             data_inizio_dt = datetime.strptime(data_inizio, "%Y-%m-%d")
             data_fine_dt = datetime.strptime(data_fine, "%Y-%m-%d")
             if data_fine_dt < data_inizio_dt:
                 errore_date = "La data di fine non può essere precedente alla data di inizio."
+            if check_affittata_in_periodo(auto_affitto, data_inizio, data_fine):
+                errore_date = "L'auto è già affittata in questo periodo."
         except Exception:
             errore_date = "Formato data non valido."
 
