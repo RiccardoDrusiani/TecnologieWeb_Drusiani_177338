@@ -1,5 +1,5 @@
 from django import forms
-from .models import Auto, AutoAffitto, AutoVendita, AutoContrattazione, AutoListaAffitto
+from .models import Auto, AutoAffitto, AutoVendita, AutoContrattazione, AutoListaAffitto, AutoPrenotazione
 
 
 class AddAutoForm(forms.ModelForm):
@@ -69,11 +69,5 @@ class ContrattoAutoForm(forms.ModelForm):
 
 class PrenotazioneAutoForm(forms.ModelForm):
     class Meta:
-        model = Auto
-        fields = [
-            'disponibilita'
-        ]
-        widgets = {
-            'disponibilita': forms.Select(choices=[
-                (6, "Prenotazione")
-            ])}
+        model = AutoPrenotazione
+        fields = []

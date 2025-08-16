@@ -13,7 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-
+from apps.Auto.models import AutoAffitto, AutoListaAffitto, AutoPrenotazione, AutoContrattazione, Auto
+from .models import UserExtendModel
 from ..decorator import user_is_banned
 
 
@@ -237,4 +238,48 @@ def impostazioni_utente(request):
         'form': form,
         'user': request.user,
         'user_extend_profile': user_profile,
+    })
+
+@login_required
+def gestione_auto_view(request):
+    user = request.user
+    user_extend = UserExtendModel.objects.get(user=user)
+    # Auto: tutte le auto dell'utente
+    auto_list = Auto.objects.filter(user_auto=user)
+    # Affitti: auto dove l'utente è possessore o affittuario
+    affitti = AutoAffitto.objects.filter(affittante=user.id) | AutoAffitto.objects.filter(affittuario=user.id)
+    affitti = affitti.select_related('auto')
+    affitti_info = []
+    for affitto in affitti:
+        affittante_nome = affitto.affittante if not hasattr(affitto, 'affittante') or not affitto.affittante else User.objects.filter(id=affitto.affittante).first()
+        affittuario_nome = affitto.affittuario if not hasattr(affitto, 'affittuario') or not affitto.affittuario else User.objects.filter(id=affitto.affittuario).first()
+        affitti_info.append({
+            'affitto': affitto,
+            'affittante_nome': affittante_nome.username if affittante_nome and hasattr(affittante_nome, 'username') else affitto.affittante,
+            'affittuario_nome': affittuario_nome.username if affittuario_nome and hasattr(affittuario_nome, 'username') else affitto.affittuario,
+        })
+    # Prenotazioni: tutte le prenotazioni dell'utente
+    prenotazioni = AutoPrenotazione.objects.filter(prenotante_id=user.id).select_related('auto')
+    prenotazioni_info = []
+    for pren in prenotazioni:
+        prenotante_nome = User.objects.filter(id=pren.prenotante_id).first()
+        prenotazioni_info.append({
+            'prenotazione': pren,
+            'prenotante_nome': prenotante_nome.username if prenotante_nome else pren.prenotante_id,
+        })
+    # Contrattazioni: tutte le contrattazioni dell'utente
+    contrattazioni = AutoContrattazione.objects.filter(acquirente_id=user.id).select_related('auto')
+    contrattazioni_info = []
+    for contr in contrattazioni:
+        acquirente_nome = User.objects.filter(id=contr.acquirente_id).first()
+        contrattazioni_info.append({
+            'contrattazione': contr,
+            'acquirente_nome': acquirente_nome.username if acquirente_nome else contr.acquirente_id,
+        })
+    return render(request, 'Utente/gestione_auto.html', {
+        'auto_list': auto_list,
+        'affitti_info': affitti_info,
+        'prenotazioni_info': prenotazioni_info,
+        'contrattazioni_info': contrattazioni_info,
+        'user_extend': user,
     })

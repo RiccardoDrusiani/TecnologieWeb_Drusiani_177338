@@ -1,6 +1,7 @@
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from datetime import timezone as dt_timezone
+from datetime import timezone as dt_timezone, datetime, timedelta
 from apps.Auto.models import Auto, AutoAffitto, AutoPrenotazione
 
 class Command(BaseCommand):

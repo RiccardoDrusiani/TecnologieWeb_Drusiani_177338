@@ -7,15 +7,23 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Conferma Prenotazione</button>
-        <a href="{{ object.get_absolute_url }}" class="btn btn-secondary">Annulla</a>
+        <a href="{{ auto.get_absolute_url }}" class="btn btn-secondary">Annulla</a>
     </form>
+    <h3 style="text-align: left;"> Riepilogo </h3>
+        <div style="text-align: left;">
+            Auto: {{ auto.marca }} {{ auto.modello }}<br>
+            Data Inizio Prenotazione: {{ data_inizio }}<br>
+            Data Fine Prenotazione: {{ data_fine }}
+        </div>
     <h3 style="text-align: left;"> Leggere Attentamente </h3>
-    Confermando la prenotazione si bloccherà qualsiasi altro utente al di fuori del proprietario e dell'interessato <br>
-    a qualsiasi azione sull'auto per 24 ore, eccetto per la sua visualizzazione. <br>
-    Dopo 24 ore, la prenotazione scadrà e l'auto tornerà disponibile per tutti gli utenti. <br>
-    Non sarà possibile effettuare un'altra prenotazione se non dopo la scadenza della precedente <br>
-    e il periodo di stallo dalla precedente e quella successiva di 2 giorni, 48 ore. <br>
-    Grazie per la comprensione e buona navigazione! <br>
+    <div style="text-align: left; font-size: 0.9rem; color: #555;">
+        Confermando la prenotazione si bloccherà qualsiasi altro utente al di fuori del proprietario e dell'interessato <br>
+        a qualsiasi azione sull'auto per 24 ore, eccetto per la sua visualizzazione. <br>
+        Dopo 24 ore, la prenotazione scadrà e l'auto tornerà disponibile per tutti gli utenti. <br>
+        Non sarà possibile effettuare un'altra prenotazione se non dopo la scadenza della precedente <br>
+        e il periodo di stallo dalla precedente e quella successiva di 2 giorni, 48 ore. <br>
+        Grazie per la comprensione e buona navigazione! <br>
+    </div>
 </div>
 {% endblock %}
 

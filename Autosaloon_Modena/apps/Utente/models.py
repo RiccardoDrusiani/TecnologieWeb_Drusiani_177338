@@ -10,6 +10,8 @@ class UserExtendModel(models.Model):
     indirizzo = models.TextField(blank=True, null=True)
     telefono = models.CharField(max_length=15, blank=True, null=True)
     immagine_profilo = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    data_inizio_blocco_prenotazioni = models.DateTimeField(blank=True, null=True)
+    data_fine_blocco_prenotazioni = models.DateTimeField(blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True, null=True, max_length=255)
 
     def save(self, *args, **kwargs):

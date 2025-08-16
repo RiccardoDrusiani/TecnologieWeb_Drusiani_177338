@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Gestione Affitti, Prenotazioni e Contrattazioni</h2>
+    <div class="row">
+        <!-- Sezione Affitti -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">Affitti</div>
+                <div class="card-body">
+                    {% if affitti_info %}
+                        <ul class="list-group">
+                        {% for info in affitti_info %}
+                            <li class="list-group-item">
+                                <strong>{{ info.affitto.auto.marca }} {{ info.affitto.auto.modello }}</strong><br>
+                                <span class="badge bg-success">Affittante: {{ info.affittante_nome }}</span><br>
+                                <span class="badge bg-info">Affittuario: {{ info.affittuario_nome }}</span><br>
+                                Dal: {{ info.affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ info.affitto.data_fine|date:'d/m/Y H:i' }}
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Nessun affitto trovato.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Sezione Prenotazioni -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">Prenotazioni</div>
+                <div class="card-body">
+                    {% if prenotazioni_info %}
+                        <ul class="list-group">
+                        {% for info in prenotazioni_info %}
+                            <li class="list-group-item">
+                                <strong>{{ info.prenotazione.auto.marca }} {{ info.prenotazione.auto.modello }}</strong><br>
+                                <span class="badge bg-primary">Prenotante: {{ info.prenotante_nome }}</span><br>
+                                Dal: {{ info.prenotazione.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ info.prenotazione.data_fine|date:'d/m/Y H:i' }}
+                                <div class="mt-2">
+                                    <form method="post" action="{% url 'Auto:acquisto_auto' info.prenotazione.auto.pk %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">Acquista</button>
+                                    </form>
+                                    <form method="post" action="#" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary btn-sm">Contratta</button>
+                                    </form>
+                                    <!-- Bottone Affitta nel ciclo prenotazioni -->
+                                    <button type="button"
+                                            class="btn btn-info btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#affittoModal"
+                                            data-auto-id="{{ info.prenotazione.auto.pk }}">
+                                        Affitta
+                                    </button>
+                                    <form method="post" action="#" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Annulla Prenotazione</button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Nessuna prenotazione trovata.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Sezione Contrattazioni -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">Contrattazioni</div>
+                <div class="card-body">
+                    {% if contrattazioni_info %}
+                        <ul class="list-group">
+                        {% for info in contrattazioni_info %}
+                            <li class="list-group-item">
+                                <strong>{{ info.contrattazione.auto.marca }} {{ info.contrattazione.auto.modello }}</strong><br>
+                                <span class="badge bg-primary">Acquirente: {{ info.acquirente_nome }}</span><br>
+                                Stato: {{ info.contrattazione.get_stato_display|default:'-' }}<br>
+                                Prezzo attuale: {{ info.contrattazione.prezzo_attuale }} €
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Nessuna contrattazione trovata.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Affitto fuori dal ciclo -->
+<div class="modal fade" id="affittoModal" tabindex="-1" aria-labelledby="affittoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" id="affittoForm">
+        {% csrf_token %}
+        <input type="hidden" name="auto_id" id="modalAutoId">
+        <div class="modal-header">
+          <h5 class="modal-title" id="affittoModalLabel">Affitta l'auto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="data_inizio" class="form-label">Data inizio</label>
+            <input type="date" class="form-control" id="data_inizio" name="data_inizio" required>
+          </div>
+          <div class="mb-3">
+            <label for="data_fine" class="form-label">Data fine</label>
+            <input type="date" class="form-control" id="data_fine" name="data_fine" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Conferma Affitto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var affittoModal = document.getElementById('affittoModal');
+    affittoModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var autoId = button.getAttribute('data-auto-id');
+        document.getElementById('modalAutoId').value = autoId;
+        // Aggiorna l'action del form
+        var form = document.getElementById('affittoForm');
+        form.action = '/Auto/' + autoId + '/affitta/';
+    });
+});
+</script>
+{% endblock %}

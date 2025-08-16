@@ -3,17 +3,21 @@
    - Quand vai su add Auto o modify Auto, anche se non inserisci il prezzo ti salva l'auto
    - In modify Auto quando da un prezzo di Vendita e Affitto passi solo a Affitto ti lascia ugualmente quello di Vendita
 
-{{ home }}
-   - In home.html andare a migliorare il layout nell'header
 
-{{ auto_detail }}
-   - Aggiungere segnalazioni
+{{ home }}
+   - In home.html andare a migliorare drop-down
+
 
 {{ auto_contrattazione }}
 
+
 {{ auto_affitto }}
+    - Fare layout utente e concessionaria
+
 
 {{ auto_prenotazione }}
+    - Testare la prenotazione con utente e concessionaria
+
 
 {{ messaggistica }}
 

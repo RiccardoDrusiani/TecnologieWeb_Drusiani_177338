@@ -14,6 +14,7 @@ from .form import AddAutoForm, ModifyAutoForm, AffittoAutoForm, PrenotazioneAuto
 from .mixin import UserIsOwnerMixin
 from .models import Auto, AutoAffitto, AutoVendita, AutoPrenotazione, AutoContrattazione, TIPOLOGIE_CARBURANTE, \
     TIPOLOGIE_TRAZIONE, DISPONIBILITA, AutoListaAffitto
+from ..Utente.models import UserExtendModel
 from ..decorator import user_or_concessionaria_required
 from ..utils import user_or_concessionaria, get_success_url_by_possessore, is_possessore_auto
 
@@ -131,6 +132,13 @@ class AutoAffittoView(CreateView):
         lista_affitto.data_inizio = form.cleaned_data.get('data_inizio')
         lista_affitto.data_fine = form.cleaned_data.get('data_fine')
 
+        if auto.disponibilita != [3, 4, 5, 6, 7]:
+            auto.disponibilita_prec = auto.disponibilita
+            auto.disponibilita = 7  # Imposta la disponibilità a "Affitto"
+        else:
+            auto.disponibilita = 7
+        auto.save()
+
         lista_affitto.save()
         return super().form_valid(form)
 
@@ -151,21 +159,37 @@ class AutoAcquistoView(UpdateView):
     def form_valid(self, form):
         auto = form.save(commit=False)
         vendita = AutoVendita.objects.filter(auto=auto).first()
-        if vendita:
-            vendita.venditore = self.request.user.id
-            vendita.data_pubblicazione = datetime.now()
-        auto.tipologia_possessore, auto.id_possessore = user_or_concessionaria(self.request.user)
-        print(auto.id_possessore, auto.tipologia_possessore)
-        auto.user_auto_id = self.request.user.id  # Associa l'utente autenticato
-        auto_affitto = AutoAffitto.objects.filter(auto_id=auto.id).first()
-        if auto_affitto:
-            auto_affitto.affittuario_tipologia, auto_affitto.affittuario = user_or_concessionaria(self.request.user)
-            auto_affitto.affittante = None
-            auto_affitto.save()
-        auto.save()
-        if vendita:
-            vendita.save()
-        return super().form_valid(form)
+        if auto.disponibilita != [5, 7]:
+            if vendita:
+                vendita.venditore = self.request.user.id
+                vendita.data_pubblicazione = datetime.now()
+            auto.tipologia_possessore, auto.id_possessore = user_or_concessionaria(self.request.user)
+            print(auto.id_possessore, auto.tipologia_possessore)
+            auto.user_auto_id = self.request.user.id  # Associa l'utente autenticato
+            auto_affitto = AutoAffitto.objects.filter(auto_id=auto.id).first()
+            if auto_affitto:
+                auto_affitto.affittuario_tipologia, auto_affitto.affittuario = user_or_concessionaria(self.request.user)
+                auto_affitto.affittante = None
+                auto_affitto.save()
+
+            if vendita:
+                vendita.save()
+            # Elimina la prenotazione se esiste
+            auto_prenotata = AutoPrenotazione.objects.filter(auto=auto)
+            if auto_prenotata.exists():
+                auto_prenotata.delete()
+                auto.disponibilita = auto.disponibilita_prec
+                auto.disponibilita = 8  # Imposta la disponibilità a "Vendita"
+            # Elimina la contrattazione se esiste
+            auto_contrattazione = AutoContrattazione.objects.filter(auto=auto)
+            if auto_contrattazione.exists():
+                auto_contrattazione.delete()
+                auto.disponibilita = auto.disponibilita_prec
+                auto.disponibilita = 8  # Imposta la disponibilità a "Vendita"
+            auto.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form, errore="L'auto è già in vendita o affitto.")
 
     def form_invalid(self, form):
         return render(self.request, self.template_name, {'form': form})
@@ -183,20 +207,58 @@ class AutoPrenotaView(CreateView):
 
     def form_valid(self, form):
         prenotazione = form.save(commit=False)
-        auto = Auto.objects.get(pk=self.kwargs['pk'])
-        prenotazione.auto = auto
-        prenotazione.data_inizio = datetime.now()
-        prenotazione.data_fine = prenotazione.data_inizio + timedelta(hours=24)
-        prenotazione.proprietario = auto.id_possessore
-        prenotazione.prenotante_id, prenotazione.prenotante_tipologia = user_or_concessionaria(self.request.user)
-        prenotazione.save()
-        return super().form_valid(form)
+        user = self.request.user
+        from django.utils import timezone
+        if user.groups.filter(name='utente').exists():
+            extend_user = UserExtendModel.objects.get(user=user)
+            # Consenti la prenotazione solo se il blocco è assente o scaduto
+            if extend_user.data_fine_blocco_prenotazioni is None or extend_user.data_fine_blocco_prenotazioni < timezone.now():
+                auto = Auto.objects.get(id=self.kwargs['pk'])
+                auto.disponibilita_prec = auto.disponibilita
+                auto.disponibilita = 6  # Imposta la disponibilità a "Pren
+                auto.save()
+                prenotazione.auto = auto
+                prenotazione.prenotata = True
+                data_inizio = timezone.now()
+                prenotazione.data_inizio = data_inizio
+                prenotazione.data_fine = data_inizio + timedelta(hours=24)
+                prenotazione.data_pubblicazione = timezone.now()
+                prenotazione.proprietario_id = auto.id_possessore
+                prenotazione.proprietario_tipologia = auto.tipologia_possessore
+                prenotazione.prenotante_tipologia, prenotazione.prenotante_id = user_or_concessionaria(self.request.user)
+                prenotazione.save()
+                # Blocca le prenotazioni per 24 ore
+                extend_user.data_inizio_blocco_prenotazioni = timezone.now()
+                extend_user.data_fine_blocco_prenotazioni = extend_user.data_inizio_blocco_prenotazioni + timedelta(hours=24)
+                extend_user.save()
+                return super().form_valid(form)
+            else:
+                # Blocco attivo, mostra errore
+                return self.form_invalid(form, blocco_attivo=True)
+        # Non è un utente, mostra errore
+        return self.form_invalid(form, non_utente=True)
 
-    def form_invalid(self, form):
-        return render(self.request, self.template_name, {'form': form})
+    def form_invalid(self, form, blocco_attivo=False, non_utente=False):
+        context = {'form': form}
+        if blocco_attivo:
+            context['errore_blocco'] = "Non puoi prenotare: hai un blocco attivo sulle prenotazioni."
+        if non_utente:
+            context['errore_non_utente'] = "Solo gli utenti possono prenotare."
+        return render(self.request, self.template_name, context)
 
     def get_success_url(self):
         return get_success_url_by_possessore(self.request)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        auto = Auto.objects.get(pk=self.kwargs['pk'])
+        from django.utils import timezone
+        data_inizio = timezone.now()
+        data_fine = data_inizio + timedelta(hours=24)
+        context['auto'] = auto
+        context['data_inizio'] = data_inizio.strftime('%d/%m/%Y %H:%M')
+        context['data_fine'] = data_fine.strftime('%d/%m/%Y %H:%M')
+        return context
 
 
 
