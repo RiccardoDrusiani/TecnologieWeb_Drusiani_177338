@@ -1,15 +1,15 @@
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Concessionaria
-from .form import ConcessionariaForm, ConcessionariaUpdateForm, ConcessionariaLoginForm, ConcessionariaCreateForm, ConcessionariaFullUpdateForm
+from .models import Concessionaria, HistoryVendute
+from .form import ConcessionariaUpdateForm, ConcessionariaCreateForm, ConcessionariaFullUpdateForm
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
 
 from ..Auto.models import Auto
 
@@ -99,3 +99,46 @@ def impostazioni_concessionaria(request):
         'concessionaria_profile': concessionaria_profile,
         'form': form,
     })
+
+class ContrattazioniView(LoginRequiredMixin, View):
+    def get(self, request):
+        # Placeholder: in futuro sostituire con query reali
+        contrattazioni_avviate = []  # Contrattazioni avviate dalla concessionaria
+        contrattazioni_ricevute = [] # Contrattazioni ricevute da altri
+        # filterset = AutoFilterSet(request.GET, queryset=Auto.objects.all())
+        return render(request, 'Concessionaria/contrattazioni.html', {
+            'contrattazioni_avviate': contrattazioni_avviate,
+            'contrattazioni_ricevute': contrattazioni_ricevute,
+            # 'filter': filterset,
+        })
+
+class AutoVenduteView(LoginRequiredMixin, View):
+    def get(self, request):
+        # Recupera la concessionaria associata all'utente loggato
+        concessionaria = getattr(self.request.user, 'concessionaria_profile', None)
+        if concessionaria:
+            auto_vendute = HistoryVendute.objects.filter(concessionaria=concessionaria.user)
+        else:
+            auto_vendute = HistoryVendute.objects.none()
+        print(auto_vendute)
+        # filterset = AutoFilterSet(request.GET, queryset=Auto.objects.all())
+        return render(request, 'Concessionaria/auto_vendute.html', {
+            'auto_vendute': auto_vendute,
+            # 'filter': filterset,
+        })
+
+class AutoAffittateView(LoginRequiredMixin, View):
+    def get(self, request):
+        # Filtro solo auto affittate (disponibilita = 'affittata')
+        concessionaria = getattr(self.request.user, 'concessionaria_profile', None)
+        if concessionaria:
+            auto_affittate = HistoryVendute.objects.filter(concessionaria=concessionaria.user)
+        else:
+            auto_affittate = HistoryVendute.objects.none()
+        # filterset = AutoFilterSet(request.GET, queryset=Auto.objects.all())
+        return render(request, 'Concessionaria/auto_affittate.html', {
+            'auto_affittate': auto_affittate,
+            # 'filter': filterset,
+        })
+
+# La casella di posta usa la MessageListView già esistente in Autosalone.views

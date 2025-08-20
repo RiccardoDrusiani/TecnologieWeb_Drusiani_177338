@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Auto Affittate</h2>
+    {% if auto_affittate and auto_affittate.exists %}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Marca</th>
+                    <th>Modello</th>
+                    <th>Targa</th>
+                    <th>Data Richiesta</th>
+                    <th>Data Inizio Affitto</th>
+                    <th>Data Fine Affitto</th>
+                    <th>Prezzo Affitto</th>
+                    <th>Affittante</th>
+                    <th>Dettagli</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for affitto in auto_affittate %}
+                <tr>
+                    <td>{{ affitto.auto_marca }}</td>
+                    <td>{{ affitto.auto_modello }}</td>
+                    <td>{{ affitto.data_inizio|date:'d/m/Y' }}</td>
+                    <td>{{ affitto.data_fine|date:'d/m/Y' }}</td>
+                    <td>{{ affitto.prezzo_affitto }} €</td>
+                    <td>{{ affitto.affittante_username }}</td>
+                    <td>
+                        <a href="{% url 'Auto:auto-detail' affitto.auto.id %}" class="btn btn-primary btn-sm">Dettagli</a>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'Concessionaria:annulla_affitto' affitto.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
+                        </form>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info mt-3">Nessuna auto affittata trovata.</div>
+    {% endif %}
+</div>
+{% endblock %}
+

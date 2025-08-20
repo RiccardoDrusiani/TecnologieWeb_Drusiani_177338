@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Contrattazione per {{ contrattazione.auto.marca }} {{ contrattazione.auto.modello }}</h2>
+    <p>Stato: <strong>{{ contrattazione.get_stato_display }}</strong></p>
+    <p>Prezzo attuale: <strong>{{ contrattazione.prezzo_attuale }} €</strong></p>
+    <hr>
+    <h4>Storico offerte</h4>
+    <ul class="list-group mb-3">
+        {% for offerta in offerte %}
+            <li class="list-group-item">
+                <strong>{{ offerta.utente.username }}</strong> ({{ offerta.get_ruolo_display }})
+                ha proposto <strong>{{ offerta.prezzo_offerto }} €</strong>
+                <span class="text-muted small">({{ offerta.data_offerta|date:'d/m/Y H:i' }})</span>
+            </li>
+        {% empty %}
+            <li class="list-group-item">Nessuna offerta ancora.</li>
+        {% endfor %}
+    </ul>
+    {% if contrattazione.stato == 'in_corso' %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="prezzo_offerto" class="form-label">Proponi un nuovo prezzo</label>
+                <input type="number" step="0.01" min="1" class="form-control" name="prezzo_offerto" id="prezzo_offerto" required>
+            </div>
+            <button type="submit" name="azione" value="proponi" class="btn btn-primary">Proponi</button>
+            <button type="submit" name="azione" value="accetta" class="btn btn-success ms-2">Accetta questa offerta</button>
+        </form>
+    {% else %}
+        <div class="alert alert-info">Contrattazione conclusa.</div>
+    {% endif %}
+    <a href="{% url 'Auto:auto-detail' contrattazione.auto.pk %}" class="btn btn-secondary mt-3">Torna ai dettagli auto</a>
+</div>
+{% endblock %}
+

@@ -26,8 +26,8 @@ urlpatterns = [
     path('', include('apps.Autosalone.urls')),
     path('Autosalone/', include(('apps.Autosalone.urls', 'Autosalone'), namespace='Autosalone')),
     path('Utente/', include(('apps.Utente.urls', 'Utente'), namespace='Utente')),
-    path('Concessionaria/', include(('apps.Concessionaria.urls', 'Concessionaria'), namespace='Concessionaria')),
-    path('Auto/', include('apps.Auto.urls')),
+    path('Concessionaria/', include(('apps.Concessionaria.urls', 'concessionaria'), namespace='concessionaria')),
+    path('Auto/', include(('apps.Auto.urls', 'Auto'), namespace='Auto')),
     # Registrazione utente con template personalizzato (anche su /accounts/register/)
     path('accounts/register/', RegistrationView.as_view(template_name='Utente/registration_form.html'), name='django_registration_register'),
     # Registrazione concessionaria con template personalizzato

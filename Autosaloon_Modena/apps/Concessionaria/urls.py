@@ -2,6 +2,8 @@ from django.urls import path
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
 from . import views
 from .views import ConcessionariaCreateView, ConcessionariaUpdateView, ConcessionariaDeleteView
+from apps.Autosalone.views import MessageListView
+from .views import ContrattazioniView, AutoVenduteView, AutoAffittateView
 
 urlpatterns = [
     path('aggiungi/', ConcessionariaCreateView.as_view(), name='concessionaria-create'),
@@ -17,4 +19,8 @@ urlpatterns = [
     path('password_change/done/', PasswordChangeDoneView.as_view(
         template_name='Concessionaria/password_change_done.html'
     ), name='password_change_done'),
+    path('contrattazioni/', ContrattazioniView.as_view(), name='contrattazioni'),
+    path('auto_vendute/', AutoVenduteView.as_view(), name='auto_vendute'),
+    path('auto_affittate/', AutoAffittateView.as_view(), name='auto_affittate'),
+    path('casella_posta/', MessageListView.as_view(), name='casella_posta'),
 ]

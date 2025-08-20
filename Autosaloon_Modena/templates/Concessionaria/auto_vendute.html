@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Auto Vendute</h2>
+    {% if auto_vendute and auto_vendute.exists %}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Marca</th>
+                    <th>Modello</th>
+                    <th>Acquirente</th>
+                    <th>Data Vendita</th>
+                    <th>Prezzo Vendita</th>
+                    <th>Dettagli</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vendita in auto_vendute %}
+                <tr>
+                    <td>{{ vendita.auto_marca }}</td>
+                    <td>{{ vendita.auto_modello }}</td>
+                    <td>{{ vendita.acquirente_username }}</td>
+                    <td>{{ vendita.data|date:'d/m/Y' }}</td>
+                    <td>{{ vendita.prezzo_vendita }} €</td>
+                    <td>
+                        <a href="{% url 'Auto:auto-detail' vendita.auto_id %}" class="btn btn-primary btn-sm">Dettagli</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info mt-3">Nessuna auto venduta trovata.</div>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -7,13 +7,16 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import transaction
 
 from .auto_utils import gestione_vendita_affitto, check_affittata_in_periodo
 from .form import AddAutoForm, ModifyAutoForm, AffittoAutoForm, PrenotazioneAutoForm, VenditaAutoForm, \
     ContrattoAutoForm, AffittoAutoListaForm
 from .mixin import UserIsOwnerMixin
 from .models import Auto, AutoAffitto, AutoVendita, AutoPrenotazione, AutoContrattazione, TIPOLOGIE_CARBURANTE, \
-    TIPOLOGIE_TRAZIONE, DISPONIBILITA, AutoListaAffitto
+    TIPOLOGIE_TRAZIONE, DISPONIBILITA, AutoListaAffitto, ContrattazioneOfferta
+from ..Concessionaria.models import HistoryAffittate, HistoryVendute
 from ..Utente.models import UserExtendModel
 from ..decorator import user_or_concessionaria_required
 from ..utils import user_or_concessionaria, get_success_url_by_possessore, is_possessore_auto
@@ -131,13 +134,18 @@ class AutoAffittoView(CreateView):
         lista_affitto.affittante_tipologia = self.request.user.groups.first().name
         lista_affitto.data_inizio = form.cleaned_data.get('data_inizio')
         lista_affitto.data_fine = form.cleaned_data.get('data_fine')
-
-        if auto.disponibilita != [3, 4, 5, 6, 7]:
-            auto.disponibilita_prec = auto.disponibilita
-            auto.disponibilita = 7  # Imposta la disponibilità a "Affitto"
-        else:
-            auto.disponibilita = 7
         auto.save()
+
+        if auto.user_auto.groups.filter(name="concessionaria").exists():
+            HistoryAffittate.objects.create(
+                concessionaria=auto.user_auto,
+                affittante_username=self.request.user.username,
+                auto_marca=auto.marca,
+                auto_modello=auto.modello,
+                data_inizio=lista_affitto.data_inizio,
+                data_fine=lista_affitto.data_fine,
+                prezzo_affitto=lista_affitto.prezzo_affitto
+            )
 
         lista_affitto.save()
         return super().form_valid(form)
@@ -159,6 +167,16 @@ class AutoAcquistoView(UpdateView):
     def form_valid(self, form):
         auto = form.save(commit=False)
         vendita = AutoVendita.objects.filter(auto=auto).first()
+        if auto.user_auto.groups.filter(name="concessionaria").exists():
+            HistoryVendute.objects.create(
+                concessionaria=auto.user_auto,
+                auto_id =auto.id,
+                acquirente_username=self.request.user.username,
+                auto_marca=auto.marca,
+                auto_modello=auto.modello,
+                data=datetime.now(),
+                prezzo_vendita=vendita.prezzo_vendita if vendita else 0
+            )
         if auto.disponibilita != [5, 7]:
             if vendita:
                 vendita.venditore = self.request.user.id
@@ -179,7 +197,7 @@ class AutoAcquistoView(UpdateView):
             if auto_prenotata.exists():
                 auto_prenotata.delete()
                 auto.disponibilita = auto.disponibilita_prec
-                auto.disponibilita = 8  # Imposta la disponibilità a "Vendita"
+                auto.disponibilita_prec = 8  # Imposta la disponibilità a "Vendita"
             # Elimina la contrattazione se esiste
             auto_contrattazione = AutoContrattazione.objects.filter(auto=auto)
             if auto_contrattazione.exists():
@@ -422,4 +440,81 @@ def AffittaAutoRiepilogoView(request, pk):
         'object': auto,
         'data_inizio': data_inizio,
         'data_fine': data_fine,
+    })
+
+@login_required
+def contrattazione_auto_view(request, pk):
+    auto = get_object_or_404(Auto, pk=pk)
+    user = request.user
+    contrattazione = AutoContrattazione.objects.filter(auto=auto, stato='in_corso').first()
+    if not contrattazione:
+        # Avvia nuova contrattazione solo se non esiste
+        if request.method == 'POST' and 'prezzo_offerto' in request.POST:
+            with transaction.atomic():
+                contrattazione = AutoContrattazione.objects.create(
+                    auto=auto,
+                    prezzo_iniziale=request.POST['prezzo_offerto'],
+                    prezzo_attuale=request.POST['prezzo_offerto'],
+                    venditore_id=auto.id_possessore,
+                    venditore_tipologia=auto.tipologia_possessore,
+                    acquirente_id=user.id,
+                    acquirente_tipologia='Utente' if user.groups.filter(name='utente').exists() else 'Concessionaria',
+                    stato='in_corso',
+                )
+                ContrattazioneOfferta.objects.create(
+                    contrattazione=contrattazione,
+                    utente=user,
+                    prezzo_offerto=request.POST['prezzo_offerto'],
+                    ruolo=0
+                )
+                auto.disponibilita = 3  # In contrattazione
+                auto.save()
+            return redirect('Auto:contrattazione_auto', pk=auto.pk)
+        return render(request, 'Auto/contrattazione_auto.html', {'contrattazione': None, 'offerte': []})
+
+    offerte = contrattazione.offerte.order_by('data_offerta')
+    ultima_offerta = offerte.last() if offerte.exists() else None
+    accettazioni = getattr(contrattazione, 'accettazioni', {}) or {}
+    if request.method == 'POST':
+        azione = request.POST.get('azione')
+        if azione == 'proponi':
+            prezzo = request.POST.get('prezzo_offerto')
+            if prezzo:
+                with transaction.atomic():
+                    ContrattazioneOfferta.objects.create(
+                        contrattazione=contrattazione,
+                        utente=user,
+                        prezzo_offerto=prezzo,
+                        ruolo=0 if user.id == contrattazione.acquirente_id else 1
+                    )
+                    contrattazione.prezzo_attuale = prezzo
+                    contrattazione.save()
+                    # Reset accettazioni
+                    contrattazione.accettazioni = {}
+            return redirect('Auto:contrattazione_auto', pk=auto.pk)
+        elif azione == 'accetta':
+            # Logica accettazione
+            if not hasattr(contrattazione, 'accettazioni') or not contrattazione.accettazioni:
+                contrattazione.accettazioni = {}
+            contrattazione.accettazioni[str(user.id)] = str(contrattazione.prezzo_attuale)
+            # Se entrambe le parti hanno accettato lo stesso prezzo
+            if (str(contrattazione.acquirente_id) in contrattazione.accettazioni and
+                str(contrattazione.venditore_id) in contrattazione.accettazioni and
+                contrattazione.accettazioni[str(contrattazione.acquirente_id)] == contrattazione.accettazioni[str(contrattazione.venditore_id)]):
+                contrattazione.stato = 'conclusa'
+                contrattazione.prezzo_finale = contrattazione.prezzo_attuale
+                contrattazione.data_fine = datetime.now()
+                contrattazione.save()
+                auto.disponibilita = 8  # Sconosciuto/libera
+                auto.user_auto_id = contrattazione.acquirente_id
+                auto.id_possessore = contrattazione.acquirente_id
+                auto.tipologia_possessore = contrattazione.acquirente_tipologia
+                auto.save()
+                messages.success(request, 'Contrattazione conclusa con successo!')
+            else:
+                messages.info(request, 'Hai accettato l’offerta. In attesa della controparte.')
+            return redirect('Auto:contrattazione_auto', pk=auto.pk)
+    return render(request, 'Auto/contrattazione_auto.html', {
+        'contrattazione': contrattazione,
+        'offerte': offerte,
     })

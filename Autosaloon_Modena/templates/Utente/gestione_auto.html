@@ -82,7 +82,8 @@
                                 <strong>{{ info.contrattazione.auto.marca }} {{ info.contrattazione.auto.modello }}</strong><br>
                                 <span class="badge bg-primary">Acquirente: {{ info.acquirente_nome }}</span><br>
                                 Stato: {{ info.contrattazione.get_stato_display|default:'-' }}<br>
-                                Prezzo attuale: {{ info.contrattazione.prezzo_attuale }} €
+                                Prezzo attuale: {{ info.contrattazione.prezzo_attuale }} €<br>
+                                <a href="{% url 'Auto:contrattazione_auto' info.contrattazione.auto.pk %}" class="btn btn-outline-info btn-sm mt-2">Vai alla contrattazione</a>
                             </li>
                         {% endfor %}
                         </ul>
