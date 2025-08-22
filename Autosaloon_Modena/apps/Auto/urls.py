@@ -15,7 +15,6 @@ urlpatterns = [
     path('<int:pk>/affitto/', AutoAffittoView.as_view(), name='affitto_auto'),
     path('<int:pk>/acquisto/', AutoAcquistoView.as_view(), name='acquisto_auto'),
     path('<int:pk>/prenota/', AutoPrenotaView.as_view(), name='prenota_auto'),
-    path('<int:pk>/fine-contrattazione/', AutoFineContrattazioneView.as_view(), name='fine_contrattazione_auto'),
     path('<int:pk>/', AutoDetailView.as_view(), name='auto-detail'),
     path('user-autos/', user_autos_view, name='user_autos'),
     path('<int:pk>/affitta/', AffittaAutoRiepilogoView, name='affitta_auto'),

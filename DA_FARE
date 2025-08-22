@@ -13,7 +13,11 @@
 
 
 {{ messaggistica }}
-    - Implementare
+    - Aggiungere creazione chat nell'applicativo
+    - Testare chat
+
+{{ test.py }}
+    - Farli ancora tutti
 
 
 

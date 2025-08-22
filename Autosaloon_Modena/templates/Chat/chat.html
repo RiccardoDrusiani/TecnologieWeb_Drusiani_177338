@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Chat Globale</h2>
+    <div id="chat-log" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; background: #f9f9f9;"></div>
+    <form id="chat-form" class="mt-2">
+        <div class="input-group">
+            <input id="chat-message-input" type="text" class="form-control" placeholder="Scrivi un messaggio..." autocomplete="off">
+            <button id="chat-message-submit" type="submit" class="btn btn-primary">Invia</button>
+        </div>
+    </form>
+</div>
+<script>
+    const chatLog = document.getElementById('chat-log');
+    const chatInput = document.getElementById('chat-message-input');
+    const chatForm = document.getElementById('chat-form');
+    const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const chatSocket = new WebSocket(
+        ws_scheme + '://' + window.location.host + '/ws/chat/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const msg = `<b>${data.username}:</b> ${data.message}`;
+        chatLog.innerHTML += msg + '<br>';
+        chatLog.scrollTop = chatLog.scrollHeight;
+    };
+
+    chatSocket.onclose = function(e) {
+        chatLog.innerHTML += '<span style="color:red">Connessione chiusa.</span><br>';
+    };
+
+    chatForm.onsubmit = function(e) {
+        e.preventDefault();
+        const message = chatInput.value;
+        if (message.trim() !== '') {
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            chatInput.value = '';
+        }
+    };
+</script>
+{% endblock %}
+

@@ -12,6 +12,7 @@ Gestione autosalone online sviluppata per il corso di Tecnologie Web.
 - **Gestione immagini:** Pillow
 - **Slug:** django-slugify
 - **Task scheduling:** Celery + Redis
+- **Messaggistica:** DJango Channels
 
 ## Installazione
 

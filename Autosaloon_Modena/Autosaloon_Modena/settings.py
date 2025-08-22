@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'django_registration',
     'django_celery_results',
     'django_celery_beat',
+    'channels',
+    'Chat',
 ]
 
 MIDDLEWARE = [
@@ -76,6 +78,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Autosaloon_Modena.wsgi.application'
+ASGI_APPLICATION = 'Autosaloon_Modena.asgi.application'
 
 
 # Database
@@ -156,5 +159,14 @@ CELERY_BEAT_SCHEDULE = {
     'check_utenti_bananti_ogni_minuto': {
         'task': 'apps.Utente.tasks.check_utenti_bannati_task',
         'schedule': crontab(minute='*/1'),  # ogni minuto
+    },
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
     },
 }
