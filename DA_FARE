@@ -9,11 +9,11 @@
 
 
 {{ auto_contrattazione }}
-    - Inserire Accetta, Rifiuta, Messaggia
-    - Ricontrattazione testarlo
+    - Ricontrattazione, Accetta, Rifiuta testarlo
 
 
 {{ messaggistica }}
+    - Implementare
 
 
 

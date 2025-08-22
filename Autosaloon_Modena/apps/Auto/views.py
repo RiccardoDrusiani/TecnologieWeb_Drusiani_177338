@@ -347,41 +347,58 @@ class ContrattazioneOffertaView(UpdateView):
             return reverse('Utente:gestione_auto')
 
 @method_decorator(login_required, name='dispatch')
-class AutoFineContrattazioneView(UpdateView):
+class AutoFineContrattazioneFallitaView(UpdateView):
     model = AutoContrattazione
-    template_name = 'Auto/fine_contrattazione_auto.html'
-    form_class = ContrattoAutoForm
-
-    def form_valid(self, form):
-        contrattazione = form.save(commit=False)
-        contrattazione.prezzo_finale = contrattazione.prezzo_attuale
-        contrattazione.data_fine = datetime.now(timezone.utc)
-        contrattazione.save()
-
-        # Trasferimento proprietà auto
+    def post(self, request, pk, *args, **kwargs):
+        contrattazione = get_object_or_404(AutoContrattazione, pk=pk)
         auto = contrattazione.auto
+        # Riporta la disponibilità allo stato precedente
+        auto.disponibilita = auto.disponibilita_prec
+        auto.save()
+        # Elimina la contrattazione
+        contrattazione.delete()
+        # Redirect
+        from django.urls import reverse
+        if request.user.groups.filter(name='concessionaria').exists():
+            return redirect(reverse('Concessionaria:contrattazioni'))
+        else:
+            return redirect(reverse('Utente:gestione_auto'))
+
+@method_decorator(login_required, name='dispatch')
+class AutoFineContrattazioneSuccessoView(UpdateView):
+    model = AutoContrattazione
+
+    def post(self, request, pk, *args, **kwargs):
+        contrattazione = get_object_or_404(AutoContrattazione, pk=pk)
+        auto = contrattazione.auto
+        # Cambia possessore auto
+        auto.user_auto_id = contrattazione.acquirente_id
         auto.tipologia_possessore = contrattazione.acquirente_tipologia
         auto.id_possessore = contrattazione.acquirente_id
-        auto_affitto = AutoAffitto.objects.filter(auto=auto).first()
-        if auto_affitto:
-            auto_affitto.affittante_id, auto_affitto.affittante_tipologia = None, None
-            auto_affitto.affittuario_id, auto_affitto.affittuario_tipologia = contrattazione.acquirente_id, contrattazione.acquirente_tipologia
-            auto_affitto.save()
-        auto_vendita = AutoVendita.objects.filter(auto=auto).first()
-        if auto_vendita:
-            auto_vendita.venditore = contrattazione.venditore_id
-            auto_vendita.save()
+        # Riporta la disponibilità allo stato precedente
+        auto.disponibilita = auto.disponibilita_prec
         auto.save()
-        # Rimuovi l'auto dalle vendite
-        AutoVendita.objects.filter(auto=auto).delete()
+        # Aggiorna AutoVendita
+        vendita = AutoVendita.objects.filter(auto=auto).first()
+        if vendita:
+            vendita.venditore = contrattazione.acquirente_id
+            vendita.save()
+        # Aggiorna AutoAffitto
+        affitto = AutoAffitto.objects.filter(auto=auto).first()
+        if affitto:
+            affitto.affittante = contrattazione.acquirente_id
+            affitto.affittuario = None
+            affitto.affittuario_tipologia = None
+            affitto.save()
+        # Elimina la contrattazione
+        contrattazione.delete()
+        # Redirect
+        from django.urls import reverse
+        if request.user.groups.filter(name='concessionaria').exists():
+            return redirect(reverse('Concessionaria:contrattazioni'))
+        else:
+            return redirect(reverse('Utente:gestione_auto'))
 
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        return render(self.request, self.template_name, {'form': form})
-
-    def get_success_url(self):
-        return get_success_url_by_possessore(self.request)
 
 
 

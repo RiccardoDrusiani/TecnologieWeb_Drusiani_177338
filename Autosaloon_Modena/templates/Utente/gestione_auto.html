@@ -94,8 +94,14 @@
                                     Prezzo attuale: {{ info.prezzo_attuale }} €<br>
                                     {% if info.stato == 2 %}
                                         <div class="mt-2">
-                                            <a href="#" class="btn btn-success btn-sm">Accetta</a>
-                                            <a href="#" class="btn btn-danger btn-sm">Rifiuta</a>
+                                            <form method="post" action="{% url 'Auto:contrattazione_successo' info.pk %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm">Accetta</button>
+                                            </form>
+                                            <form method="post" action="{% url 'Auto:contrattazione_fallita' info.pk %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger btn-sm">Rifiuta</button>
+                                            </form>
                                             <a href="{% url 'Auto:contrattazione_auto_view' info.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
                                             <a href="#" class="btn btn-info btn-sm">Messaggia</a>
                                             <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
@@ -120,8 +126,14 @@
                                     Prezzo attuale: {{ info.prezzo_attuale }} €<br>
                                     {% if info.stato == 1 %}
                                         <div class="mt-2">
-                                            <a href="#" class="btn btn-success btn-sm">Accetta</a>
-                                            <a href="#" class="btn btn-danger btn-sm">Rifiuta</a>
+                                            <form method="post" action="{% url 'Auto:contrattazione_successo' info.pk %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm">Accetta</button>
+                                            </form>
+                                            <form method="post" action="{% url 'Auto:contrattazione_fallita' info.pk %}" style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger btn-sm">Rifiuta</button>
+                                            </form>
                                             <a href="{% url 'Auto:contrattazione_auto_view' info.auto.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
                                             <a href="#" class="btn btn-info btn-sm">Messaggia</a>
                                             <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
