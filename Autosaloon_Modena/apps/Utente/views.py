@@ -268,18 +268,15 @@ def gestione_auto_view(request):
             'prenotante_nome': prenotante_nome.username if prenotante_nome else pren.prenotante_id,
         })
     # Contrattazioni: tutte le contrattazioni dell'utente
-    contrattazioni = AutoContrattazione.objects.filter(acquirente_id=user.id).select_related('auto')
-    contrattazioni_info = []
-    for contr in contrattazioni:
-        acquirente_nome = User.objects.filter(id=contr.acquirente_id).first()
-        contrattazioni_info.append({
-            'contrattazione': contr,
-            'acquirente_nome': acquirente_nome.username if acquirente_nome else contr.acquirente_id,
-        })
+    contrattazioni_iniziate = AutoContrattazione.objects.filter(acquirente_id=user.id, acquirente_tipologia='Utente').select_related('auto')
+    contrattazioni_ricevute = AutoContrattazione.objects.filter(venditore_id=user.id, venditore_tipologia='Utente').select_related('auto')
+
+
     return render(request, 'Utente/gestione_auto.html', {
         'auto_list': auto_list,
         'affitti_info': affitti_info,
         'prenotazioni_info': prenotazioni_info,
-        'contrattazioni_info': contrattazioni_info,
+        'contrattazioni_iniziate': contrattazioni_iniziate,
+        'contrattazioni_ricevute': contrattazioni_ricevute,
         'user_extend': user,
     })

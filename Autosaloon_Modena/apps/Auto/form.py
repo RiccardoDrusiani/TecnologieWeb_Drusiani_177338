@@ -71,3 +71,4 @@ class PrenotazioneAutoForm(forms.ModelForm):
     class Meta:
         model = AutoPrenotazione
         fields = []
+

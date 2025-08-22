@@ -1,36 +1,69 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
-    <h2>Contrattazione per {{ contrattazione.auto.marca }} {{ contrattazione.auto.modello }}</h2>
-    <p>Stato: <strong>{{ contrattazione.get_stato_display }}</strong></p>
-    <p>Prezzo attuale: <strong>{{ contrattazione.prezzo_attuale }} €</strong></p>
-    <hr>
-    <h4>Storico offerte</h4>
-    <ul class="list-group mb-3">
-        {% for offerta in offerte %}
-            <li class="list-group-item">
-                <strong>{{ offerta.utente.username }}</strong> ({{ offerta.get_ruolo_display }})
-                ha proposto <strong>{{ offerta.prezzo_offerto }} €</strong>
-                <span class="text-muted small">({{ offerta.data_offerta|date:'d/m/Y H:i' }})</span>
-            </li>
-        {% empty %}
-            <li class="list-group-item">Nessuna offerta ancora.</li>
-        {% endfor %}
-    </ul>
-    {% if contrattazione.stato == 'in_corso' %}
-        <form method="post">
+    <h2>Contrattazione per <strong>{{ auto.marca }} {{ auto.modello }}</strong></h2>
+    {% if contrattazione %}
+        <p>Stato: <strong>{{ contrattazione.get_stato_display }}</strong></p>
+    {% else %}
+        <p>Stato: <strong>Disponibile alla contrattazione</strong></p>
+    {% endif %}
+    <p>Prezzo auto iniziale: <strong>{{ prezzo_vendita_auto_iniziale }} €</strong></p>
+    {% if contrattazione %}
+        <p>Prezzo attuale: <strong>{{ contrattazione.prezzo_attuale }} €</strong></p>
+        <hr>
+
+        {% if contrattazione and contrattazione.pk %}
+            <form method="post" action="{% url 'Auto:contrattazione_offerta_update' contrattazione.pk %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="prezzo_attuale" class="form-label">Proponi un nuovo prezzo</label>
+                    <input type="number" step="0.01" min="1" class="form-control" name="prezzo_attuale" id="prezzo_attuale" required>
+                </div>
+                <button type="submit" name="azione" value="proponi" class="btn btn-primary">Proponi</button>
+            </form>
+        {% else %}
+            <div class="alert alert-warning">Nessuna offerta disponibile per la contrattazione.</div>
+        {% endif %}
+    {% else %}
+        {% if auto and auto.id %}
+        <form method="post" class="mb-4" action="{% url 'Auto:contrattazione_auto_inCorso' auto.id %}">
             {% csrf_token %}
             <div class="mb-3">
-                <label for="prezzo_offerto" class="form-label">Proponi un nuovo prezzo</label>
-                <input type="number" step="0.01" min="1" class="form-control" name="prezzo_offerto" id="prezzo_offerto" required>
+                <label for="prezzo_offerto_iniziale" class="form-label">Inserisci l'importo per avviare la contrattazione</label>
+                <input type="number" step="0.01" min="1" class="form-control" name="prezzo_attuale" id="prezzo_offerto_iniziale" required>
             </div>
-            <button type="submit" name="azione" value="proponi" class="btn btn-primary">Proponi</button>
-            <button type="submit" name="azione" value="accetta" class="btn btn-success ms-2">Accetta questa offerta</button>
+            <button type="submit" id="contratta-btn" class="btn mt-3 disabled" style="background-color: #ff9800; color: #fff; border-color: #ff9800; pointer-events: none;" aria-disabled="true">Contratta</button>
         </form>
-    {% else %}
-        <div class="alert alert-info">Contrattazione conclusa.</div>
+        <script>
+        const input = document.getElementById('prezzo_offerto_iniziale');
+        const btn = document.getElementById('contratta-btn');
+        const prezzoMax = parseFloat("{{ prezzo_vendita_auto_iniziale|floatformat:'0' }}");
+        if (input && btn) {
+            function toggleContrattaBtn() {
+                if (input.value && parseFloat(input.value) > 0 && parseFloat(input.value) <= prezzoMax) {
+                    btn.classList.remove('disabled');
+                    btn.style.pointerEvents = 'auto';
+                    btn.setAttribute('aria-disabled', 'false');
+                } else {
+                    btn.classList.add('disabled');
+                    btn.style.pointerEvents = 'none';
+                    btn.setAttribute('aria-disabled', 'true');
+                }
+            }
+            input.addEventListener('input', toggleContrattaBtn);
+            toggleContrattaBtn(); // inizializza stato
+        }
+        </script>
+        {% else %}
+        <div class="alert alert-danger">Dati auto non disponibili, impossibile avviare la contrattazione.</div>
+        {% endif %}
     {% endif %}
-    <a href="{% url 'Auto:auto-detail' contrattazione.auto.pk %}" class="btn btn-secondary mt-3">Torna ai dettagli auto</a>
+    {% if contrattazione and contrattazione.auto and contrattazione.auto.id %}
+        <a href="{% url 'Auto:auto-detail' contrattazione.auto.id %}" class="btn btn-secondary mt-3">Torna ai dettagli auto</a>
+    {% elif auto and auto.id %}
+        <a href="{% url 'Auto:auto-detail' auto.id %}" class="btn btn-secondary mt-3">Torna ai dettagli auto</a>
+    {% else %}
+        <span class="text-danger">Dati auto non disponibili.</span>
+    {% endif %}
 </div>
 {% endblock %}
-

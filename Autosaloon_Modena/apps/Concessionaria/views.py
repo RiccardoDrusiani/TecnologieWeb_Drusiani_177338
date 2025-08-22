@@ -1,6 +1,6 @@
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Concessionaria, HistoryVendute
+from .models import Concessionaria, HistoryVendute, HistoryAffittate
 from .form import ConcessionariaUpdateForm, ConcessionariaCreateForm, ConcessionariaFullUpdateForm
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
@@ -11,7 +11,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 
-from ..Auto.models import Auto
+from ..Auto.models import Auto, AutoContrattazione
+from ..utils import user_or_concessionaria
 
 
 class ConcessionariaCreateView(CreateView):
@@ -100,15 +101,34 @@ def impostazioni_concessionaria(request):
         'form': form,
     })
 
+
+
 class ContrattazioniView(LoginRequiredMixin, View):
     def get(self, request):
-        # Placeholder: in futuro sostituire con query reali
-        contrattazioni_avviate = []  # Contrattazioni avviate dalla concessionaria
-        contrattazioni_ricevute = [] # Contrattazioni ricevute da altri
+        tipologia,id = user_or_concessionaria(self.request.user)
+        contrattazioni_avviate = AutoContrattazione.objects.filter(
+            acquirente_id=id,
+            acquirente_tipologia=tipologia
+        )
+        list_auto_contr_iniziato = [] # Lista delle auto associate alle contrattazioni avviate
+        for contrattazione in contrattazioni_avviate:
+            auto = Auto.objects.get(id=contrattazione.auto.id)
+            list_auto_contr_iniziato.append(auto)
+
+        contrattazioni_ricevute = AutoContrattazione.objects.filter(
+            venditore_id=id,
+            venditore_tipologia=tipologia
+        ) # Contrattazioni ricevute da altri
+        list_auto_contr_ricevuto = []  # Lista delle auto associate alle contrattazioni avviate
+        for contrattazione in contrattazioni_ricevute:
+            auto = Auto.objects.get(id=contrattazione.auto.id)
+            list_auto_contr_ricevuto.append(auto)
         # filterset = AutoFilterSet(request.GET, queryset=Auto.objects.all())
         return render(request, 'Concessionaria/contrattazioni.html', {
             'contrattazioni_avviate': contrattazioni_avviate,
             'contrattazioni_ricevute': contrattazioni_ricevute,
+            'list_auto_contr_iniziato': list_auto_contr_iniziato,
+            'list_auto_contr_ricevuto': list_auto_contr_ricevuto
             # 'filter': filterset,
         })
 
@@ -132,9 +152,9 @@ class AutoAffittateView(LoginRequiredMixin, View):
         # Filtro solo auto affittate (disponibilita = 'affittata')
         concessionaria = getattr(self.request.user, 'concessionaria_profile', None)
         if concessionaria:
-            auto_affittate = HistoryVendute.objects.filter(concessionaria=concessionaria.user)
+            auto_affittate = HistoryAffittate.objects.filter(concessionaria=concessionaria.user)
         else:
-            auto_affittate = HistoryVendute.objects.none()
+            auto_affittate = HistoryAffittate.objects.none()
         # filterset = AutoFilterSet(request.GET, queryset=Auto.objects.all())
         return render(request, 'Concessionaria/auto_affittate.html', {
             'auto_affittate': auto_affittate,

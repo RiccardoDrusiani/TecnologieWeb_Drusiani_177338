@@ -25,6 +25,7 @@ class HistoryVendute(models.Model):
 class HistoryAffittate(models.Model):
         concessionaria = models.ForeignKey(User, on_delete=models.CASCADE, related_name='concessionaria_affitto')
         affittante_username = models.CharField(max_length=255, blank=True, null=True)
+        auto_id = models.IntegerField()
         auto_marca = models.CharField(max_length=255, blank=True, null=True)
         auto_modello = models.CharField(max_length=255, blank=True, null=True)
         data = models.DateTimeField(auto_now_add=True)

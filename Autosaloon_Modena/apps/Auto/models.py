@@ -93,6 +93,8 @@ class AutoListaAffitto(models.Model):
     data_inizio = models.DateTimeField(null=True)
     data_fine = models.DateTimeField(null=True)
 
+
+
 class AutoContrattazione(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='contrattazione')
     prezzo_iniziale = models.DecimalField(max_digits=10, decimal_places=2)
@@ -104,14 +106,14 @@ class AutoContrattazione(models.Model):
     venditore_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')])
     acquirente_id = models.PositiveIntegerField(blank=True, null=True)
     acquirente_tipologia = models.CharField(max_length=50, choices=[(0,'Utente'), (1, 'Concessionaria')], blank=True, null=True)
-    # Nuovo campo stato
-    STATO_CHOICES = [
-        ('in_corso', 'In corso'),
-        ('accettata', 'Accettata'),
-        ('rifiutata', 'Rifiutata'),
-        ('conclusa', 'Conclusa'),
-    ]
-    stato = models.CharField(max_length=20, choices=STATO_CHOICES, default='in_corso')
+    stato = models.IntegerField(choices=
+        [
+            (0, 'Disponibile alla contrattazione'),
+            (1, 'Venditore in contrattazione'),
+            (2, 'Acquirente in contrattazione'),
+        ],
+        default=0
+    )
 
 class ContrattazioneOfferta(models.Model):
     contrattazione = models.ForeignKey(AutoContrattazione, on_delete=models.CASCADE, related_name='offerte')
@@ -120,6 +122,8 @@ class ContrattazioneOfferta(models.Model):
     data_offerta = models.DateTimeField(auto_now_add=True)
     # 0 = acquirente, 1 = venditore
     ruolo = models.IntegerField(choices=[(0, 'Acquirente'), (1, 'Venditore')])
+
+
 
 class AutoPrenotazione(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name='prenotazione')

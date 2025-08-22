@@ -5,6 +5,8 @@ from .views import ConcessionariaCreateView, ConcessionariaUpdateView, Concessio
 from apps.Autosalone.views import MessageListView
 from .views import ContrattazioniView, AutoVenduteView, AutoAffittateView
 
+app_name = 'Concessionaria'
+
 urlpatterns = [
     path('aggiungi/', ConcessionariaCreateView.as_view(), name='concessionaria-create'),
     path('modifica/<slug:slug>/', ConcessionariaUpdateView.as_view(), name='concessionaria-update'),

@@ -13,13 +13,17 @@
                     {% if affitti_info %}
                         <ul class="list-group">
                         {% for info in affitti_info %}
-                            <li class="list-group-item">
-                                <strong>{{ info.affitto.auto.marca }} {{ info.affitto.auto.modello }}</strong><br>
-                                <span class="badge bg-success">Affittante: {{ info.affittante_nome }}</span><br>
-                                <span class="badge bg-info">Affittuario: {{ info.affittuario_nome }}</span><br>
-                                Dal: {{ info.affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ info.affitto.data_fine|date:'d/m/Y H:i' }}
-                            </li>
+                            {% if info.affittante_nome != None %}
+                                trovato = True
+                                <li class="list-group-item">
+                                    <strong>{{ info.affitto.auto.marca }} {{ info.affitto.auto.modello }}</strong><br>
+                                    <span class="badge bg-success">Affittante: {{ info.affittante_nome }}</span><br>
+                                    <span class="badge bg-info">Affittuario: {{ info.affittuario_nome }}</span><br>
+                                    Dal: {{ info.affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ info.affitto.data_fine|date:'d/m/Y H:i' }}
+                                </li>
+                            {% endif %}
                         {% endfor %}
+
                         </ul>
                     {% else %}
                         <p>Nessun affitto trovato.</p>
@@ -64,8 +68,6 @@
                             </li>
                         {% endfor %}
                         </ul>
-                    {% else %}
-                        <p>Nessuna prenotazione trovata.</p>
                     {% endif %}
                 </div>
             </div>
@@ -75,17 +77,60 @@
             <div class="card mb-4">
                 <div class="card-header bg-secondary text-white">Contrattazioni</div>
                 <div class="card-body">
-                    {% if contrattazioni_info %}
+                    {% if contrattazioni_iniziate or contrattazioni_ricevute %}
                         <ul class="list-group">
-                        {% for info in contrattazioni_info %}
-                            <li class="list-group-item">
-                                <strong>{{ info.contrattazione.auto.marca }} {{ info.contrattazione.auto.modello }}</strong><br>
-                                <span class="badge bg-primary">Acquirente: {{ info.acquirente_nome }}</span><br>
-                                Stato: {{ info.contrattazione.get_stato_display|default:'-' }}<br>
-                                Prezzo attuale: {{ info.contrattazione.prezzo_attuale }} €<br>
-                                <a href="{% url 'Auto:contrattazione_auto' info.contrattazione.auto.pk %}" class="btn btn-outline-info btn-sm mt-2">Vai alla contrattazione</a>
-                            </li>
-                        {% endfor %}
+                            <strong>Contrattazioni Iniziate </strong>
+                            {% for info in contrattazioni_iniziate %}
+                                <li class="list-group-item">
+                                    <<strong>{{ info.auto.marca }} {{ info.auto.modello }}</strong><br>
+                                    <span class="badge bg-secondary">Venditore: {{ info.auto.user_auto.username }}</span><br>
+                                    Stato:
+                                    {% if info.stato == 1 %}
+                                        In attesa di risposta dal venditore
+                                    {% elif info.stato  == 2 %}
+                                        Contrattazione acquirente
+                                    {% endif %}
+                                    <br>
+                                    Prezzo attuale: {{ info.prezzo_attuale }} €<br>
+                                    {% if info.stato == 2 %}
+                                        <div class="mt-2">
+                                            <a href="#" class="btn btn-success btn-sm">Accetta</a>
+                                            <a href="#" class="btn btn-danger btn-sm">Rifiuta</a>
+                                            <a href="{% url 'Auto:contrattazione_auto_view' info.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
+                                            <a href="#" class="btn btn-info btn-sm">Messaggia</a>
+                                            <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
+                                        </div>
+                                    {% elif info.stato == 1 %}
+                                        <span class="badge bg-warning">In attesa di risposta</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                            <strong>Contrattazioni Ricevute </strong>
+                            {% for info in contrattazioni_ricevute %}
+                                <li class="list-group-item">
+                                    <strong>{{ info.auto.marca }} {{ info.auto.modello }}</strong><br>
+                                    <span class="badge bg-secondary">Venditore: TU</span><br>
+                                    Stato:
+                                    {% if info.stato == 1 %}
+                                        Contrattazione venditore
+                                    {% elif info.stato  == 2 %}
+                                        In attesa di risposta dall'acquirente
+                                    {% endif %}
+                                    <br>
+                                    Prezzo attuale: {{ info.prezzo_attuale }} €<br>
+                                    {% if info.stato == 1 %}
+                                        <div class="mt-2">
+                                            <a href="#" class="btn btn-success btn-sm">Accetta</a>
+                                            <a href="#" class="btn btn-danger btn-sm">Rifiuta</a>
+                                            <a href="{% url 'Auto:contrattazione_auto_view' info.auto.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
+                                            <a href="#" class="btn btn-info btn-sm">Messaggia</a>
+                                            <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
+                                        </div>
+                                    {% elif info.stato == 2 %}
+                                        <span class="badge bg-warning">In attesa di risposta</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
                         </ul>
                     {% else %}
                         <p>Nessuna contrattazione trovata.</p>

@@ -9,14 +9,8 @@
 
 
 {{ auto_contrattazione }}
-
-
-{{ auto_affitto }}
-    - Fare layout utente e concessionaria
-
-
-{{ auto_prenotazione }}
-    - Testare la prenotazione con utente e concessionaria
+    - Inserire Accetta, Rifiuta, Messaggia
+    - Ricontrattazione testarlo
 
 
 {{ messaggistica }}

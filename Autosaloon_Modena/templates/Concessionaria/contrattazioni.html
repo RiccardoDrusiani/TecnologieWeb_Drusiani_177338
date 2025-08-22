@@ -10,11 +10,34 @@
         <h4>Contrattazioni avviate da noi</h4>
         {% if contrattazioni_avviate %}
             <ul class="list-group">
-                {% for c in contrattazioni_avviate %}
-                    <li class="list-group-item">
-                        {{ c }}
-                        <a href="{% url 'Auto:contrattazione_auto' c.auto.pk %}" class="btn btn-outline-info btn-sm ms-2">Vai alla contrattazione</a>
-                    </li>
+                {% for ca in contrattazioni_avviate %}
+                    {% for c in list_auto_contr_iniziato %}
+                        {% if c.id == ca.auto_id %}
+                            <li class="list-group-item">
+                                <strong>{{ c.marca }} {{ c.modello }}</strong><br>
+                                <span class="badge bg-secondary">Venditore: {{ c.user_auto.username }}</span><br>
+                                Stato:
+                                {% if ca.stato == 1 %}
+                                    In attesa di risposta dal venditore
+                                {% elif ca.stato  == 2 %}
+                                    Contrattazione acquirente
+                                {% endif %}
+                                <br>
+                                Prezzo attuale: {{ ca.prezzo_attuale }} €<br>
+                                {% if c.id == ca.auto_id and ca.stato == 2 %}
+                                    <div class="mt-2">
+                                        <a href="#" class="btn btn-success btn-sm">Accetta</a>
+                                        <a href="#" class="btn btn-danger btn-sm">Rifiuta</a>
+                                        <a href="{% url 'Auto:contrattazione_auto_view' c.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
+                                        <a href="#" class="btn btn-info btn-sm">Messaggia</a>
+                                        <a href="{% url 'Auto:auto-detail' c.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
+                                    </div>
+                                {% elif c.id == ca.auto_id and ca.stato == 1 %}
+                                    <div class="mt-2 text-muted">Venditore sta decidendo, si prega di aspettare.</div>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
             </ul>
         {% else %}
@@ -25,11 +48,34 @@
         <h4>Contrattazioni ricevute</h4>
         {% if contrattazioni_ricevute %}
             <ul class="list-group">
-                {% for c in contrattazioni_ricevute %}
-                    <li class="list-group-item">
-                        {{ c }}
-                        <a href="{% url 'Auto:contrattazione_auto' c.auto.pk %}" class="btn btn-outline-info btn-sm ms-2">Vai alla contrattazione</a>
-                    </li>
+                {% for cr in contrattazioni_ricevute %}
+                    {% for c in list_auto_contr_ricevuto %}
+                        {% if c.id == cr.auto_id %}
+                            <li class="list-group-item">
+                                <strong>{{ c.marca }} {{ c.modello }}</strong><br>
+                                <span class="badge bg-secondary">Venditore: TU</span><br>
+                                Stato:
+                                {% if ca.stato == 1 %}
+                                    Contrattazione venditore
+                                {% elif ca.stato  == 2 %}
+                                    In attesa di risposta dall'acquirente
+                                {% endif %}
+                                <br>
+                                Prezzo attuale: {{ cr.prezzo_attuale }} €<br>
+                                {% if c.id == cr.auto_id and cr.stato == 1 %}
+                                    <div class="mt-2">
+                                        <a href="#" class="btn btn-success btn-sm">Accetta</a>
+                                        <a href="#" class="btn btn-danger btn-sm">Rifiuta</a>
+                                        <a href="{% url 'Auto:contrattazione_auto_view' c.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
+                                        <a href="#" class="btn btn-info btn-sm">Messaggia</a>
+                                        <a href="{% url 'Auto:auto-detail' c.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
+                                    </div>
+                                {% elif c.id == cr.auto_id and cr.stato == 2 %}
+                                    <div class="mt-2 text-muted">Acquirente sta decidendo, si prega di aspettare.</div>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
             </ul>
         {% else %}

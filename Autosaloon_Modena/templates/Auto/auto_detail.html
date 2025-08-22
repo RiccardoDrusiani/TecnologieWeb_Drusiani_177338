@@ -54,7 +54,7 @@
                                                     <a href="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Prenota</a>
                                                 {% endif %}
                                             {% endif %}
-                                            <a href="{% url 'Auto:contrattazione_auto' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
+                                            <a href="{% url 'Auto:contrattazione_auto_view' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
                                         {% endif %}
                                     {% endif %}
                                 {% endif %}

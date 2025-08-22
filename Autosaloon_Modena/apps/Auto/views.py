@@ -139,6 +139,7 @@ class AutoAffittoView(CreateView):
         if auto.user_auto.groups.filter(name="concessionaria").exists():
             HistoryAffittate.objects.create(
                 concessionaria=auto.user_auto,
+                auto_id = auto.id,
                 affittante_username=self.request.user.username,
                 auto_marca=auto.marca,
                 auto_modello=auto.modello,
@@ -281,19 +282,33 @@ class AutoPrenotaView(CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class AutoInContrattazioneView(UpdateView):
+class AutoInContrattazioneView(CreateView):
     model = AutoContrattazione
     template_name = 'Auto/contrattazione_auto.html'
     form_class = ContrattoAutoForm
 
     def form_valid(self, form):
+        print("Form validato con successo")
         contrattazione = form.save(commit=False)
-        auto = Auto.objects.get(pk=self.kwargs['pk'])
+        auto = Auto.objects.get(id=self.kwargs['pk'])
+        auto_vendita = AutoVendita.objects.filter(auto=auto).first()
         contrattazione.auto = auto
-        contrattazione.acquirente_id, contrattazione.acquirente_tipologia = user_or_concessionaria(self.request.user)
-        autovendita = AutoVendita.objects.filter(auto=auto).first()
-        if autovendita:
-            contrattazione.prezzo_iniziale = autovendita.prezzo_vendita
+
+        if contrattazione.stato == 0:
+            contrattazione.venditore_tipologia, contrattazione.venditore_id = auto.tipologia_possessore, auto.id_possessore
+            contrattazione.acquirente_tipologia, contrattazione.acquirente_id = user_or_concessionaria(self.request.user)
+            contrattazione.prezzo_iniziale = auto_vendita.prezzo_vendita
+            contrattazione.data_inizio = datetime.now(timezone.utc)
+            contrattazione.stato = 1  # Venditore in contrattazione
+            auto.disponibilita_prec = auto.disponibilita
+            auto.disponibilita = 5  # Imposta la disponibilità a "In Contrattazione"
+            auto.save()
+        elif contrattazione.stato == 1:
+            contrattazione.stato = 2  # Acquirente in contrattazione
+        elif contrattazione.stato == 2:
+            contrattazione.stato = 1
+
+        contrattazione.prezzo_iniziale = form.cleaned_data.get('prezzo_attuale')
         contrattazione.save()
         return super().form_valid(form)
 
@@ -301,9 +316,35 @@ class AutoInContrattazioneView(UpdateView):
         return render(self.request, self.template_name, {'form': form})
 
     def get_success_url(self):
-        return get_success_url_by_possessore(self.request)
+        from django.urls import reverse
+        return reverse('Concessionaria:contrattazioni')
 
+class ContrattazioneOffertaView(UpdateView):
+    model = AutoContrattazione
+    template_name = 'Auto/contrattazione_auto.html'
+    form_class = ContrattoAutoForm
 
+    def form_valid(self, form):
+        contrattazione = form.save(commit=False)
+        print("Form validato con successo")
+        contrattazione.prezzo_attuale = form.cleaned_data.get('prezzo_attuale')
+        if contrattazione.stato == 1:
+            contrattazione.stato = 2  # Acquirente in contrattazione
+        elif contrattazione.stato == 2:
+            contrattazione.stato = 1
+        contrattazione.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print("Form non valido")
+        return render(self.request, self.template_name, {'form': form})
+
+    def get_success_url(self):
+        from django.urls import reverse
+        if self.request.user.groups.filter(name='concessionaria').exists():
+            return reverse('Concessionaria:contrattazioni')
+        else:
+            return reverse('Utente:gestione_auto')
 
 @method_decorator(login_required, name='dispatch')
 class AutoFineContrattazioneView(UpdateView):
@@ -341,6 +382,8 @@ class AutoFineContrattazioneView(UpdateView):
 
     def get_success_url(self):
         return get_success_url_by_possessore(self.request)
+
+
 
 class AutoDetailView(DetailView):
     model = Auto
@@ -443,78 +486,15 @@ def AffittaAutoRiepilogoView(request, pk):
     })
 
 @login_required
-def contrattazione_auto_view(request, pk):
+def ContattazioneAutoView(request, pk):
     auto = get_object_or_404(Auto, pk=pk)
-    user = request.user
-    contrattazione = AutoContrattazione.objects.filter(auto=auto, stato='in_corso').first()
-    if not contrattazione:
-        # Avvia nuova contrattazione solo se non esiste
-        if request.method == 'POST' and 'prezzo_offerto' in request.POST:
-            with transaction.atomic():
-                contrattazione = AutoContrattazione.objects.create(
-                    auto=auto,
-                    prezzo_iniziale=request.POST['prezzo_offerto'],
-                    prezzo_attuale=request.POST['prezzo_offerto'],
-                    venditore_id=auto.id_possessore,
-                    venditore_tipologia=auto.tipologia_possessore,
-                    acquirente_id=user.id,
-                    acquirente_tipologia='Utente' if user.groups.filter(name='utente').exists() else 'Concessionaria',
-                    stato='in_corso',
-                )
-                ContrattazioneOfferta.objects.create(
-                    contrattazione=contrattazione,
-                    utente=user,
-                    prezzo_offerto=request.POST['prezzo_offerto'],
-                    ruolo=0
-                )
-                auto.disponibilita = 3  # In contrattazione
-                auto.save()
-            return redirect('Auto:contrattazione_auto', pk=auto.pk)
-        return render(request, 'Auto/contrattazione_auto.html', {'contrattazione': None, 'offerte': []})
+    auto_contrattazione = AutoContrattazione.objects.filter(auto=auto).first()
+    if auto_contrattazione == None:
+        auto_contrattazione = None
+    auto_vendita = AutoVendita.objects.filter(auto=auto).first()
 
-    offerte = contrattazione.offerte.order_by('data_offerta')
-    ultima_offerta = offerte.last() if offerte.exists() else None
-    accettazioni = getattr(contrattazione, 'accettazioni', {}) or {}
-    if request.method == 'POST':
-        azione = request.POST.get('azione')
-        if azione == 'proponi':
-            prezzo = request.POST.get('prezzo_offerto')
-            if prezzo:
-                with transaction.atomic():
-                    ContrattazioneOfferta.objects.create(
-                        contrattazione=contrattazione,
-                        utente=user,
-                        prezzo_offerto=prezzo,
-                        ruolo=0 if user.id == contrattazione.acquirente_id else 1
-                    )
-                    contrattazione.prezzo_attuale = prezzo
-                    contrattazione.save()
-                    # Reset accettazioni
-                    contrattazione.accettazioni = {}
-            return redirect('Auto:contrattazione_auto', pk=auto.pk)
-        elif azione == 'accetta':
-            # Logica accettazione
-            if not hasattr(contrattazione, 'accettazioni') or not contrattazione.accettazioni:
-                contrattazione.accettazioni = {}
-            contrattazione.accettazioni[str(user.id)] = str(contrattazione.prezzo_attuale)
-            # Se entrambe le parti hanno accettato lo stesso prezzo
-            if (str(contrattazione.acquirente_id) in contrattazione.accettazioni and
-                str(contrattazione.venditore_id) in contrattazione.accettazioni and
-                contrattazione.accettazioni[str(contrattazione.acquirente_id)] == contrattazione.accettazioni[str(contrattazione.venditore_id)]):
-                contrattazione.stato = 'conclusa'
-                contrattazione.prezzo_finale = contrattazione.prezzo_attuale
-                contrattazione.data_fine = datetime.now()
-                contrattazione.save()
-                auto.disponibilita = 8  # Sconosciuto/libera
-                auto.user_auto_id = contrattazione.acquirente_id
-                auto.id_possessore = contrattazione.acquirente_id
-                auto.tipologia_possessore = contrattazione.acquirente_tipologia
-                auto.save()
-                messages.success(request, 'Contrattazione conclusa con successo!')
-            else:
-                messages.info(request, 'Hai accettato l’offerta. In attesa della controparte.')
-            return redirect('Auto:contrattazione_auto', pk=auto.pk)
     return render(request, 'Auto/contrattazione_auto.html', {
-        'contrattazione': contrattazione,
-        'offerte': offerte,
+        'auto': auto,
+        'prezzo_vendita_auto_iniziale': auto_vendita.prezzo_vendita,
+        'contrattazione': auto_contrattazione,
     })

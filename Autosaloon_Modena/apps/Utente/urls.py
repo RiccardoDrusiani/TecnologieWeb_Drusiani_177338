@@ -23,4 +23,5 @@ urlpatterns = [
         template_name='Utente/password_change_done.html'
     ), name='password_change_done'),
     path('gestione-auto/', views.gestione_auto_view, name='gestione_auto'),
+
 ]
