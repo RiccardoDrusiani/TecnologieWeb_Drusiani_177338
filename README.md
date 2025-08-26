@@ -13,6 +13,7 @@ Gestione autosalone online sviluppata per il corso di Tecnologie Web.
 - **Slug:** django-slugify
 - **Task scheduling:** Celery + Redis
 - **Messaggistica:** DJango Channels
+- **websockets:** Daphne
 
 ## Installazione
 
@@ -47,7 +48,7 @@ Gestione autosalone online sviluppata per il corso di Tecnologie Web.
 
 6. **Avvia il server di sviluppo**
    ```bash
-   python manage.py runserver
+   daphne Autosaloon_Modena.asgi:application
    ```
 
 ## Task Scheduling
@@ -71,6 +72,7 @@ Per la gestione di task periodici (es. scadenze affitti/prenotazioni):
 ## Struttura del progetto
 
 - `apps/Auto/` — Gestione auto, affitti, vendite, contrattazioni
+- `apps/Chat/` — Funzionalità di chat in tempo reale
 - `apps/Concessionaria/` — Funzionalità per concessionarie
 - `apps/Utente/` — Funzionalità per utenti privati
 - `media/` — Cartella per immagini caricate

@@ -7,6 +7,31 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <a href="{% url 'Chat:chat_room' chat.id %}">{{ chat.name }}</a>
             <span class="badge bg-secondary">{{ chat.messages.count }} messaggi</span>
+            <!-- Bottone cestino che apre la modale -->
+            <button type="button" class="btn btn-link p-0 border border-danger" title="Elimina chat" data-bs-toggle="modal" data-bs-target="#deleteModal{{ chat.id }}">
+                <i class="bi bi-trash" style="color: #dc3545;"></i>
+            </button>
+            <!-- Modale di conferma eliminazione -->
+            <div class="modal fade" id="deleteModal{{ chat.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ chat.id }}" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ chat.id }}">Conferma eliminazione</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                  </div>
+                  <div class="modal-body">
+                    Sei sicuro di voler eliminare questa chat?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <form method="post" action="{% url 'Chat:chat_delete' chat.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Conferma eliminazione</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
         </li>
         {% empty %}
         <li class="list-group-item">Nessuna chat disponibile.</li>
@@ -14,4 +39,3 @@
     </ul>
 </div>
 {% endblock %}
-

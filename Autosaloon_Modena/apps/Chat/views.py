@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import ChatRoom, Message
+from django.http import HttpResponseForbidden
 
 @login_required
 def chat_view(request):
@@ -14,5 +15,16 @@ def chat_list(request):
 @login_required
 def chat_room(request, chat_id):
     chat = get_object_or_404(ChatRoom, id=chat_id)
-    messages = chat.messages.select_related('user').order_by('timestamp')
+    messages = Message.objects.filter(chat=chat).order_by('timestamp')
     return render(request, 'Chat/chat_room.html', {'chat': chat, 'messages': messages})
+
+@login_required
+def chat_delete(request, chat_id):
+    chat = get_object_or_404(ChatRoom, id=chat_id)
+    # Solo i partecipanti possono eliminare la chat
+    if chat.user_1 != request.user and chat.user_2 != request.user:
+        return HttpResponseForbidden("Non sei autorizzato a eliminare questa chat.")
+    if request.method == 'POST':
+        chat.delete()
+        return redirect('Chat:chat')
+    return HttpResponseForbidden("Richiesta non valida.")

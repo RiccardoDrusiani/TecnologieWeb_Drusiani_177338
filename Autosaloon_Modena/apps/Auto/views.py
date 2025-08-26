@@ -20,7 +20,7 @@ from ..Concessionaria.models import HistoryAffittate, HistoryVendute
 from ..Utente.models import UserExtendModel
 from ..decorator import user_or_concessionaria_required
 from ..utils import user_or_concessionaria, get_success_url_by_possessore, is_possessore_auto
-
+from ..Chat.models import ChatRoom
 
 
 @method_decorator(login_required, name='dispatch')
@@ -123,6 +123,12 @@ class AutoAffittoView(CreateView):
     def form_valid(self, form):
         auto_id = self.kwargs.get('pk')
         auto = Auto.objects.get(pk=auto_id)
+        chat = ChatRoom.objects.get_or_create(
+            name=f"Affitto Auto: {auto.marca} {auto.modello}",
+            auto_chat=auto,
+            user_1=auto.user_auto,
+            user_2=self.request.user
+        )
         affitto = AutoAffitto.objects.filter(auto=auto).first()
         lista_affitto = form.save(commit=False)
         print("Affitto auto:", affitto)
@@ -179,6 +185,12 @@ class AutoAcquistoView(UpdateView):
                 prezzo_vendita=vendita.prezzo_vendita if vendita else 0
             )
         if auto.disponibilita != [5, 7]:
+            chat = ChatRoom.objects.get_or_create(
+                name=f"Acquisto Auto: {auto.marca} {auto.modello}",
+                auto_chat=auto,
+                user_1=auto.user_auto,
+                user_2=self.request.user
+            )
             if vendita:
                 vendita.venditore = self.request.user.id
                 vendita.data_pubblicazione = datetime.now()
@@ -205,6 +217,7 @@ class AutoAcquistoView(UpdateView):
                 auto_contrattazione.delete()
                 auto.disponibilita = auto.disponibilita_prec
                 auto.disponibilita = 8  # Imposta la disponibilità a "Vendita"
+
             auto.save()
             return super().form_valid(form)
         else:
@@ -250,6 +263,12 @@ class AutoPrenotaView(CreateView):
                 extend_user.data_inizio_blocco_prenotazioni = timezone.now()
                 extend_user.data_fine_blocco_prenotazioni = extend_user.data_inizio_blocco_prenotazioni + timedelta(hours=24)
                 extend_user.save()
+                chat = ChatRoom.objects.get_or_create(
+                    name=f"Prenotazione Auto: {auto.marca} {auto.modello}",
+                    auto_chat=auto,
+                    user_1=auto.user_auto,
+                    user_2=self.request.user
+                )
                 return super().form_valid(form)
             else:
                 # Blocco attivo, mostra errore
@@ -303,6 +322,12 @@ class AutoInContrattazioneView(CreateView):
             auto.disponibilita_prec = auto.disponibilita
             auto.disponibilita = 5  # Imposta la disponibilità a "In Contrattazione"
             auto.save()
+            chat = ChatRoom.objects.get_or_create(
+                name=f"Contrattazione Auto: {auto.marca} {auto.modello}",
+                auto_chat=auto,
+                user_1=auto.user_auto,
+                user_2=self.request.user
+            )
         elif contrattazione.stato == 1:
             contrattazione.stato = 2  # Acquirente in contrattazione
         elif contrattazione.stato == 2:

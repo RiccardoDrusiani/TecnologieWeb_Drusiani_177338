@@ -28,7 +28,7 @@ urlpatterns = [
     path('Utente/', include(('apps.Utente.urls', 'Utente'), namespace='Utente')),
     path('Concessionaria/', include(('apps.Concessionaria.urls', 'concessionaria'), namespace='concessionaria')),
     path('Auto/', include(('apps.Auto.urls', 'Auto'), namespace='Auto')),
-    path('chat/', include(('Chat.urls', 'Chat'), namespace='Chat')),
+    path('chat/', include(('apps.Chat.urls', 'Chat'), namespace='Chat')),
     # Registrazione utente con template personalizzato (anche su /accounts/register/)
     path('accounts/register/', RegistrationView.as_view(template_name='Utente/registration_form.html'), name='django_registration_register'),
     # Registrazione concessionaria con template personalizzato
