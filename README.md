@@ -13,7 +13,8 @@ Gestione autosalone online sviluppata per il corso di Tecnologie Web.
 - **Slug:** django-slugify
 - **Task scheduling:** Celery + Redis
 - **Messaggistica:** DJango Channels
-- **websockets:** Daphne
+- **Websockets:** Daphne
+- **Gestione /static e /media:** WhiteNoise
 
 ## Installazione
 

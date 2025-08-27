@@ -1,7 +1,5 @@
 {{ user_autos }}
    - Migliorare layout sezione filtro in caso si usi Concesisoanria
-   - Quand vai su add Auto o modify Auto, anche se non inserisci il prezzo ti salva l'auto
-   - In modify Auto quando da un prezzo di Vendita e Affitto passi solo a Affitto ti lascia ugualmente quello di Vendita
 
 {{ home }}
    - In home.html andare a migliorare drop-down
@@ -9,9 +7,12 @@
 {{ auto_contrattazione }}
     - Ricontrattazione, Accetta, Rifiuta testarlo
 
-
 {{ test.py }}
     - Farli ancora tutti
+
+{{ opzionale }}
+    - Trovare maniera di caricamento dei file static con daphne
+    - Rifare chat da capo
 
 
 

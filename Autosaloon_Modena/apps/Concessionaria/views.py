@@ -47,7 +47,7 @@ class ConcessionariaUpdateView(UpdateView):
     model = Concessionaria
     form_class = ConcessionariaUpdateForm
     template_name = 'Concessionaria/concessionaria_form.html'
-    success_url = reverse_lazy('concessionaria-list')
+    success_url = reverse_lazy('home')
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 

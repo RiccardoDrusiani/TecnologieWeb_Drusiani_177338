@@ -246,6 +246,9 @@ class AutoPrenotaView(CreateView):
             # Consenti la prenotazione solo se il blocco è assente o scaduto
             if extend_user.data_fine_blocco_prenotazioni is None or extend_user.data_fine_blocco_prenotazioni < timezone.now():
                 auto = Auto.objects.get(id=self.kwargs['pk'])
+                if auto.disponibilita not in [0, 1, 2, 8]:
+                    print("Disponibilita non valida")
+                    return self.form_invalid(form, disponibilita=True)
                 auto.disponibilita_prec = auto.disponibilita
                 auto.disponibilita = 6  # Imposta la disponibilità a "Pren
                 auto.save()
@@ -276,12 +279,15 @@ class AutoPrenotaView(CreateView):
         # Non è un utente, mostra errore
         return self.form_invalid(form, non_utente=True)
 
-    def form_invalid(self, form, blocco_attivo=False, non_utente=False):
+
+    def form_invalid(self, form, blocco_attivo=False, non_utente=False, disponibilita=False):
         context = {'form': form}
         if blocco_attivo:
             context['errore_blocco'] = "Non puoi prenotare: hai un blocco attivo sulle prenotazioni."
         if non_utente:
             context['errore_non_utente'] = "Solo gli utenti possono prenotare."
+        if disponibilita:
+            context['errore_disponibilita'] = "L'auto non è disponibile per la prenotazione."
         return render(self.request, self.template_name, context)
 
     def get_success_url(self):

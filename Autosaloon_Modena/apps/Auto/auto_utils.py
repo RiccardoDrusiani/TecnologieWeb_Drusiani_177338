@@ -2,29 +2,54 @@ from .models import AutoVendita, AutoAffitto, AutoListaAffitto
 
 
 def gestione_vendita_affitto(prezzo_vendita, prezzo_affitto, auto, original_vendita, original_affitto):
-    """
-    Gestisce la logica di vendita e affitto delle auto.
-    Questa funzione può essere utilizzata per implementare la logica di business
-    relativa alla gestione delle vendite e degli affitti delle auto.
-    """
-    # Implementa qui la logica per gestire le vendite e gli affitti delle auto
-    # Gestione AutoVendita
-    if prezzo_vendita and not original_vendita:
-        AutoVendita.objects.create(auto=auto, prezzo_vendita=prezzo_vendita, venditore=auto.id_possessore)
-    elif not prezzo_vendita and original_vendita:
-        original_vendita.delete()
-    elif prezzo_vendita and original_vendita:
-        original_vendita.delete()
-        AutoVendita.objects.create(auto=auto, prezzo_vendita=prezzo_vendita, venditore=auto.id_possessore)
+    try:
+        auto_vendita = AutoVendita.objects.get(auto=auto)
+    except AutoVendita.DoesNotExist:
+        auto_vendita = None
+    try:
+        auto_affitto = AutoAffitto.objects.get(auto=auto)
+    except AutoAffitto.DoesNotExist:
+        auto_affitto = None
 
-    # Gestione AutoAffitto
-    if prezzo_affitto and not original_affitto:
-        AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante=auto.id_possessore)
-    elif not prezzo_affitto and original_affitto:
-        original_affitto.delete()
-    elif prezzo_affitto and original_affitto:
-        original_affitto.delete()
-        AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante=auto.id_possessore)
+    if auto.disponibilita == 0:
+        print('Acquisto')
+        if auto_vendita is None:
+            auto_vendita = AutoVendita.objects.create(auto=auto, prezzo_vendita=prezzo_vendita, venditore=auto.id_possessore)
+        else:
+            if auto_vendita is not None and auto_vendita.prezzo_vendita != prezzo_vendita:
+                auto_vendita.prezzo_vendita = prezzo_vendita
+                auto_vendita.save()
+        if auto_affitto is not None:
+            auto_affitto.delete()
+            auto_affitto = None
+    if auto.disponibilita == 1:
+        print('Affitto')
+        if auto_affitto is None:
+            auto_affitto = AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante=auto.id_possessore)
+        else:
+            print("auto_affitto:", auto_affitto)
+            if auto_affitto is not None and auto_affitto.prezzo_affitto != prezzo_affitto:
+                auto_affitto.prezzo_affitto = prezzo_affitto
+                auto_affitto.save()
+        if auto_vendita is not None:
+            auto_vendita.delete()
+            auto_vendita = None
+    if auto.disponibilita == 2:
+        print('Acquisto e Affitto')
+        if auto_vendita is None:
+            auto_vendita = AutoVendita.objects.create(auto=auto, prezzo_vendita=prezzo_vendita, venditore=auto.id_possessore)
+        else:
+            if auto_vendita is not None and auto_vendita.prezzo_vendita != prezzo_vendita:
+                auto_vendita.prezzo_vendita = prezzo_vendita
+                auto_vendita.save()
+        if auto_affitto is None:
+            auto_affitto = AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante=auto.id_possessore)
+        else:
+            print("auto_affitto:", auto_affitto)
+            if auto_affitto is not None and auto_affitto.prezzo_affitto != prezzo_affitto:
+                auto_affitto.prezzo_affitto = prezzo_affitto
+                auto_affitto.save()
+    auto.save()
 
 def check_affittata_in_periodo (auto, data_inizio, data_fine):
     """

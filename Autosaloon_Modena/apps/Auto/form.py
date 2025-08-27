@@ -16,6 +16,20 @@ class AddAutoForm(forms.ModelForm):
             'immagine': forms.ClearableFileInput(attrs={'multiple': False})
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        disponibilita = cleaned_data.get('disponibilita')
+        prezzo_vendita = cleaned_data.get('prezzo_vendita')
+        prezzo_affitto = cleaned_data.get('prezzo_affitto')
+        errors = {}
+        if disponibilita in [0, 2] and not prezzo_vendita:
+            errors['prezzo_vendita'] = 'Il prezzo di vendita è obbligatorio.'
+        if disponibilita in [1, 2] and not prezzo_affitto:
+            errors['prezzo_affitto'] = 'Il prezzo di affitto è obbligatorio.'
+        if errors:
+            raise forms.ValidationError(errors)
+        return cleaned_data
+
 class ModifyAutoForm(forms.ModelForm):
     prezzo_vendita = forms.DecimalField(required=False, decimal_places=2, max_digits=10, label='Prezzo di Vendita')
     prezzo_affitto = forms.DecimalField(required=False, decimal_places=2, max_digits=10, label='Prezzo di Affitto')
@@ -29,6 +43,20 @@ class ModifyAutoForm(forms.ModelForm):
             'descrizione': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
             'immagine': forms.ClearableFileInput(attrs={'multiple': False})
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        disponibilita = cleaned_data.get('disponibilita')
+        prezzo_vendita = cleaned_data.get('prezzo_vendita')
+        prezzo_affitto = cleaned_data.get('prezzo_affitto')
+        errors = {}
+        if disponibilita in [0, 2] and not prezzo_vendita:
+            errors['prezzo_vendita'] = 'Il prezzo di vendita è obbligatorio.'
+        if disponibilita in [1, 2] and not prezzo_affitto:
+            errors['prezzo_affitto'] = 'Il prezzo di affitto è obbligatorio.'
+        if errors:
+            raise forms.ValidationError(errors)
+        return cleaned_data
 
 class AffittoAutoForm(forms.ModelForm):
     class Meta:
@@ -71,4 +99,3 @@ class PrenotazioneAutoForm(forms.ModelForm):
     class Meta:
         model = AutoPrenotazione
         fields = []
-
