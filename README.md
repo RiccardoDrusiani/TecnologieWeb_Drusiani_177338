@@ -14,7 +14,7 @@ Gestione autosalone online sviluppata per il corso di Tecnologie Web.
 - **Task scheduling:** Celery + Redis
 - **Messaggistica:** DJango Channels
 - **Websockets:** Daphne
-- **Gestione /static e /media:** WhiteNoise
+- **Gestione /static e /media:** Starlette
 
 ## Installazione
 

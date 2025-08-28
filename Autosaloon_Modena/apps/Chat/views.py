@@ -28,3 +28,4 @@ def chat_delete(request, chat_id):
         chat.delete()
         return redirect('Chat:chat')
     return HttpResponseForbidden("Richiesta non valida.")
+

@@ -16,6 +16,8 @@ from django.utils.decorators import method_decorator
 from apps.Auto.models import AutoAffitto, AutoListaAffitto, AutoPrenotazione, AutoContrattazione, Auto
 from .models import UserExtendModel
 from ..decorator import user_is_banned
+from ..Chat.models import ChatRoom
+from django.db.models import Q
 
 
 # Creazione utente base + profilo esteso
@@ -271,6 +273,78 @@ def gestione_auto_view(request):
     contrattazioni_iniziate = AutoContrattazione.objects.filter(acquirente_id=user.id, acquirente_tipologia='Utente').select_related('auto')
     contrattazioni_ricevute = AutoContrattazione.objects.filter(venditore_id=user.id, venditore_tipologia='Utente').select_related('auto')
 
+    # Chat per contrattazioni iniziate
+    chat_ids_iniziate = {}
+    for contr in contrattazioni_iniziate:
+        auto = contr.auto
+        venditore = auto.user_auto
+        acquirente = user
+        chat = ChatRoom.objects.filter(
+            Q(user_1=acquirente, user_2=venditore) | Q(user_1=venditore, user_2=acquirente),
+            auto_chat=auto
+        ).first()
+        chat_ids_iniziate[contr.id] = chat.id if chat else None
+
+    # Chat per contrattazioni ricevute
+    chat_ids_ricevute = {}
+    for contr in contrattazioni_ricevute:
+        auto = contr.auto
+        venditore = user
+        try:
+            acquirente = User.objects.get(id=contr.acquirente_id)
+        except User.DoesNotExist:
+            acquirente = None
+        if acquirente:
+            chat = ChatRoom.objects.filter(
+                Q(user_1=acquirente, user_2=venditore) | Q(user_1=venditore, user_2=acquirente),
+                auto_chat=auto
+            ).first()
+            chat_ids_ricevute[contr.id] = chat.id if chat else None
+        else:
+            chat_ids_ricevute[contr.id] = None
+
+    # Chat per affitti
+    chat_ids_affitti = {}
+    for info in affitti_info:
+        affitto = info['affitto']
+        auto = affitto.auto
+        # Trova l'altro utente coinvolto
+        if affitto.affittante == user.id:
+            try:
+                other_user = User.objects.get(id=affitto.affittuario)
+            except User.DoesNotExist:
+                other_user = None
+        else:
+            try:
+                other_user = User.objects.get(id=affitto.affittante)
+            except User.DoesNotExist:
+                other_user = None
+        if other_user:
+            chat = ChatRoom.objects.filter(
+                Q(user_1=user, user_2=other_user) | Q(user_1=other_user, user_2=user),
+                auto_chat=auto
+            ).first()
+            chat_ids_affitti[affitto.id] = chat.id if chat else None
+        else:
+            chat_ids_affitti[affitto.id] = None
+
+    # Chat per prenotazioni
+    chat_ids_prenotazioni = {}
+    for info in prenotazioni_info:
+        pren = info['prenotazione']
+        auto = pren.auto
+        try:
+            proprietario = auto.user_auto
+        except Exception:
+            proprietario = None
+        if proprietario and proprietario != user:
+            chat = ChatRoom.objects.filter(
+                Q(user_1=user, user_2=proprietario) | Q(user_1=proprietario, user_2=user),
+                auto_chat=auto
+            ).first()
+            chat_ids_prenotazioni[pren.id] = chat.id if chat else None
+        else:
+            chat_ids_prenotazioni[pren.id] = None
 
     return render(request, 'Utente/gestione_auto.html', {
         'auto_list': auto_list,
@@ -279,4 +353,8 @@ def gestione_auto_view(request):
         'contrattazioni_iniziate': contrattazioni_iniziate,
         'contrattazioni_ricevute': contrattazioni_ricevute,
         'user_extend': user,
+        'chat_ids_iniziate': chat_ids_iniziate,
+        'chat_ids_ricevute': chat_ids_ricevute,
+        'chat_ids_affitti': chat_ids_affitti,
+        'chat_ids_prenotazioni': chat_ids_prenotazioni,
     })

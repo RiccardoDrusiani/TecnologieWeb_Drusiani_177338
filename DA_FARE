@@ -1,18 +1,8 @@
-{{ user_autos }}
-   - Migliorare layout sezione filtro in caso si usi Concesisoanria
-
 {{ home }}
    - In home.html andare a migliorare drop-down
 
-{{ auto_contrattazione }}
-    - Ricontrattazione, Accetta, Rifiuta testarlo
-
 {{ test.py }}
-    - Farli ancora tutti
-
-{{ opzionale }}
-    - Trovare maniera di caricamento dei file static con daphne
-    - Rifare chat da capo
+    - Chat
 
 
 

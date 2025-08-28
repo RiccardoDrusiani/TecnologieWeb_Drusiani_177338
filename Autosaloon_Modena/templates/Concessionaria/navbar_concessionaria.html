@@ -1,50 +1,42 @@
-<nav class="d-flex align-items-center" style="gap: 24px; flex-wrap: nowrap;">
-    <a href="{% url 'Auto:user_autos' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:70px; height:70px; border-radius:16px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#fff" class="bi bi-car-front" viewBox="0 0 16 16">
+{% load static %}
+<head>
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+</head>
+<nav class="d-flex align-items-center" style="gap: 12px; flex-wrap: nowrap;">
+    <a href="{% url 'Auto:user_autos' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="bi bi-car-front" viewBox="0 0 16 16">
             <path d="M4 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
             <path d="M16 8.5v-1c0-.966-.784-1.75-1.75-1.75h-.805l-.547-2.186A2.5 2.5 0 0 0 10.464 1H5.536a2.5 2.5 0 0 0-2.434 3.564l-.547 2.186h-.805A1.75 1.75 0 0 0 0 7.5v1c0 .456.154.877.414 1.215A2.5 2.5 0 0 0 2 13.5V14a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h6v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-.5a2.5 2.5 0 0 0 1.586-3.785A1.75 1.75 0 0 0 16 8.5zM5.536 2h4.928a1.5 1.5 0 0 1 1.46 1.964l-.5 2H4.58l-.5-2A1.5 1.5 0 0 1 5.536 2zM1 7.5c0-.414.336-.75.75-.75h12.5c.414 0 .75.336.75.75v1a.75.75 0 0 1-.75.75H1.75A.75.75 0 0 1 1 8.5v-1zm1.5 5A1.5 1.5 0 0 1 1.5 11h13a1.5 1.5 0 0 1-1.5 1.5h-10z"/>
         </svg>
-        <span style="font-size:0.85rem; color: #fff;">Le mie Auto</span>
     </a>
-    <span style="width:16px;"></span>
-    <a href="#" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:70px; height:70px; border-radius:16px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#fff" class="bi bi-calendar-check" viewBox="0 0 16 16">
+    <span style="width:8px;"></span>
+    <a href="#" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="bi bi-calendar-check" viewBox="0 0 16 16">
             <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 3v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1zm3.854 6.854a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L7 8.707V11.5a.5.5 0 0 1-1 0V8.707l-1.146 1.147z"/>
         </svg>
-        <span style="font-size:0.85rem; color: #fff;">Affitti/Prenotazioni</span>
     </a>
-    <span style="width:16px;"></span>
+    <span style="width:8px;"></span>
     <!-- Contrattazioni -->
-    <a href="{% url 'concessionaria:contrattazioni' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:70px; height:70px; border-radius:16px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#fff" class="bi bi-people-arrows" viewBox="0 0 16 16">
-            <path d="M7.636 13.5a.5.5 0 0 1-.5-.5v-1.086A1.5 1.5 0 0 0 6 10.5H2.5a.5.5 0 0 1 0-1H6a2.5 2.5 0 0 1 2.5 2.5v1a.5.5 0 0 1-.5.5zM8.364 13.5a.5.5 0 0 0 .5-.5v-1.086A1.5 1.5 0 0 1 10 10.5h3.5a.5.5 0 0 0 0-1H10a2.5 2.5 0 0 0-2.5 2.5v1a.5.5 0 0 0 .5.5z"/>
-            <path d="M5.5 7a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0zm10 0a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-        </svg>
-        <span style="font-size:0.85rem; color: #fff;">Contrattazioni</span>
+    <a href="{% url 'concessionaria:contrattazioni' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+        <i class="fas fa-exchange-alt" style="font-size: 1.3rem; color: #fff;"></i>
     </a>
-    <span style="width:16px;"></span>
+    <span style="width:8px;"></span>
     <!-- Auto vendute -->
-    <a href="{% url 'concessionaria:auto_vendute' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:70px; height:70px; border-radius:16px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#fff" class="bi bi-cash-stack" viewBox="0 0 16 16">
-            <path d="M2 10a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3zm1-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
-            <path d="M5 8V7a3 3 0 1 1 6 0v1"/>
-        </svg>
-        <span style="font-size:0.85rem; color: #fff;">Auto vendute</span>
+    <a href="{% url 'concessionaria:auto_vendute' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+        <i class="fas fa-coins" style="font-size: 1.3rem; color: #fff;"></i>
     </a>
-    <span style="width:16px;"></span>
+    <span style="width:8px;"></span>
     <!-- Auto affittate -->
-    <a href="{% url 'concessionaria:auto_affittate' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:70px; height:70px; border-radius:16px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#fff" class="bi bi-calendar2-week" viewBox="0 0 16 16">
+    <a href="{% url 'concessionaria:auto_affittate' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="bi bi-calendar2-week" viewBox="0 0 16 16">
             <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 3v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1zm2 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
         </svg>
-        <span style="font-size:0.85rem; color: #fff;">Auto affittate</span>
     </a>
-    <span style="width:16px;"></span>
+    <span style="width:8px;"></span>
     <!-- Casella di posta -->
-    <a href="{% url 'Chat:chat' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:70px; height:70px; border-radius:16px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#fff" class="bi bi-envelope" viewBox="0 0 16 16">
+    <a href="{% url 'Chat:chat' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="bi bi-envelope" viewBox="0 0 16 16">
             <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.708 2.825L15 11.383V5.383zm-.034 7.434-5.396-3.24L8 9.583l-.57-.343-5.396 3.24A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.183zM1 11.383l4.708-2.825L1 5.383v5.999z"/>
         </svg>
-        <span style="font-size:0.85rem; color: #fff;">Casella di posta</span>
     </a>
 </nav>

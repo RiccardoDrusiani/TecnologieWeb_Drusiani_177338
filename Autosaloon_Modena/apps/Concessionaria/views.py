@@ -10,8 +10,10 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
+from django.db.models import Q
 
 from ..Auto.models import Auto, AutoContrattazione
+from ..Chat.models import ChatRoom
 from ..utils import user_or_concessionaria
 
 
@@ -110,26 +112,56 @@ class ContrattazioniView(LoginRequiredMixin, View):
             acquirente_id=id,
             acquirente_tipologia=tipologia
         )
-        list_auto_contr_iniziato = [] # Lista delle auto associate alle contrattazioni avviate
+        list_auto_contr_iniziato = []
+        chat_ids_avviate = {}
         for contrattazione in contrattazioni_avviate:
             auto = Auto.objects.get(id=contrattazione.auto.id)
             list_auto_contr_iniziato.append(auto)
+            venditore = auto.user_auto
+            acquirente = request.user
+            chat = ChatRoom.objects.filter(
+                Q(user_1=acquirente, user_2=venditore) | Q(user_1=venditore, user_2=acquirente),
+                auto_chat=auto
+            ).first()
+            if chat:
+                chat_ids_avviate[contrattazione.id] = chat.id
+            else:
+                chat_ids_avviate[contrattazione.id] = None
 
         contrattazioni_ricevute = AutoContrattazione.objects.filter(
             venditore_id=id,
             venditore_tipologia=tipologia
-        ) # Contrattazioni ricevute da altri
-        list_auto_contr_ricevuto = []  # Lista delle auto associate alle contrattazioni avviate
+        )
+        list_auto_contr_ricevuto = []
+        chat_ids_ricevute = {}
         for contrattazione in contrattazioni_ricevute:
             auto = Auto.objects.get(id=contrattazione.auto.id)
             list_auto_contr_ricevuto.append(auto)
-        # filterset = AutoFilterSet(request.GET, queryset=Auto.objects.all())
+            venditore = request.user
+            try:
+                acquirente = User.objects.get(id=contrattazione.acquirente_id)
+            except User.DoesNotExist:
+                acquirente = None
+            if acquirente:
+                chat = ChatRoom.objects.filter(
+                    Q(user_1=acquirente, user_2=venditore) | Q(user_1=venditore, user_2=acquirente),
+                    auto_chat=auto
+                ).first()
+                if chat:
+                    chat_ids_ricevute[contrattazione.id] = chat.id
+                else:
+                    chat_ids_ricevute[contrattazione.id] = None
+            else:
+                chat_ids_ricevute[contrattazione.id] = None
+        print(chat_ids_ricevute)
+        print(chat_ids_avviate)
         return render(request, 'Concessionaria/contrattazioni.html', {
             'contrattazioni_avviate': contrattazioni_avviate,
             'contrattazioni_ricevute': contrattazioni_ricevute,
             'list_auto_contr_iniziato': list_auto_contr_iniziato,
-            'list_auto_contr_ricevuto': list_auto_contr_ricevuto
-            # 'filter': filterset,
+            'list_auto_contr_ricevuto': list_auto_contr_ricevuto,
+            'chat_ids_avviate': chat_ids_avviate,
+            'chat_ids_ricevute': chat_ids_ricevute
         })
 
 class AutoVenduteView(LoginRequiredMixin, View):

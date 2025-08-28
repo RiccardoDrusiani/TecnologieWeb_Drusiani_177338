@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load dict_extras %}
 
 {% block content %}
 <div class="container mt-4">
@@ -14,12 +15,20 @@
                         <ul class="list-group">
                         {% for info in affitti_info %}
                             {% if info.affittante_nome != None %}
-                                trovato = True
                                 <li class="list-group-item">
                                     <strong>{{ info.affitto.auto.marca }} {{ info.affitto.auto.modello }}</strong><br>
                                     <span class="badge bg-success">Affittante: {{ info.affittante_nome }}</span><br>
                                     <span class="badge bg-info">Affittuario: {{ info.affittuario_nome }}</span><br>
                                     Dal: {{ info.affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ info.affitto.data_fine|date:'d/m/Y H:i' }}
+                                    <div class="mt-2">
+                                        {% with chat_id=chat_ids_affitti|dict_key:info.affitto.id %}
+                                            {% if chat_id %}
+                                                <a href="{% url 'Chat:chat_room' chat_id %}" class="btn btn-info btn-sm">Messaggia</a>
+                                            {% else %}
+                                                <button class="btn btn-info btn-sm" disabled>Messaggia</button>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
                                 </li>
                             {% endif %}
                         {% endfor %}
@@ -64,6 +73,15 @@
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-danger btn-sm">Annulla Prenotazione</button>
                                     </form>
+                                    <div class="mt-2">
+                                        {% with chat_id=chat_ids_prenotazioni|dict_key:info.prenotazione.id %}
+                                            {% if chat_id %}
+                                                <a href="{% url 'Chat:chat_room' chat_id %}" class="btn btn-info btn-sm">Messaggia</a>
+                                            {% else %}
+                                                <button class="btn btn-info btn-sm" disabled>Messaggia</button>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
                                 </div>
                             </li>
                         {% endfor %}
@@ -103,7 +121,15 @@
                                                 <button type="submit" class="btn btn-danger btn-sm">Rifiuta</button>
                                             </form>
                                             <a href="{% url 'Auto:contrattazione_auto_view' info.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
-                                            <a href="#" class="btn btn-info btn-sm">Messaggia</a>
+                                            <div class="mt-2">
+                                                {% with chat_id=chat_ids_iniziate|dict_key:info.id %}
+                                                    {% if chat_id %}
+                                                        <a href="{% url 'Chat:chat_room' chat_id %}" class="btn btn-info btn-sm">Messaggia</a>
+                                                    {% else %}
+                                                        <button class="btn btn-info btn-sm" disabled>Messaggia</button>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </div>
                                             <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
                                         </div>
                                     {% elif info.stato == 1 %}
@@ -135,7 +161,15 @@
                                                 <button type="submit" class="btn btn-danger btn-sm">Rifiuta</button>
                                             </form>
                                             <a href="{% url 'Auto:contrattazione_auto_view' info.auto.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
-                                            <a href="#" class="btn btn-info btn-sm">Messaggia</a>
+                                            <div class="mt-2">
+                                                {% with chat_id=chat_ids_ricevute|dict_key:info.id %}
+                                                    {% if chat_id %}
+                                                        <a href="{% url 'Chat:chat_room' chat_id %}" class="btn btn-info btn-sm">Messaggia</a>
+                                                    {% else %}
+                                                        <button class="btn btn-info btn-sm" disabled>Messaggia</button>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </div>
                                             <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
                                         </div>
                                     {% elif info.stato == 2 %}
