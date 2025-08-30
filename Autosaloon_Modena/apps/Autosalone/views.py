@@ -11,6 +11,7 @@ from django.db.models import Q
 import django_filters
 from django.contrib.auth.models import Group
 from apps.utils import DISPONIBILITA_CHOICES
+from .filters import AutoFilterSet
 
 # Create your views here.
 def home(request):

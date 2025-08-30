@@ -1,6 +1,3 @@
-{{ home }}
-   - In home.html andare a migliorare drop-down
-
 {{ test.py }}
     - Chat
 

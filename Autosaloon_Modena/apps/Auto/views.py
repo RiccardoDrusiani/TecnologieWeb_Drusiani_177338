@@ -489,6 +489,10 @@ def user_autos_view(request):
     is_utente = request.user.groups.filter(name='utente').exists()
     is_concessionaria = request.user.groups.filter(name='concessionaria').exists()
     form = AddAutoForm()
+    DISPONIBILITA_CONCESSIONARIA = [
+        x for x in DISPONIBILITA
+        if x[0] in [0, 1, 2, 3]  # 0: Vendita, 1: Affitto, 2: Vendita e Affitto, 3: Contrattazione
+    ]
     return render(request, 'Auto/user_autos.html', {
         'autos': autos,
         'is_utente': is_utente,
@@ -496,7 +500,8 @@ def user_autos_view(request):
         'form': form,
         'TIPOLOGIE_CARBURANTE': TIPOLOGIE_CARBURANTE,
         'TIPOLOGIE_TRAZIONE': TIPOLOGIE_TRAZIONE,
-        'DISPONIBILITA': DISPONIBILITA
+        'DISPONIBILITA': DISPONIBILITA,
+        'DISPONIBILITA_CONCESSIONARIA': DISPONIBILITA_CONCESSIONARIA,
     })
 
 @login_required

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static add_class %}
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -127,27 +127,20 @@
         </table>
     </header>
     <main class="container-fluid mt-4 d-flex flex-column align-items-center justify-content-center">
-        <aside class="d-flex align-items-center justify-content-center w-100" style="min-height: 1px;">
-            <div class="filter-section shadow-lg p-4 rounded-5 border-0 bg-white" style="min-width:420px;max-width:900px;width:100%;">
-                <form method="get">
-                    <div class="row g-3 filter-grid">
-                        {% for field in filter.form.visible_fields %}
-                            {% if field.name == 'disponibilita' %}
-                                <div class="col filter-col">
-                                    <label for="{{ field.id_for_label }}" class="form-label filter-label">Disponibilità</label>
-                                    {{ field }}
-                                </div>
-                            {% else %}
-                                <div class="col filter-col">
-                                    <label for="{{ field.id_for_label }}" class="form-label filter-label">{{ field.label }}</label>
-                                    {{ field }}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
+        <aside class="w-100 d-flex justify-content-center">
+            <form method="get" class="filter-section bg-white shadow-lg rounded-5 border-0 px-5 py-4 mb-4" style="max-width:1200px; min-width:420px; width:100%;">
+                <div class="row gx-2 gy-1 align-items-end">
+                    {% for field in filter.form.visible_fields %}
+                        <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">{{ field.label }}</label>
+                            {{ field|add_class:'form-control bg-light border-0 shadow-sm px-3 py-2' }}
+                        </div>
+                    {% endfor %}
+                    <div class="col-12 mt-2">
+                        <button type="submit" class="btn btn-primary w-100 py-2 fs-5 shadow">Applica filtri</button>
                     </div>
-                    <button type="submit" class="btn btn-custom w-100 mt-4 py-3 fs-5 shadow-sm">Applica filtri</button>
-                </form>
-            </div>
+                </div>
+            </form>
         </aside>
         <section class="col-lg-9 col-md-8 col-12">
             <div class="car-list">

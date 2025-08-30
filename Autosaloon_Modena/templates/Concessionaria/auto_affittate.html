@@ -9,14 +9,13 @@
                 <tr>
                     <th>Marca</th>
                     <th>Modello</th>
-                    <th>Targa</th>
-                    <th>Data Richiesta</th>
                     <th>Data Inizio Affitto</th>
                     <th>Data Fine Affitto</th>
                     <th>Prezzo Affitto</th>
                     <th>Affittante</th>
                     <th>Dettagli</th>
-                    <th>Azioni</th>
+                    <th>Data Richiesta</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -29,14 +28,10 @@
                     <td>{{ affitto.prezzo_affitto }} €</td>
                     <td>{{ affitto.affittante_username }}</td>
                     <td>
-                        <a href="{% url 'Auto:auto-detail' affitto.auto.id %}" class="btn btn-primary btn-sm">Dettagli</a>
+                        <a href="{% url 'Auto:auto-detail' affitto.auto_id %}" class="btn btn-primary btn-sm">Dettagli</a>
                     </td>
                     <td>
-                        <form method="post" action="{% url 'Concessionaria:annulla_affitto' affitto.id %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
-                        </form>
-
+                        {{ affitto.data|date:'d/m/Y' }}
                     </td>
                 </tr>
                 {% endfor %}

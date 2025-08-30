@@ -5,62 +5,62 @@
 <div class="container-fluid" style="min-height:70vh; max-width:1500px; margin-left:5px; margin-right:5px;">
     {% if is_concessionaria %}
     <link rel="stylesheet" href="{% static 'css/user_autos_custom.css' %}">
-    <!-- Filtro centrale in alto come in home.html -->
-    <div class="d-flex justify-content-center align-items-center mb-4 w-100">
-        <div class="filter-section shadow-lg p-4 border-0 bg-white">
-            <form method="get">
-                <div class="row g-3 filter-grid">
-                    <div class="col-md-3 col-6 filter-col">
-                        <label for="marca" class="form-label filter-label">Marca</label>
-                        <input type="text" id="marca" name="marca" class="form-control" value="{{ request.GET.marca }}">
-                    </div>
-                    <div class="col-md-3 col-6 filter-col">
-                        <label for="modello" class="form-label filter-label">Modello</label>
-                        <input type="text" id="modello" name="modello" class="form-control" value="{{ request.GET.modello }}">
-                    </div>
-                    <div class="col-md-3 col-6 filter-col">
-                        <label for="anno" class="form-label filter-label">Anno</label>
-                        <input type="text" id="anno" name="anno" class="form-control" value="{{ request.GET.anno }}">
-                    </div>
-                    <div class="col-md-3 col-6 filter-col">
-                        <label for="chilometri" class="form-label filter-label">Chilometri</label>
-                        <input type="text" id="chilometri" name="chilometri" class="form-control" value="{{ request.GET.chilometri }}">
-                    </div>
-                    <div class="col-md-3 col-6 filter-col">
-                        <label for="cilindrata" class="form-label filter-label">Cilindrata</label>
-                        <input type="text" id="cilindrata" name="cilindrata" class="form-control" value="{{ request.GET.cilindrata }}">
-                    </div>
-                    <div class="col-md-3 col-6 filter-col">
-                        <label for="carburante" class="form-label filter-label">Carburante</label>
-                        <select id="carburante" name="carburante" class="form-select">
-                            <option value="">Tutti</option>
-                            {% for val, label in TIPOLOGIE_CARBURANTE %}
-                                <option value="{{ val }}" {% if request.GET.carburante == val|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3 col-6 filter-col">
-                        <label for="trazione" class="form-label filter-label">Trazione</label>
-                        <select id="trazione" name="trazione" class="form-select">
-                            <option value="">Tutte</option>
-                            {% for val, label in TIPOLOGIE_TRAZIONE %}
-                                <option value="{{ val }}" {% if request.GET.trazione == val|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3 col-6 filter-col">
-                        <label for="disponibilita" class="form-label filter-label">Disponibilità</label>
-                        <select id="disponibilita" name="disponibilita" class="form-select">
-                            <option value="">Tutte</option>
-                            {% for val, label in DISPONIBILITA %}
-                                <option value="{{ val }}" {% if request.GET.disponibilita == val|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+    <!-- Nuova sezione filtro stile home -->
+    <div class="w-100 d-flex justify-content-center mb-4">
+        <form method="get" class="filter-section bg-white shadow-lg rounded-5 border-0 px-5 py-4 mb-2" style="max-width:1200px; min-width:420px; width:100%;">
+            <div class="row gx-2 gy-1 align-items-end">
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                    <label for="marca" class="form-label fw-semibold text-dark">Marca</label>
+                    <input type="text" id="marca" name="marca" class="form-control bg-light border-0 shadow-sm px-3 py-2" value="{{ request.GET.marca }}">
                 </div>
-                <button type="submit" class="btn btn-primary w-100 mt-4">Filtra</button>
-            </form>
-        </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                    <label for="modello" class="form-label fw-semibold text-dark">Modello</label>
+                    <input type="text" id="modello" name="modello" class="form-control bg-light border-0 shadow-sm px-3 py-2" value="{{ request.GET.modello }}">
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                    <label for="anno" class="form-label fw-semibold text-dark">Anno</label>
+                    <input type="text" id="anno" name="anno" class="form-control bg-light border-0 shadow-sm px-3 py-2" value="{{ request.GET.anno }}">
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                    <label for="chilometri" class="form-label fw-semibold text-dark">Chilometri</label>
+                    <input type="text" id="chilometri" name="chilometri" class="form-control bg-light border-0 shadow-sm px-3 py-2" value="{{ request.GET.chilometri }}">
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                    <label for="cilindrata" class="form-label fw-semibold text-dark">Cilindrata</label>
+                    <input type="text" id="cilindrata" name="cilindrata" class="form-control bg-light border-0 shadow-sm px-3 py-2" value="{{ request.GET.cilindrata }}">
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                    <label for="carburante" class="form-label fw-semibold text-dark">Carburante</label>
+                    <select id="carburante" name="carburante" class="form-select bg-light border-0 shadow-sm px-3 py-2">
+                        <option value="">Tutti</option>
+                        {% for val, label in TIPOLOGIE_CARBURANTE %}
+                            <option value="{{ val }}" {% if request.GET.carburante == val|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                    <label for="trazione" class="form-label fw-semibold text-dark">Trazione</label>
+                    <select id="trazione" name="trazione" class="form-select bg-light border-0 shadow-sm px-3 py-2">
+                        <option value="">Tutte</option>
+                        {% for val, label in TIPOLOGIE_TRAZIONE %}
+                            <option value="{{ val }}" {% if request.GET.trazione == val|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-2">
+                    <label for="disponibilita" class="form-label fw-semibold text-dark">Disponibilità</label>
+                    <select id="disponibilita" name="disponibilita" class="form-select bg-light border-0 shadow-sm px-3 py-2">
+                        <option value="">Tutte</option>
+                        {% for val, label in DISPONIBILITA_CONCESSIONARIA %}
+                            <option value="{{ val }}" {% if request.GET.disponibilita == val|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 mt-2">
+                    <button type="submit" class="btn btn-primary w-100 py-2 fs-5 shadow">Filtra</button>
+                </div>
+            </div>
+        </form>
     </div>
     {% endif %}
     <div class="row justify-content-xl-center w-100" style="margin:0;{% if not is_concessionaria %} margin-top:40px;{% endif %}">

@@ -5,6 +5,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib import messages
+
+from .mixin import UtenteRequiredMixin
 from .models import UserExtendModel, Segnalazione, UserModelBan
 from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm, UserFullUpdateForm
 from ..Auto.models import Commento, Risposta, Auto, AutoVendita, AutoAffitto
@@ -48,7 +50,7 @@ class UserCreateView(CreateView):
         return super().form_invalid(form)
 
 # Modifica utente base + esteso
-class UserUpdateView(UpdateView):
+class UserUpdateView(UtenteRequiredMixin, UpdateView):
     model = UserExtendModel
     form_class = UserFullUpdateForm
     template_name = 'Utente/update_user.html'
@@ -66,7 +68,7 @@ class UserUpdateView(UpdateView):
         return super().form_invalid(form)
 
 # Eliminazione utente
-class UserDeleteView(DeleteView):
+class UserDeleteView(UtenteRequiredMixin, DeleteView):
     model = UserExtendModel
     template_name = 'Utente/delete_user.html'
     success_url = reverse_lazy('home')
@@ -88,7 +90,7 @@ class UserDeleteView(DeleteView):
         return self.delete(request, *args, **kwargs)
 
 # Creazione commento
-class CommentoCreateView(CreateView):
+class CommentoCreateView(UtenteRequiredMixin, CreateView):
     model = Commento
     form_class = CommentoForm
     template_name = 'Utente/create_commento.html'
@@ -222,6 +224,9 @@ class UserLoginView(LoginView):
 def impostazioni_utente(request):
     try:
         user_profile = request.user.user_extend_profile
+        if not request.user.groups.filter(name="utente").exists():
+            messages.error(request, "Accesso riservato agli utenti.")
+            return redirect('home')
     except UserExtendModel.DoesNotExist:
         user_profile = UserExtendModel.objects.create(user=request.user)
 
@@ -244,7 +249,13 @@ def impostazioni_utente(request):
 
 @login_required
 def gestione_auto_view(request):
-    user = request.user
+    try:
+        user = request.user
+        if not request.user.groups.filter(name="utente").exists():
+            messages.error(request, "Accesso riservato agli utenti.")
+            return redirect('home')
+    except UserExtendModel.DoesNotExist:
+        user= UserExtendModel.objects.create(user=request.user)
     user_extend = UserExtendModel.objects.get(user=user)
     # Auto: tutte le auto dell'utente
     auto_list = Auto.objects.filter(user_auto=user)

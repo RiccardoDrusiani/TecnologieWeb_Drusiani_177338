@@ -25,4 +25,6 @@ urlpatterns = [
     path('auto_vendute/', AutoVenduteView.as_view(), name='auto_vendute'),
     path('auto_affittate/', AutoAffittateView.as_view(), name='auto_affittate'),
     path('casella_posta/', MessageListView.as_view(), name='casella_posta'),
+    path('annulla_affitto/<int:pk>/', views.AnnullaAffittoView.as_view(), name='annulla_affitto'),
+    path('affitti-prenotazioni/', views.AutoAffittiPrenotazioniView.as_view(), name='auto_affitti_prenotazioni'),
 ]
