@@ -25,7 +25,7 @@ def gestione_vendita_affitto(prezzo_vendita, prezzo_affitto, auto, original_vend
     if auto.disponibilita == 1:
         print('Affitto')
         if auto_affitto is None:
-            auto_affitto = AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittante=auto.id_possessore)
+            auto_affitto = AutoAffitto.objects.create(auto=auto, prezzo_affitto=prezzo_affitto, affittuario=auto.id_possessore, affittuario_tipologia = auto.tipologia_possessore)
         else:
             print("auto_affitto:", auto_affitto)
             if auto_affitto is not None and auto_affitto.prezzo_affitto != prezzo_affitto:

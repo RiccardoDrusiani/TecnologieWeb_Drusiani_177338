@@ -1,9 +1,11 @@
 from datetime import timezone, datetime, timedelta
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.generic import CreateView, DeleteView, UpdateView, DetailView
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -17,6 +19,7 @@ from .mixin import UserIsOwnerMixin
 from .models import Auto, AutoAffitto, AutoVendita, AutoPrenotazione, AutoContrattazione, TIPOLOGIE_CARBURANTE, \
     TIPOLOGIE_TRAZIONE, DISPONIBILITA, AutoListaAffitto, ContrattazioneOfferta
 from ..Concessionaria.models import HistoryAffittate, HistoryVendute
+from ..Utente.mixin import UtenteRequiredMixin
 from ..Utente.models import UserExtendModel
 from ..decorator import user_or_concessionaria_required
 from ..utils import user_or_concessionaria, get_success_url_by_possessore, is_possessore_auto
@@ -133,6 +136,7 @@ class AutoAffittoView(CreateView):
         lista_affitto = form.save(commit=False)
         print("Affitto auto:", affitto)
 
+
         lista_affitto.lista_auto_affitto=affitto
         lista_affitto.data_pubblicazione=datetime.now()
         lista_affitto.prezzo_affitto=affitto.prezzo_affitto
@@ -163,7 +167,33 @@ class AutoAffittoView(CreateView):
     def get_success_url(self):
         return get_success_url_by_possessore(self.request)
 
+class AnnullaAffittoView(UtenteRequiredMixin, LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        # Solo utenti del gruppo "utente"
+        if not request.user.groups.filter(name="utente").exists():
+            return HttpResponseForbidden("Solo gli utenti possono annullare l'affitto.")
 
+        auto = get_object_or_404(Auto, pk=pk)
+        auto_affitto = AutoAffitto.objects.filter(auto=auto).first()
+
+        # Verifica che l'utente sia l'affittuario attuale
+        if not auto_affitto or auto_affitto.affittante != request.user.id:
+            return HttpResponseForbidden("Non sei l'affittuario di questa auto.")
+
+        # Annulla l'affitto
+        auto_affitto.data_inizio = None
+        auto_affitto.data_fine = None
+        auto_affitto.affittata = False
+        auto_affitto.affittante = None
+        auto_affitto.save()
+
+        # Riporta la disponibilità allo stato precedente
+        auto.disponibilita = auto.disponibilita_prec
+        auto.disponibilita_prec = 8  # Imposta la disponibilità a "Vendita"
+        auto.save()
+
+        messages.success(request, "Affitto annullato con successo.")
+        return redirect(get_success_url_by_possessore(request))
 
 @method_decorator(login_required, name='dispatch')
 class AutoAcquistoView(UpdateView):
@@ -306,6 +336,8 @@ class AutoPrenotaView(CreateView):
 
 
 
+
+
 @method_decorator(login_required, name='dispatch')
 class AutoInContrattazioneView(CreateView):
     model = AutoContrattazione
@@ -348,7 +380,11 @@ class AutoInContrattazioneView(CreateView):
 
     def get_success_url(self):
         from django.urls import reverse
-        return reverse('Concessionaria:contrattazioni')
+        if self.request.user.groups.filter(name='concessionaria').exists():
+            return reverse('Concessionaria:contrattazioni')
+        else:
+            return reverse('Utente:gestione_auto')
+
 
 class ContrattazioneOffertaView(UpdateView):
     model = AutoContrattazione
@@ -540,14 +576,46 @@ def AffittaAutoRiepilogoView(request, pk):
 
 @login_required
 def ContattazioneAutoView(request, pk):
-    auto = get_object_or_404(Auto, pk=pk)
-    auto_contrattazione = AutoContrattazione.objects.filter(auto=auto).first()
+    auto_contrattazione = AutoContrattazione.objects.filter(id=pk).first()
+    print(request.user.groups.filter(name='utente').exists())
+    print(request.user.groups.filter(name='concessionaria').exists())
+    if auto_contrattazione == None:
+        auto = get_object_or_404(Auto, pk=pk)
+    else:
+        auto = Auto.objects.filter(id=auto_contrattazione.auto.id).first()
     if auto_contrattazione == None:
         auto_contrattazione = None
     auto_vendita = AutoVendita.objects.filter(auto=auto).first()
 
-    return render(request, 'Auto/contrattazione_auto.html', {
-        'auto': auto,
-        'prezzo_vendita_auto_iniziale': auto_vendita.prezzo_vendita,
-        'contrattazione': auto_contrattazione,
-    })
+    if request.user.groups.filter(name='concessionaria').exists():
+        return render(request, 'Auto/contrattazione_auto.html', {
+            'auto': auto,
+            'prezzo_vendita_auto_iniziale': auto_vendita.prezzo_vendita,
+            'contrattazione': auto_contrattazione,
+        })
+    elif request.user.groups.filter(name='utente').exists():
+        return render(request, 'Auto/contrattazione_auto.html', {
+            'auto': auto,
+            'prezzo_vendita_auto_iniziale': auto_vendita.prezzo_vendita,
+            'contrattazione': auto_contrattazione,
+        })
+    else:
+        return HttpResponseForbidden("Errore non fai parte di nessun gruppo.")
+
+class AnnullaPrenotazioneView(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        from django.contrib import messages
+        auto = get_object_or_404(Auto, pk=pk)
+        prenotazione = AutoPrenotazione.objects.filter(auto=auto, prenotata=True).first()
+        if not prenotazione:
+            return HttpResponseForbidden("Nessuna prenotazione attiva trovata per questa auto.")
+        # Verifica che l'utente sia il prenotante
+        if prenotazione.prenotante_id != request.user.id:
+            return HttpResponseForbidden("Non sei il prenotante di questa auto.")
+        # Ripristina la disponibilità precedente
+        auto.disponibilita = auto.disponibilita_prec
+        auto.save()
+        # Elimina la prenotazione
+        prenotazione.delete()
+        messages.success(request, "Prenotazione annullata con successo.")
+        return redirect(get_success_url_by_possessore(request))

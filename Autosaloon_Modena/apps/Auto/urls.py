@@ -3,7 +3,8 @@ from .views import (
     AutoAddView, AutoDeleteView, AutoModifyView, AutoAffittoView,
     AutoAcquistoView, AutoPrenotaView,
     AutoDetailView, user_autos_view, AffittaAutoRiepilogoView, AutoInContrattazioneView, ContattazioneAutoView,
-    ContrattazioneOffertaView, AutoFineContrattazioneSuccessoView, AutoFineContrattazioneFallitaView
+    ContrattazioneOffertaView, AutoFineContrattazioneSuccessoView, AutoFineContrattazioneFallitaView, AnnullaAffittoView,
+    AnnullaPrenotazioneView
 )
 
 app_name = "Auto"
@@ -23,4 +24,6 @@ urlpatterns = [
     path('offerta/<int:pk>/update/', ContrattazioneOffertaView.as_view(), name='contrattazione_offerta_update'),
     path('<int:pk>/contrattazione/successo/', AutoFineContrattazioneSuccessoView.as_view(), name='contrattazione_successo'),
     path('<int:pk>/contrattazione/fallita/', AutoFineContrattazioneFallitaView.as_view(), name='contrattazione_fallita'),
+    path('<int:pk>/annulla-affitto/', AnnullaAffittoView.as_view(), name='annulla_affitto'),
+    path('<int:pk>/annulla-prenotazione/', AnnullaPrenotazioneView.as_view(), name='annulla_prenotazione'),
 ]

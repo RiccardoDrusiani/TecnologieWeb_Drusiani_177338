@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container mt-5">
+    <h2>Registrazione completata</h2>
+    <p>La tua registrazione è andata a buon fine! Ora puoi effettuare il login.</p>
+    <a href="{% url 'login' %}" class="btn btn-primary">Vai al login</a>
+  </div>
+{% endblock %}
+

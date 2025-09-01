@@ -28,6 +28,11 @@
                                                 <button class="btn btn-info btn-sm" disabled>Messaggia</button>
                                             {% endif %}
                                         {% endwith %}
+                                        <!-- Bottone Annulla Affitto -->
+                                        <form method="post" action="{% url 'Auto:annulla_affitto' info.affitto.auto.pk %}" style="display:inline;" onsubmit="return confirm('Sei sicuro di voler annullare l\'affitto?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
+                                        </form>
                                     </div>
                                 </li>
                             {% endif %}
@@ -57,7 +62,7 @@
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-success btn-sm">Acquista</button>
                                     </form>
-                                    <form method="post" action="#" style="display:inline;">
+                                    <form method="post" action="{% url 'Auto:contrattazione_auto_view' info.prenotazione.auto.pk %}" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-primary btn-sm">Contratta</button>
                                     </form>
@@ -69,7 +74,7 @@
                                             data-auto-id="{{ info.prenotazione.auto.pk }}">
                                         Affitta
                                     </button>
-                                    <form method="post" action="#" style="display:inline;">
+                                    <form method="post" action="{% url 'Auto:annulla_prenotazione' info.prenotazione.auto.pk %}" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-danger btn-sm">Annulla Prenotazione</button>
                                     </form>
@@ -160,7 +165,7 @@
                                                 {% csrf_token %}
                                                 <button type="submit" class="btn btn-danger btn-sm">Rifiuta</button>
                                             </form>
-                                            <a href="{% url 'Auto:contrattazione_auto_view' info.auto.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
+                                            <a href="{% url 'Auto:contrattazione_auto_view' info.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
                                             <div class="mt-2">
                                                 {% with chat_id=chat_ids_ricevute|dict_key:info.id %}
                                                     {% if chat_id %}

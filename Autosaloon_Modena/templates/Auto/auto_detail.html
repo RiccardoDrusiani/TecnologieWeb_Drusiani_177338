@@ -33,6 +33,12 @@
                             <li class="list-group-item"><strong>Trazione:</strong> {{ auto.get_trazione_display }}</li>
                             <li class="list-group-item"><strong>Chilometraggio:</strong> {{ auto.chilometraggio|default:'N/A' }} km</li>
                             <li class="list-group-item"><strong>Disponibilità:</strong> {{ auto.get_disponibilita_display }}</li>
+                            {% if auto.vendita.first %}
+                                <li class="list-group-item"><strong>Prezzo di vendita:</strong> {{ auto.vendita.first.prezzo_vendita }} €</li>
+                            {% endif %}
+                            {% if auto.affitto.first %}
+                                <li class="list-group-item"><strong>Prezzo di affitto:</strong> {{ auto.affitto.first.prezzo_affitto }} €/G</li>
+                            {% endif %}
                         </ul>
                         {% if auto.descrizione %}
                         <div class="mb-3">
@@ -47,14 +53,18 @@
                                 {% if user.is_authenticated %}
                                     {% if is_in_disponibilita %}
                                         {% if user.id != auto.user_auto.id %}
-                                            <a href="{% url 'Auto:acquisto_auto' auto.pk %}" class="btn btn-success me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Compra</a>
-                                            {% if is_utente %}
-                                                <a href="#" data-bs-toggle="modal" data-bs-target="#affittoModal" class="btn btn-primary me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Affitta</a>
-                                                {% if user.data_inizio_blocco_prenotazioni == None %}
-                                                    <a href="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Prenota</a>
-                                                {% endif %}
+                                            {% if auto.disponibilita == 0 or auto.disponibilita == 2 %}
+                                                <a href="{% url 'Auto:acquisto_auto' auto.pk %}" class="btn btn-success me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Compra</a>
                                             {% endif %}
-                                            <a href="{% url 'Auto:contrattazione_auto_view' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
+                                            {% if is_utente and auto.disponibilita == 2 or auto.disponibilita == 1%}
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#affittoModal" class="btn btn-primary me-2 {% if auto.disponibilita == 0 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Affitta</a>
+                                            {% endif %}
+                                            {% if user.data_inizio_blocco_prenotazioni == None %}
+                                                <a href="{% url 'Auto:prenota_auto' auto.pk %}" class="btn btn-warning me-2 {% if auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Prenota</a>
+                                            {% endif %}
+                                            {% if auto.disponibilita == 0 or auto.disponibilita == 2 %}
+                                                <a href="{% url 'Auto:contrattazione_auto_view' auto.pk %}" class="btn btn-info me-2 {% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}disabled{% endif %}" role="button" aria-disabled="{% if auto.disponibilita == 1 or auto.disponibilita == 3 or auto.disponibilita == 6 %}true{% else %}false{% endif %}">Contratta</a>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 {% endif %}

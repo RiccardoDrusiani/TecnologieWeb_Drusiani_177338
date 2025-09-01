@@ -13,6 +13,17 @@ class Concessionaria(models.Model):
         indirizzo = models.CharField(max_length=255, blank=True, null=True)
         slug = models.SlugField(unique=True, blank=True, null=True, max_length=255)
 
+        def save(self, *args, **kwargs):
+            if not self.slug:
+                base_slug = slugify(self.user.username)
+                slug = base_slug
+                num = 1
+                while Concessionaria.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                    slug = f"{base_slug}-{num}"
+                    num += 1
+                self.slug = slug
+            super().save(*args, **kwargs)
+
 class HistoryVendute(models.Model):
         concessionaria = models.ForeignKey(User, on_delete=models.CASCADE, related_name='concessionaria_vendita')
         auto_id = models.IntegerField()
@@ -32,5 +43,3 @@ class HistoryAffittate(models.Model):
         data_inizio = models.DateTimeField()
         data_fine = models.DateTimeField()
         prezzo_affitto = models.DecimalField(max_digits=10, decimal_places=2)
-
-

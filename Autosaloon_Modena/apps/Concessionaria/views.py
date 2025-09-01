@@ -66,7 +66,7 @@ class ConcessionariaDeleteView(ConcessionariaRequiredMixin, DeleteView):
     slug_url_kwarg = 'slug'
     success_url = reverse_lazy('home')
 
-    def post(self, request, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         user = self.object.user
         Auto.objects.filter(user_auto=user).delete()
@@ -75,8 +75,8 @@ class ConcessionariaDeleteView(ConcessionariaRequiredMixin, DeleteView):
         request.session.flush()
         return redirect(self.success_url)
 
-    def delete(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        return self.delete(request, *args, **kwargs)
 
     def get_success_url(self):
         return self.success_url
@@ -96,6 +96,10 @@ def impostazioni_concessionaria(request):
             return HttpResponseRedirect(reverse('home'))
     except Concessionaria.DoesNotExist:
         concessionaria_profile = Concessionaria.objects.create(user=request.user)
+        concessionaria_profile.save()  # Forza la generazione dello slug
+    # Se per qualche motivo lo slug non è stato generato, forzalo ora
+    if not concessionaria_profile.slug:
+        concessionaria_profile.save()
     if request.method == 'POST':
         form = ConcessionariaFullUpdateForm(request.POST, instance=concessionaria_profile, user=request.user)
         if form.is_valid():
@@ -114,7 +118,7 @@ def impostazioni_concessionaria(request):
 
 
 
-class ContrattazioniView(ConcessionariaRequiredMixin, LoginRequiredMixin, View):
+class ContrattazioniView(LoginRequiredMixin, View):
     def get(self, request):
         tipologia, id = user_or_concessionaria(self.request.user)
         contrattazioni_avviate = AutoContrattazione.objects.filter(

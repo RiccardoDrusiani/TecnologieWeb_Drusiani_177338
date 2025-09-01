@@ -3,40 +3,50 @@
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
 </head>
 <nav class="d-flex align-items-center" style="gap: 12px; flex-wrap: nowrap;">
-    <a href="{% url 'Auto:user_autos' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+    <a href="{% url 'Auto:user_autos' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;" data-bs-toggle="tooltip" title="Le mie auto">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="bi bi-car-front" viewBox="0 0 16 16">
             <path d="M4 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
             <path d="M16 8.5v-1c0-.966-.784-1.75-1.75-1.75h-.805l-.547-2.186A2.5 2.5 0 0 0 10.464 1H5.536a2.5 2.5 0 0 0-2.434 3.564l-.547 2.186h-.805A1.75 1.75 0 0 0 0 7.5v1c0 .456.154.877.414 1.215A2.5 2.5 0 0 0 2 13.5V14a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h6v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-.5a2.5 2.5 0 0 0 1.586-3.785A1.75 1.75 0 0 0 16 8.5zM5.536 2h4.928a1.5 1.5 0 0 1 1.46 1.964l-.5 2H4.58l-.5-2A1.5 1.5 0 0 1 5.536 2zM1 7.5c0-.414.336-.75.75-.75h12.5c.414 0 .75.336.75.75v1a.75.75 0 0 1-.75.75H1.75A.75.75 0 0 1 1 8.5v-1zm1.5 5A1.5 1.5 0 0 1 1.5 11h13a1.5 1.5 0 0 1-1.5 1.5h-10z"/>
         </svg>
     </a>
     <span style="width:8px;"></span>
-    <a href="{% url 'Concessionaria:auto_affitti_prenotazioni' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+    <a href="{% url 'Concessionaria:auto_affitti_prenotazioni' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;" data-bs-toggle="tooltip" title="Prenotazioni affitti">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="bi bi-calendar-check" viewBox="0 0 16 16">
             <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 3v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1zm3.854 6.854a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L7 8.707V11.5a.5.5 0 0 1-1 0V8.707l-1.146 1.147z"/>
         </svg>
     </a>
     <span style="width:8px;"></span>
     <!-- Contrattazioni -->
-    <a href="{% url 'concessionaria:contrattazioni' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+    <a href="{% url 'concessionaria:contrattazioni' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;" data-bs-toggle="tooltip" title="Contrattazioni">
         <i class="fas fa-exchange-alt" style="font-size: 1.3rem; color: #fff;"></i>
     </a>
     <span style="width:8px;"></span>
     <!-- Auto vendute -->
-    <a href="{% url 'concessionaria:auto_vendute' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+    <a href="{% url 'concessionaria:auto_vendute' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;" data-bs-toggle="tooltip" title="Auto vendute">
         <i class="fas fa-coins" style="font-size: 1.3rem; color: #fff;"></i>
     </a>
     <span style="width:8px;"></span>
     <!-- Auto affittate -->
-    <a href="{% url 'concessionaria:auto_affittate' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+    <a href="{% url 'concessionaria:auto_affittate' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;" data-bs-toggle="tooltip" title="Auto affittate">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="bi bi-calendar2-week" viewBox="0 0 16 16">
             <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 3v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1zm2 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
         </svg>
     </a>
     <span style="width:8px;"></span>
     <!-- Casella di posta -->
-    <a href="{% url 'Chat:chat' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;">
+    <a href="{% url 'Chat:chat' %}" class="btn btn-outline-light btn-sm d-flex flex-column align-items-center justify-content-center" style="width:48px; height:48px; border-radius:12px;" data-bs-toggle="tooltip" title="Chat/Messaggi">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#fff" class="bi bi-envelope" viewBox="0 0 16 16">
             <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.708 2.825L15 11.383V5.383zm-.034 7.434-5.396-3.24L8 9.583l-.57-.343-5.396 3.24A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.183zM1 11.383l4.708-2.825L1 5.383v5.999z"/>
         </svg>
     </a>
 </nav>
+
+<!-- Inizializzazione tooltip Bootstrap -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>

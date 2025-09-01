@@ -27,14 +27,32 @@ class ConcessionariaForm(forms.ModelForm):
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': ''}), required=True)
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}), required=True)
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': ''}), required=True)
+    conferma_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': ''}), label="Conferma Password", required=True)
 
     class Meta:
         model = Concessionaria
-        fields = ['username', 'email', 'password', 'partita_iva', 'codice_fiscale']
+        fields = ['username', 'email', 'password', 'conferma_password', 'partita_iva', 'codice_fiscale']
         widgets = {
             'partita_iva': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
             'codice_fiscale': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs['placeholder'] = field.label
+            # Forza la classe form-control per evitare problemi di override
+            class_attr = field.widget.attrs.get('class', '')
+            if 'form-control' not in class_attr:
+                field.widget.attrs['class'] = (class_attr + ' form-control').strip()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        conferma_password = cleaned_data.get('conferma_password')
+        if password != conferma_password:
+            raise ValidationError("Le password non corrispondono.")
+        return cleaned_data
 
     def save(self, commit=True):
         user = User.objects.create_user(

@@ -13,7 +13,7 @@ class Command(BaseCommand):
         tutti_affitti = AutoAffitto.objects.all()
         for affitto in tutti_affitti:
             self.stdout.write(self.style.WARNING(f"DEBUG: id={affitto.id}, data_fine={affitto.data_fine}, affittata={affitto.affittata}"))
-        affitti = AutoAffitto.objects.filter(data_fine__lt=now)
+        affitti = AutoAffitto.objects.filter(data_fine__lt=(now + timedelta(days=1)))
         self.stdout.write(self.style.NOTICE(f"Affitti scaduti trovati: {affitti.count()}"))
         for affitto in affitti:
             self.stdout.write(self.style.NOTICE(f"Affitto: id={affitto.id}, auto={affitto.auto.id}, data_fine={affitto.data_fine}, affittata={affitto.affittata}"))
@@ -27,7 +27,7 @@ class Command(BaseCommand):
             affitto.data_fine = None
             affitto.data_inizio = None
             affitto.save()
-        prenotazioni = AutoPrenotazione.objects.filter(data_fine__lt=now)
+        prenotazioni = AutoPrenotazione.objects.filter(data_fine__lt=(now + timedelta(days=1)))
         for prenotazione in prenotazioni:
             auto = prenotazione.auto
             auto.disponibilita = auto.disponibilita_prec  # Disponibile per affitto
