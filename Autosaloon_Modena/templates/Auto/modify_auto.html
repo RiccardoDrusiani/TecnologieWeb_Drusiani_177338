@@ -10,23 +10,28 @@
                     <h3 class="mb-0">Modifica Auto</h3>
                 </div>
                 <div class="card-body bg-light rounded-bottom-4" style="width: 100%;">
+                    {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        Errore nella compilazione dei campi
+                    </div>
+                    {% endif %}
                     <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="mb-3">{{ form.marca.label_tag }}{{ form.marca }}</div>
-                                <div class="mb-3">{{ form.cilindrata.label_tag }}{{ form.cilindrata }}</div>
-                                <div class="mb-3">{{ form.carburante.label_tag }}{{ form.carburante }}</div>
-                                <div class="mb-3">{{ form.cambio.label_tag }}{{ form.cambio }}</div>
-                                <div class="mb-3">{{ form.anno.label_tag }}{{ form.anno }}</div>
+                                <div class="mb-3">{{ form.marca.label_tag }} <span class="text-danger">*</span>{{ form.marca }}</div>
+                                <div class="mb-3">{{ form.cilindrata.label_tag }} <span class="text-danger">*</span>{{ form.cilindrata }}</div>
+                                <div class="mb-3">{{ form.carburante.label_tag }} <span class="text-danger">*</span>{{ form.carburante }}</div>
+                                <div class="mb-3">{{ form.cambio.label_tag }} <span class="text-danger">*</span>{{ form.cambio }}</div>
+                                <div class="mb-3">{{ form.anno.label_tag }} <span class="text-danger">*</span>{{ form.anno }}</div>
                             </div>
                             <div class="col-md-6">
-                                <div class="mb-3">{{ form.modello.label_tag }}{{ form.modello }}</div>
-                                <div class="mb-3">{{ form.chilometraggio.label_tag }}{{ form.chilometraggio }}</div>
-                                <div class="mb-3">{{ form.trazione.label_tag }}{{ form.trazione }}</div>
+                                <div class="mb-3">{{ form.modello.label_tag }} <span class="text-danger">*</span>{{ form.modello }}</div>
+                                <div class="mb-3">{{ form.chilometraggio.label_tag }} <span class="text-danger">*</span>{{ form.chilometraggio }}</div>
+                                <div class="mb-3">{{ form.trazione.label_tag }} <span class="text-danger">*</span>{{ form.trazione }}</div>
                                 <div class="mb-3 d-flex align-items-end gap-2">
                                     <div style="flex:2;">
-                                        <label for="id_disponibilita" class="form-label">Disponibilità</label>
+                                        <label for="id_disponibilita" class="form-label">Disponibilità <span class="text-danger">*</span></label>
                                         <select name="disponibilita" id="id_disponibilita" class="form-select">
                                             <option value="0" {% if form.disponibilita.value == '0' %}selected{% endif %}>Vendita</option>
                                             <option value="1" {% if form.disponibilita.value == '1' %}selected{% endif %}>Affitto</option>
