@@ -248,7 +248,7 @@ def impostazioni_utente(request):
     })
 
 @login_required
-def gestione_auto_view(request):
+def gestione_auto(request):
     try:
         user = request.user
         if not request.user.groups.filter(name="utente").exists():
@@ -368,4 +368,91 @@ def gestione_auto_view(request):
         'chat_ids_ricevute': chat_ids_ricevute,
         'chat_ids_affitti': chat_ids_affitti,
         'chat_ids_prenotazioni': chat_ids_prenotazioni,
+    })
+
+@login_required
+def gestione_auto_view(request):
+    #Sezione controllo utente
+    user = request.user
+    try:
+        if not request.user.groups.filter(name="utente").exists():
+            messages.error(request, "Accesso riservato agli utenti.")
+            return redirect('home')
+    except UserExtendModel.DoesNotExist:
+        UserExtendModel.objects.create(user=request.user)
+
+    user_extend = UserExtendModel.objects.get(user=user)
+    auto_mie = Auto.objects.filter(user_auto=user)
+
+    #Sezione affitto
+    #Sezione auto affittate da me
+    auto_affitto_mie = AutoAffitto.objects.filter(affittante=user.id)
+    chat_affitto_mie = ChatRoom.objects.filter(auto_chat__in=auto_affitto_mie.values_list('auto', flat=True))
+    utenti_che_hanno_affittato_da_me = {
+        user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=auto_affitto_mie.values_list('affittuario', flat=True).distinct())
+    }
+    print(utenti_che_hanno_affittato_da_me)
+    #Sezione auto mie in affitto
+    auto_affitto_non_mie = AutoAffitto.objects.filter(affittuario=user.id)
+    chat_affitto_non_mie = ChatRoom.objects.filter(auto_chat__in=auto_affitto_non_mie.values_list('auto', flat=True))
+    utenti_che_hanno_affittato_a_me = {
+        user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=auto_affitto_non_mie.values_list('affittante', flat=True).distinct())
+    }
+
+    almeno_uno_affittata = False
+    for auto_affitto in auto_affitto_mie:
+        if auto_affitto.affittata:
+            almeno_uno_affittata = True
+            break
+    if not almeno_uno_affittata:
+        for auto_affitto in auto_affitto_non_mie:
+            if auto_affitto.affittata:
+                almeno_uno_affittata = True
+                break
+    print(almeno_uno_affittata)
+
+    #Sezione prenotazioni
+    #Sezione prenotazioni effettuate
+    auto_prenotate = AutoPrenotazione.objects.filter(prenotante_id=user.id)
+    chat_prenotate = ChatRoom.objects.filter(auto_chat__in=auto_prenotate.values_list('auto', flat=True))
+    utenti_da_cui_ho_prenotato = {
+        user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=auto_prenotate.values_list('auto__user_auto', flat=True).distinct())
+    }
+
+    #Sezione contrattazioni
+    #Sezione contr avviate
+    contr_iniziate = AutoContrattazione.objects.filter(acquirente_id=user.id)
+    chat_contr_iniziate = ChatRoom.objects.filter(auto_chat__in=contr_iniziate.values_list('auto', flat=True))
+    utenti_a_cui_ho_iniziato_contr = {
+        user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=contr_iniziate.values_list('venditore_id', flat=True).distinct())
+    }
+    #Sezione contr ricevute
+    contr_ricevute = AutoContrattazione.objects.filter(venditore_id=user.id)
+    chat_contr_ricevute = ChatRoom.objects.filter(auto_chat__in=contr_ricevute.values_list('auto', flat=True))
+    utenti_da_cui_ho_ricevuto_contr = {
+        user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=contr_ricevute.values_list('acquirente_id', flat=True).distinct())
+    }
+
+     # Render della pagina con i dati raccolti
+
+    return render(request, 'Utente/gestione_auto.html', {
+        'auto_affitto_mie': auto_affitto_mie,
+        'chat_affitto_mie': chat_affitto_mie,
+        'utenti_che_hanno_affittato_da_me': utenti_che_hanno_affittato_da_me,
+        'auto_affitto_non_mie': auto_affitto_non_mie,
+        'chat_affitto_non_mie': chat_affitto_non_mie,
+        'utenti_che_hanno_affittato_a_me': utenti_che_hanno_affittato_a_me,
+        'auto_prenotate': auto_prenotate,
+        'chat_prenotate': chat_prenotate,
+        'utenti_da_cui_ho_prenotato': utenti_da_cui_ho_prenotato,
+        'contr_iniziate': contr_iniziate,
+        'chat_contr_iniziate': chat_contr_iniziate,
+        'utenti_a_cui_ho_iniziato_contr': utenti_a_cui_ho_iniziato_contr,
+        'contr_ricevute': contr_ricevute,
+        'chat_contr_ricevute': chat_contr_ricevute,
+        'utenti_da_cui_ho_ricevuto_contr': utenti_da_cui_ho_ricevuto_contr,
+        'almeno_uno_affittata': almeno_uno_affittata,
+
+        'self_user': user,
+        'self_user_extend': user_extend,
     })

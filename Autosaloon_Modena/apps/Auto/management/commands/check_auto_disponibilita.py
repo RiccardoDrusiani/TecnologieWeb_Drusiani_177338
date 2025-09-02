@@ -23,7 +23,7 @@ class Command(BaseCommand):
             auto.save()
             # Resetta i campi dell'affitto
             affitto.affittata = False
-            affitto.affittante = None
+            affitto.affittuario = None
             affitto.data_fine = None
             affitto.data_inizio = None
             affitto.save()

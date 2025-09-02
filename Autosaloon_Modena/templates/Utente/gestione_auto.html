@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load dict_extras %}
+{% load dict_extras_utente %}
 
 {% block content %}
 <div class="container mt-4">
@@ -11,25 +11,19 @@
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">Affitti</div>
                 <div class="card-body">
-                    {% if affitti_info %}
+                    {% if almeno_uno_affittata %}
                         <ul class="list-group">
-                        {% for info in affitti_info %}
-                            {% if info.affittante_nome != None %}
+                        <!-- Auto affittate da me (io sono affittante) -->
+                        {% for affitto in auto_affitto_mie %}
+                            {% if affitto.affittata %}
                                 <li class="list-group-item">
-                                    <strong>{{ info.affitto.auto.marca }} {{ info.affitto.auto.modello }}</strong><br>
-                                    <span class="badge bg-success">Affittante: {{ info.affittante_nome }}</span><br>
-                                    <span class="badge bg-info">Affittuario: {{ info.affittuario_nome }}</span><br>
-                                    Dal: {{ info.affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ info.affitto.data_fine|date:'d/m/Y H:i' }}
+                                    <strong>{{ affitto.auto.marca }} {{ affitto.auto.modello }}</strong><br>
+                                    <span class="badge bg-success">Affittante: TU</span><br>
+                                    <span class="badge bg-info">Affittuario: {{ utenti_che_hanno_affittato_a_me|get_username_by_id:affitto.affittante }}</span><br>
+                                    Dal: {{ affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ affitto.data_fine|date:'d/m/Y H:i' }}
                                     <div class="mt-2">
-                                        {% with chat_id=chat_ids_affitti|dict_key:info.affitto.id %}
-                                            {% if chat_id %}
-                                                <a href="{% url 'Chat:chat_room' chat_id %}" class="btn btn-info btn-sm">Messaggia</a>
-                                            {% else %}
-                                                <button class="btn btn-info btn-sm" disabled>Messaggia</button>
-                                            {% endif %}
-                                        {% endwith %}
                                         <!-- Bottone Annulla Affitto -->
-                                        <form method="post" action="{% url 'Auto:annulla_affitto' info.affitto.auto.pk %}" style="display:inline;" onsubmit="return confirm('Sei sicuro di voler annullare l\'affitto?');">
+                                        <form method="post" action="{% url 'Auto:annulla_affitto' affitto.auto.pk %}" style="display:inline;" onsubmit="return confirm('Sei sicuro di voler annullare l\'affitto?');">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
                                         </form>
@@ -37,7 +31,24 @@
                                 </li>
                             {% endif %}
                         {% endfor %}
-
+                        <!-- Auto che ho affittato (io sono affittuario) -->
+                        {% for affitto in auto_affitto_non_mie %}
+                            {% if affitto.affittata %}
+                                <li class="list-group-item">
+                                    <strong>{{ affitto.auto.marca }} {{ affitto.auto.modello }}</strong><br>
+                                    <span class="badge bg-success">Affittante: {{ utenti_che_hanno_affittato_a_me|get_username_by_id:affitto.affittante }}</span><br>
+                                    <span class="badge bg-info">Affittuario: TU</span><br>
+                                    Dal: {{ affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ affitto.data_fine|date:'d/m/Y H:i' }}
+                                    <div class="mt-2">
+                                        <!-- Bottone Annulla Affitto -->
+                                        <form method="post" action="{% url 'Auto:annulla_affitto' affitto.auto.pk %}" style="display:inline;" onsubmit="return confirm('Sei sicuro di voler annullare l\'affitto?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
+                                        </form>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
                         </ul>
                     {% else %}
                         <p>Nessun affitto trovato.</p>
@@ -50,47 +61,39 @@
             <div class="card mb-4">
                 <div class="card-header bg-warning text-dark">Prenotazioni</div>
                 <div class="card-body">
-                    {% if prenotazioni_info %}
+                    {% if auto_prenotate %}
                         <ul class="list-group">
-                        {% for info in prenotazioni_info %}
+                        {% for pren in auto_prenotate %}
                             <li class="list-group-item">
-                                <strong>{{ info.prenotazione.auto.marca }} {{ info.prenotazione.auto.modello }}</strong><br>
-                                <span class="badge bg-primary">Prenotante: {{ info.prenotante_nome }}</span><br>
-                                Dal: {{ info.prenotazione.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ info.prenotazione.data_fine|date:'d/m/Y H:i' }}
+                                <strong>{{ pren.auto.marca }} {{ pren.auto.modello }}</strong><br>
+                                <span class="badge bg-primary">Prenotante: TU</span><br>
+                                Dal: {{ pren.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ pren.data_fine|date:'d/m/Y H:i' }}
                                 <div class="mt-2">
-                                    <form method="post" action="{% url 'Auto:acquisto_auto' info.prenotazione.auto.pk %}" style="display:inline;">
+                                    <form method="post" action="{% url 'Auto:acquisto_auto' pren.auto.pk %}" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-success btn-sm">Acquista</button>
                                     </form>
-                                    <form method="post" action="{% url 'Auto:contrattazione_auto_view' info.prenotazione.auto.pk %}" style="display:inline;">
+                                    <form method="post" action="{% url 'Auto:contrattazione_auto_view' pren.auto.pk %}" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-primary btn-sm">Contratta</button>
                                     </form>
-                                    <!-- Bottone Affitta nel ciclo prenotazioni -->
                                     <button type="button"
                                             class="btn btn-info btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#affittoModal"
-                                            data-auto-id="{{ info.prenotazione.auto.pk }}">
+                                            data-auto-id="{{ pren.auto.pk }}">
                                         Affitta
                                     </button>
-                                    <form method="post" action="{% url 'Auto:annulla_prenotazione' info.prenotazione.auto.pk %}" style="display:inline;">
+                                    <form method="post" action="{% url 'Auto:annulla_prenotazione' pren.auto.pk %}" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-danger btn-sm">Annulla Prenotazione</button>
                                     </form>
-                                    <div class="mt-2">
-                                        {% with chat_id=chat_ids_prenotazioni|dict_key:info.prenotazione.id %}
-                                            {% if chat_id %}
-                                                <a href="{% url 'Chat:chat_room' chat_id %}" class="btn btn-info btn-sm">Messaggia</a>
-                                            {% else %}
-                                                <button class="btn btn-info btn-sm" disabled>Messaggia</button>
-                                            {% endif %}
-                                        {% endwith %}
-                                    </div>
                                 </div>
                             </li>
                         {% endfor %}
                         </ul>
+                    {% else %}
+                        <p>Nessuna prenotazione trovata.</p>
                     {% endif %}
                 </div>
             </div>
@@ -100,13 +103,13 @@
             <div class="card mb-4">
                 <div class="card-header bg-secondary text-white">Contrattazioni</div>
                 <div class="card-body">
-                    {% if contrattazioni_iniziate or contrattazioni_ricevute %}
+                    {% if contr_iniziate or contr_ricevute %}
                         <ul class="list-group">
                             <strong>Contrattazioni Iniziate </strong>
-                            {% for info in contrattazioni_iniziate %}
+                            {% for info in contr_iniziate %}
                                 <li class="list-group-item">
-                                    <<strong>{{ info.auto.marca }} {{ info.auto.modello }}</strong><br>
-                                    <span class="badge bg-secondary">Venditore: {{ info.auto.user_auto.username }}</span><br>
+                                    <strong>{{ info.auto.marca }} {{ info.auto.modello }}</strong><br>
+                                    <span class="badge bg-secondary">Venditore: {{ utenti_a_cui_ho_iniziato_contr|get_username_by_id:info.venditore_id }}</span><br>
                                     Stato:
                                     {% if info.stato == 1 %}
                                         In attesa di risposta dal venditore
@@ -126,15 +129,6 @@
                                                 <button type="submit" class="btn btn-danger btn-sm">Rifiuta</button>
                                             </form>
                                             <a href="{% url 'Auto:contrattazione_auto_view' info.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
-                                            <div class="mt-2">
-                                                {% with chat_id=chat_ids_iniziate|dict_key:info.id %}
-                                                    {% if chat_id %}
-                                                        <a href="{% url 'Chat:chat_room' chat_id %}" class="btn btn-info btn-sm">Messaggia</a>
-                                                    {% else %}
-                                                        <button class="btn btn-info btn-sm" disabled>Messaggia</button>
-                                                    {% endif %}
-                                                {% endwith %}
-                                            </div>
                                             <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
                                         </div>
                                     {% elif info.stato == 1 %}
@@ -143,7 +137,7 @@
                                 </li>
                             {% endfor %}
                             <strong>Contrattazioni Ricevute </strong>
-                            {% for info in contrattazioni_ricevute %}
+                            {% for info in contr_ricevute %}
                                 <li class="list-group-item">
                                     <strong>{{ info.auto.marca }} {{ info.auto.modello }}</strong><br>
                                     <span class="badge bg-secondary">Venditore: TU</span><br>
@@ -166,15 +160,6 @@
                                                 <button type="submit" class="btn btn-danger btn-sm">Rifiuta</button>
                                             </form>
                                             <a href="{% url 'Auto:contrattazione_auto_view' info.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
-                                            <div class="mt-2">
-                                                {% with chat_id=chat_ids_ricevute|dict_key:info.id %}
-                                                    {% if chat_id %}
-                                                        <a href="{% url 'Chat:chat_room' chat_id %}" class="btn btn-info btn-sm">Messaggia</a>
-                                                    {% else %}
-                                                        <button class="btn btn-info btn-sm" disabled>Messaggia</button>
-                                                    {% endif %}
-                                                {% endwith %}
-                                            </div>
                                             <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
                                         </div>
                                     {% elif info.stato == 2 %}

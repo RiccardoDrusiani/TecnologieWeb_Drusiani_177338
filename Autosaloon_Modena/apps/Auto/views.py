@@ -177,14 +177,14 @@ class AnnullaAffittoView(UtenteRequiredMixin, LoginRequiredMixin, View):
         auto_affitto = AutoAffitto.objects.filter(auto=auto).first()
 
         # Verifica che l'utente sia l'affittuario attuale
-        if not auto_affitto or auto_affitto.affittante != request.user.id:
+        if not auto_affitto or auto_affitto.affittuario != request.user.id:
             return HttpResponseForbidden("Non sei l'affittuario di questa auto.")
 
         # Annulla l'affitto
         auto_affitto.data_inizio = None
         auto_affitto.data_fine = None
         auto_affitto.affittata = False
-        auto_affitto.affittante = None
+        auto_affitto.affittuario = None
         auto_affitto.save()
 
         # Riporta la disponibilità allo stato precedente
@@ -229,8 +229,8 @@ class AutoAcquistoView(UpdateView):
             auto.user_auto_id = self.request.user.id  # Associa l'utente autenticato
             auto_affitto = AutoAffitto.objects.filter(auto_id=auto.id).first()
             if auto_affitto:
-                auto_affitto.affittuario_tipologia, auto_affitto.affittuario = user_or_concessionaria(self.request.user)
-                auto_affitto.affittante = None
+                tipologia , auto_affitto.affittante = user_or_concessionaria(self.request.user)
+                auto_affitto.affittuario, auto_affitto.affittuario_tipologia = None, None
                 auto_affitto.save()
 
             if vendita:

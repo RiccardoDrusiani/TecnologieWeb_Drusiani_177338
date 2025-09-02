@@ -17,7 +17,7 @@ class Command(BaseCommand):
             auto.disponibilita = 7  # Affittata
             auto.save()
             affitto.affittata = True
-            affitto.affittante = richiesta.affittante
+            affitto.affittuario = richiesta.affittante
             affitto.data_inizio = richiesta.data_inizio
             affitto.data_fine = richiesta.data_fine
             affitto.save()
