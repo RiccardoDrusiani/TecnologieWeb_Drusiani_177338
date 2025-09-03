@@ -23,10 +23,15 @@
                                     Dal: {{ affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ affitto.data_fine|date:'d/m/Y H:i' }}
                                     <div class="mt-2">
                                         <!-- Bottone Annulla Affitto -->
-                                        <form method="post" action="{% url 'Auto:annulla_affitto' affitto.auto.pk %}" style="display:inline;" onsubmit="return confirm('Sei sicuro di voler annullare l\'affitto?');">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
-                                        </form>
+                                        {% if affitto.affittante != user.id %}
+                                            <form method="post" action="{% url 'Auto:annulla_affitto' affitto.auto.pk %}" style="display:inline;" onsubmit="return confirm('Sei sicuro di voler annullare l\'affitto?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
+                                            </form>
+                                        {% endif %}
+                                        {% if chat_affitto_mie_dict and chat_affitto_mie_dict|dictkey:affitto.id %}
+                                            <a href="{% url 'Chat:chat_room' chat_affitto_mie_dict|dictkey:affitto.id %}" class="btn btn-primary btn-sm">Chat</a>
+                                        {% endif %}
                                     </div>
                                 </li>
                             {% endif %}
@@ -41,10 +46,15 @@
                                     Dal: {{ affitto.data_inizio|date:'d/m/Y H:i' }}<br>Al: {{ affitto.data_fine|date:'d/m/Y H:i' }}
                                     <div class="mt-2">
                                         <!-- Bottone Annulla Affitto -->
-                                        <form method="post" action="{% url 'Auto:annulla_affitto' affitto.auto.pk %}" style="display:inline;" onsubmit="return confirm('Sei sicuro di voler annullare l\'affitto?');">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
-                                        </form>
+                                        {% if affitto.affittante != user.id %}
+                                            <form method="post" action="{% url 'Auto:annulla_affitto' affitto.auto.pk %}" style="display:inline;" onsubmit="return confirm('Sei sicuro di voler annullare l\'affitto?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger btn-sm">Annulla Affitto</button>
+                                            </form>
+                                        {% endif %}
+                                        {% if chat_affitto_non_mie_dict and chat_affitto_non_mie_dict|dictkey:affitto.id %}
+                                            <a href="{% url 'Chat:chat_room' chat_affitto_non_mie_dict|dictkey:affitto.id %}" class="btn btn-primary btn-sm">Chat</a>
+                                        {% endif %}
                                     </div>
                                 </li>
                             {% endif %}
@@ -88,6 +98,9 @@
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-danger btn-sm">Annulla Prenotazione</button>
                                     </form>
+                                    {% if chat_prenotate_dict and chat_prenotate_dict|dictkey:pren.id %}
+                                        <a href="{% url 'Chat:chat_room' chat_prenotate_dict|dictkey:pren.id %}" class="btn btn-primary btn-sm">Chat</a>
+                                    {% endif %}
                                 </div>
                             </li>
                         {% endfor %}
@@ -130,6 +143,9 @@
                                             </form>
                                             <a href="{% url 'Auto:contrattazione_auto_view' info.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
                                             <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
+                                            {% if chat_contr_iniziate_dict and chat_contr_iniziate_dict|dictkey:info.id %}
+                                                <a href="{% url 'Chat:chat_room' chat_contr_iniziate_dict|dictkey:info.id %}" class="btn btn-primary btn-sm">Chat</a>
+                                            {% endif %}
                                         </div>
                                     {% elif info.stato == 1 %}
                                         <span class="badge bg-warning">In attesa di risposta</span>
@@ -161,6 +177,9 @@
                                             </form>
                                             <a href="{% url 'Auto:contrattazione_auto_view' info.pk %}" class="btn btn-warning btn-sm">Ricontratta</a>
                                             <a href="{% url 'Auto:auto-detail' info.auto.pk %}" class="btn btn-secondary btn-sm">Dettagli</a>
+                                            {% if chat_contr_ricevute_dict and chat_contr_ricevute_dict|dictkey:info.id %}
+                                                <a href="{% url 'Chat:chat_room' chat_contr_ricevute_dict|dictkey:info.id %}" class="btn btn-primary btn-sm">Chat</a>
+                                            {% endif %}
                                         </div>
                                     {% elif info.stato == 2 %}
                                         <span class="badge bg-warning">In attesa di risposta</span>

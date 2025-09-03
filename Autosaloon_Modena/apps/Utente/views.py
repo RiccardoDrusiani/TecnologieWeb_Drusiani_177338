@@ -391,13 +391,23 @@ def gestione_auto_view(request):
     utenti_che_hanno_affittato_da_me = {
         user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=auto_affitto_mie.values_list('affittuario', flat=True).distinct())
     }
-    print(utenti_che_hanno_affittato_da_me)
+    # Dizionario: affitto.id -> chat.id (mie)
+    chat_affitto_mie_dict = {}
+    for affitto in auto_affitto_mie:
+        chat = ChatRoom.objects.filter(auto_chat=affitto.auto, user_1__in=[affitto.affittante, affitto.affittuario], user_2__in=[affitto.affittante, affitto.affittuario]).first()
+        chat_affitto_mie_dict[affitto.id] = chat.id if chat else None
+
     #Sezione auto mie in affitto
     auto_affitto_non_mie = AutoAffitto.objects.filter(affittuario=user.id)
     chat_affitto_non_mie = ChatRoom.objects.filter(auto_chat__in=auto_affitto_non_mie.values_list('auto', flat=True))
     utenti_che_hanno_affittato_a_me = {
         user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=auto_affitto_non_mie.values_list('affittante', flat=True).distinct())
     }
+    # Dizionario: affitto.id -> chat.id (non mie)
+    chat_affitto_non_mie_dict = {}
+    for affitto in auto_affitto_non_mie:
+        chat = ChatRoom.objects.filter(auto_chat=affitto.auto, user_1__in=[affitto.affittante, affitto.affittuario], user_2__in=[affitto.affittante, affitto.affittuario]).first()
+        chat_affitto_non_mie_dict[affitto.id] = chat.id if chat else None
 
     almeno_uno_affittata = False
     for auto_affitto in auto_affitto_mie:
@@ -409,8 +419,6 @@ def gestione_auto_view(request):
             if auto_affitto.affittata:
                 almeno_uno_affittata = True
                 break
-    print(almeno_uno_affittata)
-
     #Sezione prenotazioni
     #Sezione prenotazioni effettuate
     auto_prenotate = AutoPrenotazione.objects.filter(prenotante_id=user.id)
@@ -418,6 +426,11 @@ def gestione_auto_view(request):
     utenti_da_cui_ho_prenotato = {
         user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=auto_prenotate.values_list('auto__user_auto', flat=True).distinct())
     }
+    # Dizionario: prenotazione.id -> chat.id
+    chat_prenotate_dict = {}
+    for pren in auto_prenotate:
+        chat = ChatRoom.objects.filter(auto_chat=pren.auto, user_1__in=[pren.prenotante_id, pren.auto.user_auto.id], user_2__in=[pren.prenotante_id, pren.auto.user_auto.id]).first()
+        chat_prenotate_dict[pren.id] = chat.id if chat else None
 
     #Sezione contrattazioni
     #Sezione contr avviate
@@ -426,31 +439,52 @@ def gestione_auto_view(request):
     utenti_a_cui_ho_iniziato_contr = {
         user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=contr_iniziate.values_list('venditore_id', flat=True).distinct())
     }
+    # Dizionario: contrattazione.id -> chat.id (iniziate)
+    chat_contr_iniziate_dict = {}
+    for contr in contr_iniziate:
+        chat = ChatRoom.objects.filter(auto_chat=contr.auto, user_1__in=[contr.acquirente_id, contr.venditore_id], user_2__in=[contr.acquirente_id, contr.venditore_id]).first()
+        chat_contr_iniziate_dict[contr.id] = chat.id if chat else None
+
     #Sezione contr ricevute
     contr_ricevute = AutoContrattazione.objects.filter(venditore_id=user.id)
     chat_contr_ricevute = ChatRoom.objects.filter(auto_chat__in=contr_ricevute.values_list('auto', flat=True))
     utenti_da_cui_ho_ricevuto_contr = {
         user_obj.id: user_obj.username for user_obj in User.objects.filter(id__in=contr_ricevute.values_list('acquirente_id', flat=True).distinct())
     }
+    # Dizionario: contrattazione.id -> chat.id (ricevute)
+    chat_contr_ricevute_dict = {}
+    for contr in contr_ricevute:
+        chat = ChatRoom.objects.filter(auto_chat=contr.auto, user_1__in=[contr.acquirente_id, contr.venditore_id], user_2__in=[contr.acquirente_id, contr.venditore_id]).first()
+        chat_contr_ricevute_dict[contr.id] = chat.id if chat else None
 
      # Render della pagina con i dati raccolti
 
     return render(request, 'Utente/gestione_auto.html', {
         'auto_affitto_mie': auto_affitto_mie,
         'chat_affitto_mie': chat_affitto_mie,
+        'chat_affitto_mie_dict': chat_affitto_mie_dict,
         'utenti_che_hanno_affittato_da_me': utenti_che_hanno_affittato_da_me,
+
         'auto_affitto_non_mie': auto_affitto_non_mie,
         'chat_affitto_non_mie': chat_affitto_non_mie,
+        'chat_affitto_non_mie_dict': chat_affitto_non_mie_dict,
         'utenti_che_hanno_affittato_a_me': utenti_che_hanno_affittato_a_me,
+
         'auto_prenotate': auto_prenotate,
         'chat_prenotate': chat_prenotate,
+        'chat_prenotate_dict': chat_prenotate_dict,
         'utenti_da_cui_ho_prenotato': utenti_da_cui_ho_prenotato,
+
         'contr_iniziate': contr_iniziate,
         'chat_contr_iniziate': chat_contr_iniziate,
+        'chat_contr_iniziate_dict': chat_contr_iniziate_dict,
         'utenti_a_cui_ho_iniziato_contr': utenti_a_cui_ho_iniziato_contr,
+
         'contr_ricevute': contr_ricevute,
         'chat_contr_ricevute': chat_contr_ricevute,
+        'chat_contr_ricevute_dict': chat_contr_ricevute_dict,
         'utenti_da_cui_ho_ricevuto_contr': utenti_da_cui_ho_ricevuto_contr,
+
         'almeno_uno_affittata': almeno_uno_affittata,
 
         'self_user': user,

@@ -16,3 +16,7 @@ def get_username_by_id(user_dict, user_id):
         or user_dict.get(int(user_id))
         or "Sconosciuto"
     )
+
+@register.filter
+def dictkey(d, key):
+    return d.get(key)

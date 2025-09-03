@@ -177,7 +177,7 @@ class AnnullaAffittoView(UtenteRequiredMixin, LoginRequiredMixin, View):
         auto_affitto = AutoAffitto.objects.filter(auto=auto).first()
 
         # Verifica che l'utente sia l'affittuario attuale
-        if not auto_affitto or auto_affitto.affittuario != request.user.id:
+        if auto_affitto.affittuario != request.user.id:
             return HttpResponseForbidden("Non sei l'affittuario di questa auto.")
 
         # Annulla l'affitto
