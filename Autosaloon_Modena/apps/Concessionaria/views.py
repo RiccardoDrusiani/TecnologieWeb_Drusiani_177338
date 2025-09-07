@@ -83,6 +83,15 @@ class ConcessionariaDeleteView(ConcessionariaRequiredMixin, DeleteView):
 
 class ConcessionariaLoginView(LoginView):
     # ...existing code...
+    def form_valid(self, form):
+        user = form.get_user()
+        if user.groups.filter(name='concessionaria').exists():
+            login(self.request, user)
+            return redirect('home')
+        else:
+            messages.error(self.request, "Accesso riservato alle concessionarie.")
+            return redirect('concessionaria-login')
+
     def form_invalid(self, form):
         messages.error(self.request, "Email o password non validi.")
         return redirect('concessionaria-login')

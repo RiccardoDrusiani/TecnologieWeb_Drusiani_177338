@@ -438,6 +438,16 @@ class AutoFineContrattazioneSuccessoView(UpdateView):
     def post(self, request, pk, *args, **kwargs):
         contrattazione = get_object_or_404(AutoContrattazione, pk=pk)
         auto = contrattazione.auto
+        if auto.user_auto.groups.filter(name="concessionaria").exists():
+            HistoryVendute.objects.create(
+                concessionaria=auto.user_auto,
+                auto_id=auto.id,
+                acquirente_username=self.request.user.username,
+                auto_marca=auto.marca,
+                auto_modello=auto.modello,
+                data=datetime.now(),
+                prezzo_vendita=vendita.prezzo_vendita if vendita else 0
+            )
         # Cambia possessore auto
         auto.user_auto_id = contrattazione.acquirente_id
         auto.tipologia_possessore = contrattazione.acquirente_tipologia

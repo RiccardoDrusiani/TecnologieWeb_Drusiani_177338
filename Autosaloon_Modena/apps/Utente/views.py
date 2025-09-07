@@ -10,7 +10,7 @@ from .mixin import UtenteRequiredMixin
 from .models import UserExtendModel, Segnalazione, UserModelBan
 from .form import UserCreateForm, UserExtendForm, UserUpdateForm, UserDeleteForm, CommentoForm, RispostaForm, SegnalazioneForm, UserFullUpdateForm
 from ..Auto.models import Commento, Risposta, Auto, AutoVendita, AutoAffitto
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.utils import timezone
@@ -215,6 +215,14 @@ class UserLoginView(LoginView):
     template_name = 'Utente/login.html'
     success_url = reverse_lazy('home')
     error_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        if self.request.user.is_authenticated and self.request.user.groups.filter(name="utente").exists():
+            login(self.request, form.get_user())
+            return redirect(self.success_url)
+        else:
+            messages.error(self.request, "Accesso riservato agli utenti.")
+            return redirect(self.error_url)
 
     def form_invalid(self, form):
         messages.error(self.request, "Email o password non validi.")
