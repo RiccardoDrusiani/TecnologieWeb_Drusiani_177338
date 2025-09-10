@@ -494,8 +494,14 @@ class AutoDetailView(DetailView):
             except Exception:
                 context['is_utente'] = False
         # Aggiunta variabile per disponibilità
-        DISPONIBILITA_CODES = [0, 1, 2, 8]  # Sostituisci con i codici che vuoi considerare
+        DISPONIBILITA_CODES = [0, 1, 2, 8]
         context['is_in_disponibilita'] = self.object.disponibilita in DISPONIBILITA_CODES
+        # Paginazione commenti
+        commenti = self.object.commenti.all()
+        paginator = Paginator(commenti, 5)  # 5 commenti per pagina
+        page_number = self.request.GET.get('commenti_page')
+        commenti_page = paginator.get_page(page_number)
+        context['commenti_page'] = commenti_page
         return context
 
 
