@@ -7,6 +7,11 @@
             <img src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" alt="Login" style="width:54px;filter:drop-shadow(0 2px 8px #2563eb33);">
         </div>
         <h2 class="mb-4 text-center fw-bold" style="font-family: 'Verdana', serif; color:#2563eb; font-size:2.1rem; letter-spacing:1px;">Accedi</h2>
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <p>Dati inseriti non validi</p>
+        </div>
+        {% endif %}
         {% if messages %}
         <div class="alert alert-danger">
             {% for message in messages %}
