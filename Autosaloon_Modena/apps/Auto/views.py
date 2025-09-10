@@ -554,26 +554,30 @@ def user_autos_view(request):
 def AffittaAutoRiepilogoView(request, pk):
     auto = get_object_or_404(Auto, pk=pk)
     auto_affitto = AutoAffitto.objects.filter(auto=auto).first()
-    if is_possessore_auto(request.user, auto):
-        return HttpResponseForbidden("Non hai i permessi per affittare questa auto.")
+    user = request.user
+    if user.groups.filter(name='utente').exists():
+        if is_possessore_auto(request.user, auto):
+            return HttpResponseForbidden("Non hai i permessi per affittare questa auto.")
 
-    data_inizio = request.POST.get('data_inizio') or request.GET.get('data_inizio')
-    data_fine = request.POST.get('data_fine') or request.GET.get('data_fine')
-    errore_date = None
+        data_inizio = request.POST.get('data_inizio') or request.GET.get('data_inizio')
+        data_fine = request.POST.get('data_fine') or request.GET.get('data_fine')
+        errore_date = None
 
-    # Controllo validità date
-    if data_inizio and data_fine:
-        try:
-            print("data_inizio:", data_inizio)
-            print("data_fine:", data_fine)
-            data_inizio_dt = datetime.strptime(data_inizio, "%Y-%m-%d")
-            data_fine_dt = datetime.strptime(data_fine, "%Y-%m-%d")
-            if data_fine_dt < data_inizio_dt:
-                errore_date = "La data di fine non può essere precedente alla data di inizio."
-            if check_affittata_in_periodo(auto_affitto, data_inizio, data_fine):
-                errore_date = "L'auto è già affittata in questo periodo."
-        except Exception:
-            errore_date = "Formato data non valido."
+        # Controllo validità date
+        if data_inizio and data_fine:
+            try:
+                print("data_inizio:", data_inizio)
+                print("data_fine:", data_fine)
+                data_inizio_dt = datetime.strptime(data_inizio, "%Y-%m-%d")
+                data_fine_dt = datetime.strptime(data_fine, "%Y-%m-%d")
+                if data_fine_dt < data_inizio_dt:
+                    errore_date = "La data di fine non può essere precedente alla data di inizio."
+                if check_affittata_in_periodo(auto_affitto, data_inizio, data_fine):
+                    errore_date = "L'auto è già affittata in questo periodo."
+            except Exception:
+                errore_date = "Formato data non valido."
+    else:
+        return HttpResponseForbidden("Solo gli utenti possono affittare un'auto.")
 
     if errore_date:
         return HttpResponseForbidden(f"Errore: {errore_date}")
