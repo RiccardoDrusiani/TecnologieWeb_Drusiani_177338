@@ -20,7 +20,7 @@ def home(request):
     """
     cars = Auto.objects.all()
     filterset = AutoFilterSet(request.GET, queryset=cars)
-    paginator = Paginator(filterset.qs, 10)
+    paginator = Paginator(filterset.qs, 9)
     page_number = request.GET.get('page')
     cars_page = paginator.get_page(page_number)
 

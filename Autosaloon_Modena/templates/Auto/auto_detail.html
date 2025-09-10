@@ -26,6 +26,7 @@
                     <div class="col-md-7 p-4">
                         <h2 class="fw-bold mb-3">{{ auto.marca }} {{ auto.modello }}</h2>
                         <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item"><strong>Possessore:</strong> {{ auto.tipologia_possessore }}</li>
                             <li class="list-group-item"><strong>Anno:</strong> {{ auto.anno }}</li>
                             <li class="list-group-item"><strong>Cilindrata:</strong> {{ auto.cilindrata }} cc</li>
                             <li class="list-group-item"><strong>Carburante:</strong> {{ auto.get_carburante_display }}</li>
