@@ -24,30 +24,22 @@ Gestione autosalone online sviluppata per il corso di Tecnologie Web.
    cd Autosaloon_Modena
    ```
 
-2. **Crea e attiva un ambiente virtuale**
+2. **Installa le dipendenze**
    ```bash
-   python -m venv venv
-   venv\\Scripts\\activate  # Windows
-   # oppure
-   source venv/bin/activate  # Linux/Mac
+   pip install django django-registration django-filter pillow celery django_celery_results django_celery_beat django_celery_worker redis5 starlette -U 'channels[daphne]'
    ```
 
-3. **Installa le dipendenze**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Applica le migrazioni**
+3. **Applica le migrazioni**
    ```bash
    python manage.py migrate
    ```
 
-5. **Crea un superuser**
+4. **Crea un superuser**
    ```bash
    python manage.py createsuperuser
    ```
 
-6. **Avvia il server di sviluppo**
+5. **Avvia il server di sviluppo**
    ```bash
    daphne Autosaloon_Modena.asgi:application
    ```
